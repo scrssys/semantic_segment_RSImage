@@ -15,9 +15,11 @@ from tqdm import tqdm
 
 import gc
 
+import cv2
+import matplotlib.pyplot as plt
 
 if __name__ == '__main__':
-    import matplotlib.pyplot as plt
+    # import matplotlib.pyplot as plt
     PLOT_PROGRESS = True
     # See end of file for the rest of the __main__.
 else:
@@ -143,7 +145,53 @@ def _rotate_mirror_undo(im_mirrs):
     origs.append(np.rot90(np.array(im_mirrs[5]), axes=(0, 1), k=3)[:, ::-1])
     origs.append(np.rot90(np.array(im_mirrs[6]), axes=(0, 1), k=2)[:, ::-1])
     origs.append(np.rot90(np.array(im_mirrs[7]), axes=(0, 1), k=1)[:, ::-1])
+
+    """test: output each result of mirros"""
+    # n = 0
+    # for one_img in origs:
+    #     cv2.imwrite('./data/predict/pre_smooth_unrotate' + str(n + 1) + '.png', one_img[128:-128, 128:-128])
+    #     n +=1
+
     return np.mean(origs, axis=0)
+
+def _rotate_mirror_undo_by_vote(im_mirrs, nb_classes):
+    """
+    merges a list of 8 np arrays (images) of shape (x, y, nb_channels) generated
+    from the `_rotate_mirror_do` function. Each images might have changed and
+    merging them implies to rotated them back in order and average things out.
+
+    It is the D_4 (D4) Dihedral group:
+    https://en.wikipedia.org/wiki/Dihedral_group
+
+    nb_classes: number of classes
+    """
+
+    assert (im_mirrs[0].dtype == "uint8")
+    origs = []
+    origs.append(np.array(im_mirrs[0]))
+    origs.append(np.rot90(np.array(im_mirrs[1]), axes=(0, 1), k=3))
+    origs.append(np.rot90(np.array(im_mirrs[2]), axes=(0, 1), k=2))
+    origs.append(np.rot90(np.array(im_mirrs[3]), axes=(0, 1), k=1))
+    origs.append(np.array(im_mirrs[4])[:, ::-1])
+    origs.append(np.rot90(np.array(im_mirrs[5]), axes=(0, 1), k=3)[:, ::-1])
+    origs.append(np.rot90(np.array(im_mirrs[6]), axes=(0, 1), k=2)[:, ::-1])
+    origs.append(np.rot90(np.array(im_mirrs[7]), axes=(0, 1), k=1)[:, ::-1])
+
+    p, x, y, ch = im_mirrs.shape
+    voted_mask = np.zeros(x, y, np.uint8)
+    for i in range(x):
+        for j in range(y):
+            record = np.zeros((1, nb_classes))
+            for n in range(p):
+                mask = im_mirrs[n]
+                pixel = mask[i,j]
+                record[0,pixel] +=1
+            label = record.argmax()
+            voted_mask[i,j] = label
+
+    voted_mask = np.expand_dims(voted_mask, axis=-1)
+    return voted_mask
+
 
 
 def _windowed_subdivs(padded_img, window_size, subdivisions, nb_classes, pred_func):
@@ -186,12 +234,16 @@ def _windowed_subdivs(padded_img, window_size, subdivisions, nb_classes, pred_fu
 
     subdivs = pred_func(subdivs)
     gc.collect()
+    subdivs = subdivs.astype("float")
     subdivs = np.array([patch * WINDOW_SPLINE_2D for patch in subdivs])
     gc.collect()
 
     # Such 5D array:
     subdivs = subdivs.reshape(a, b, c, d, nb_classes)
     gc.collect()
+
+    # convert to uint8
+    subdivs = subdivs.astype("uint8")
 
     return subdivs
 
@@ -250,15 +302,21 @@ def predict_img_with_smooth_windowing(input_img, window_size, subdivisions, nb_c
     res = []
     for pad in tqdm(pads):
         # For every rotation:
+        # predict each rotation with smooth window
         sd = _windowed_subdivs(pad, window_size, subdivisions, nb_classes, pred_func)
+
+        # Merge tiled overlapping patches smoothly.
         one_padded_result = _recreate_from_subdivs(
             sd, window_size, subdivisions,
             padded_out_shape=list(pad.shape[:-1])+[nb_classes])
 
         res.append(one_padded_result)
 
+
     # Merge after rotations:
     padded_results = _rotate_mirror_undo(res)
+
+    padded_results = _rotate_mirror_undo_by_vote(res, 5)
 
     prd = _unpad_img(padded_results, window_size, subdivisions)
 
@@ -293,6 +351,30 @@ def cheap_tiling_prediction(img, window_size, nb_classes, pred_func):
         plt.show()
     return prd
 
+
+def cheap_tiling_prediction_not_square_img(img, window_size, nb_classes, pred_func):
+    """
+    Does predictions on an image without tiling.
+    """
+    PLOT_PROGRESS = True
+    original_shape = img.shape
+    full_border_x = img.shape[0] + (window_size - (img.shape[0] % window_size))
+    full_border_y = img.shape[1] + (window_size - (img.shape[1] % window_size))
+    prd = np.zeros((full_border_x, full_border_y, nb_classes))
+    tmp = np.zeros((full_border_x, full_border_y, original_shape[-1]))
+    tmp[:original_shape[0], :original_shape[1], :] = img
+    img = tmp
+    print(img.shape, tmp.shape, prd.shape)
+    for i in tqdm(range(0, prd.shape[0], window_size)):
+        for j in range(0, prd.shape[1], window_size):
+            im = img[i:i+window_size, j:j+window_size]
+            prd[i:i+window_size, j:j+window_size] = pred_func([im])
+    prd = prd[:original_shape[0], :original_shape[1]]
+    if PLOT_PROGRESS:
+        plt.imshow(prd[:,:,0],cmap = 'gray')
+        plt.title("Cheaply Merged Patches")
+        plt.show()
+    return prd
 
 def get_dummy_img(xy_size=128, nb_channels=3):
     """

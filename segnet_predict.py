@@ -1,3 +1,5 @@
+# coding:utf-8
+
 import cv2
 import random
 import numpy as np
@@ -9,7 +11,7 @@ from keras.models import load_model
 from sklearn.preprocessing import LabelEncoder
 
 import gc
-from smooth_tiled_predictions import predict_img_with_smooth_windowing, cheap_tiling_prediction_not_square_img
+from smooth_tiled_predictions import predict_img_with_smooth_windowing, cheap_tiling_prediction_not_square_img,cheap_tiling_prediction_not_square_img_multiclassbands
 
 import matplotlib.pyplot as plt
 
@@ -52,7 +54,7 @@ window_size = 256
 
 step = 128
 
-nb_classes = 5
+# nb_classes = 5
 
 # input_img = cv2.imread(test_image_path)
 
@@ -153,6 +155,44 @@ def predict_for_segnet(small_img_patches):
     return mask_output
 
 
+def predict_for_segnet_multiclassbands(small_img_patches, real_classes):
+    """
+        Apply prediction on images arranged in a 4D array as a batch.(patches, row,column, real_classes)
+    """
+    small_img_patches = np.array(small_img_patches)
+    print (small_img_patches.shape)
+    assert (len(small_img_patches.shape) == 4)
+
+    patches,row,column,input_channels = small_img_patches.shape
+    # assert (input_channels < row)
+
+    mask_output = []
+    for p in range(patches):
+        crop = np.zeros((row, column, input_channels), np.uint8)
+        crop = small_img_patches[p,:,:,:]
+        crop = crop / 255.0
+        crop = crop.transpose(2,0,1)
+        crop = np.expand_dims(crop, axis=0)
+        # print ('crop:{}'.format(crop.shape))
+        pred = model.predict_classes(crop, verbose=2)
+        pred = labelencoder.inverse_transform(pred[0])
+        # print (np.unique(pred))
+
+        pred = pred.reshape((row,column)).astype(np.uint8)
+        # 将预测结果分波段存储
+        res_pred = np.zeros((row,column,real_classes), np.uint8)
+        for t in range(real_classes):
+            for i in range(row):
+                for j in range(column):
+                    if pred[i,j] ==t+1:
+                        res_pred[i,j,t]=1
+
+        mask_output.append(res_pred)
+
+    mask_output = np.array(mask_output)
+    print ("Shape of mask_output:{}".format(mask_output.shape))
+
+    return mask_output
 
 
 
@@ -215,6 +255,8 @@ if __name__ == '__main__':
 
     """1. test original code of predict()"""
     # predict()
+    # sys.eixt()
+
 
     """2. test code of flame tracer """
     # predicted_patches = get_predicted_pathces_from_image(test_image_path)
@@ -226,13 +268,16 @@ if __name__ == '__main__':
     input_img = cv2.imread(test_image_path)
 
     """3.1 test cheap """
-    # predictions_cheap = cheap_tiling_prediction_not_square_img(
-    #     input_img,
-    #     window_size=window_size,
-    #     nb_classes=1,  # output channels = 1
-    #     pred_func=predict_for_segnet
-    # )
-    # cv2.imwrite('./data/predict/pre_cheap.png', predictions_cheap)
+    real_classes = len(classes)-1
+    predictions_cheap = cheap_tiling_prediction_not_square_img_multiclassbands(
+        input_img,
+        window_size=window_size,
+        real_classes= real_classes,  # output channels = 真是的类别，总类别-背景
+        pred_func=predict_for_segnet_multiclassbands
+    )
+    cv2.imwrite('./data/predict/pre_cheap_fore3bands.png', predictions_cheap)
+
+    sys.exit()
 
     """3.2 test smooth """
 

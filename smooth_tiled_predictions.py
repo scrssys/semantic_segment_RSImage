@@ -352,15 +352,16 @@ def cheap_tiling_prediction(img, window_size, nb_classes, pred_func):
     return prd
 
 
-def cheap_tiling_prediction_not_square_img(img, window_size, nb_classes, pred_func):
+def cheap_tiling_prediction_not_square_img(img, window_size, real_classes, pred_func):
     """
     Does predictions on an image without tiling.
+
     """
     PLOT_PROGRESS = True
     original_shape = img.shape
     full_border_x = img.shape[0] + (window_size - (img.shape[0] % window_size))
     full_border_y = img.shape[1] + (window_size - (img.shape[1] % window_size))
-    prd = np.zeros((full_border_x, full_border_y, nb_classes))
+    prd = np.zeros((full_border_x, full_border_y, real_classes))
     tmp = np.zeros((full_border_x, full_border_y, original_shape[-1]))
     tmp[:original_shape[0], :original_shape[1], :] = img
     img = tmp
@@ -375,6 +376,34 @@ def cheap_tiling_prediction_not_square_img(img, window_size, nb_classes, pred_fu
         plt.title("Cheaply Merged Patches")
         plt.show()
     return prd
+
+
+def cheap_tiling_prediction_not_square_img_multiclassbands(img, window_size, real_classes, pred_func):
+    """
+    Does predictions on an image without tiling.
+    output: (x,y,nbclasses)
+    """
+    PLOT_PROGRESS = True
+    original_shape = img.shape
+    full_border_x = img.shape[0] + (window_size - (img.shape[0] % window_size))
+    full_border_y = img.shape[1] + (window_size - (img.shape[1] % window_size))
+    prd = np.zeros((full_border_x, full_border_y, real_classes))
+    tmp = np.zeros((full_border_x, full_border_y, original_shape[-1]))
+    tmp[:original_shape[0], :original_shape[1], :] = img
+    img = tmp
+    print(img.shape, tmp.shape, prd.shape)
+    for i in tqdm(range(0, prd.shape[0], window_size)):
+        for j in range(0, prd.shape[1], window_size):
+            im = img[i:i + window_size, j:j + window_size]
+            tt = pred_func([im], real_classes)
+            prd[i:i + window_size, j:j + window_size] = tt
+    prd = prd[:original_shape[0], :original_shape[1]]
+    if PLOT_PROGRESS:
+        plt.imshow(prd)
+        plt.title("Cheaply Merged Patches")
+        plt.show()
+    return prd
+
 
 def get_dummy_img(xy_size=128, nb_channels=3):
     """

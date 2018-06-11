@@ -11,7 +11,7 @@ from keras.models import load_model
 from sklearn.preprocessing import LabelEncoder
 
 import gc
-from smooth_tiled_predictions import predict_img_with_smooth_windowing, cheap_tiling_prediction_not_square_img,cheap_tiling_prediction_not_square_img_multiclassbands
+from smooth_tiled_predictions import predict_img_with_smooth_windowing, cheap_tiling_prediction_not_square_img,cheap_tiling_prediction_not_square_img_multiclassbands, predict_img_with_smooth_windowing_multiclassbands
 
 import matplotlib.pyplot as plt
 
@@ -45,7 +45,7 @@ def args_parse():
 # model path & test_image path
 
 model_path = './data/models/segnet.h5'
-test_image_path = './data/test/industrial_3.png'
+test_image_path = './data/test/3.png'
 
 # import model
 model = load_model(model_path)
@@ -266,29 +266,30 @@ if __name__ == '__main__':
     """ 3. true predict by segnet """
 
     input_img = cv2.imread(test_image_path)
+    real_classes = len(classes) - 1
 
     """3.1 test cheap """
-    real_classes = len(classes)-1
-    predictions_cheap = cheap_tiling_prediction_not_square_img_multiclassbands(
-        input_img,
-        window_size=window_size,
-        real_classes= real_classes,  # output channels = 真是的类别，总类别-背景
-        pred_func=predict_for_segnet_multiclassbands
-    )
-    cv2.imwrite('./data/predict/pre_cheap_fore3bands.png', predictions_cheap)
 
-    sys.exit()
+    # predictions_cheap = cheap_tiling_prediction_not_square_img_multiclassbands(
+    #     input_img,
+    #     window_size=window_size,
+    #     real_classes= real_classes,  # output channels = 真是的类别，总类别-背景
+    #     pred_func=predict_for_segnet_multiclassbands
+    # )
+    # cv2.imwrite('./data/predict/pre_cheap_fore3bands.png', predictions_cheap)
+    #
+    # sys.exit()
 
     """3.2 test smooth """
 
-    predictions_smooth = predict_img_with_smooth_windowing(
+    predictions_smooth = predict_img_with_smooth_windowing_multiclassbands(
         input_img,
         window_size = window_size,
         subdivisions=2,
-        nb_classes = 1, # output channels = 1
-        pred_func = predict_for_segnet
+        real_classes=real_classes,  # output channels = 真是的类别，总类别-背景
+        pred_func=predict_for_segnet_multiclassbands
     )
-    cv2.imwrite('./data/predict/predictions_smooth.png', predictions_smooth)
+    cv2.imwrite('./data/predict/predictions_smooth_multiclasses.png', predictions_smooth)
 
 
 

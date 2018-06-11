@@ -248,6 +248,61 @@ def _windowed_subdivs(padded_img, window_size, subdivisions, nb_classes, pred_fu
     return subdivs
 
 
+def _windowed_subdivs_multiclassbands(padded_img, window_size, subdivisions, real_classes, pred_func):
+    """
+    Create tiled overlapping patches.
+
+    Returns:
+        5D numpy array of shape = (
+            nb_patches_along_X,
+            nb_patches_along_Y,
+            patches_resolution_along_X,
+            patches_resolution_along_Y,
+            nb_output_channels
+        )
+
+    Note:
+        patches_resolution_along_X == patches_resolution_along_Y == window_size
+    """
+    WINDOW_SPLINE_2D = _window_2D(window_size=window_size, power=2)
+
+    step = int(window_size/subdivisions)
+    padx_len = padded_img.shape[0]
+    pady_len = padded_img.shape[1]
+    subdivs = []
+
+    for i in range(0, padx_len-window_size+1, step):
+        subdivs.append([])
+        for j in range(0, pady_len-window_size+1, step): # here padx_len should be pady_len
+            patch = padded_img[i:i+window_size, j:j+window_size, :]
+            subdivs[-1].append(patch)
+
+    # Here, `gc.collect()` clears RAM between operations.
+    # It should run faster if they are removed, if enough memory is available.
+    gc.collect()
+    subdivs = np.array(subdivs)
+    gc.collect()
+    a, b, c, d, e = subdivs.shape
+    subdivs = subdivs.reshape(a * b, c, d, e)
+    gc.collect()
+
+    subdivs = pred_func(subdivs, real_classes)
+    gc.collect()
+    subdivs = subdivs.astype("float")
+    subdivs = np.array([patch * WINDOW_SPLINE_2D for patch in subdivs])
+    gc.collect()
+
+    # Such 5D array:
+    subdivs = subdivs.reshape(a, b, c, d, real_classes)
+    gc.collect()
+
+    # convert to uint8
+    # subdivs = subdivs.astype("uint8")
+
+    return subdivs
+
+
+
 def _recreate_from_subdivs(subdivs, window_size, subdivisions, padded_out_shape):
     """
     Merge tiled overlapping patches smoothly.
@@ -317,6 +372,67 @@ def predict_img_with_smooth_windowing(input_img, window_size, subdivisions, nb_c
     padded_results = _rotate_mirror_undo(res)
 
     padded_results = _rotate_mirror_undo_by_vote(res, 5)
+
+    prd = _unpad_img(padded_results, window_size, subdivisions)
+
+    prd = prd[:input_img.shape[0], :input_img.shape[1], :]
+
+    if PLOT_PROGRESS:
+        plt.imshow(prd)
+        plt.title("Smoothly Merged Patches that were Tiled Tighter")
+        plt.show()
+    return prd
+
+
+def predict_img_with_smooth_windowing_multiclassbands(input_img, window_size, subdivisions, real_classes, pred_func):
+    """
+    Apply the `pred_func` function to square patches of the image, and overlap
+    the predictions to merge them smoothly.
+
+    See 6th, 7th and 8th idea here:
+    http://blog.kaggle.com/2017/05/09/dstl-satellite-imagery-competition-3rd-place-winners-interview-vladimir-sergey/
+    """
+    pad = _pad_img(input_img, window_size, subdivisions)
+    pads = _rotate_mirror_do(pad)
+
+    # Note that the implementation could be more memory-efficient by merging
+    # the behavior of `_windowed_subdivs` and `_recreate_from_subdivs` into
+    # one loop doing in-place assignments to the new image matrix, rather than
+    # using a temporary 5D array.
+
+    # It would also be possible to allow different (and impure) window functions
+    # that might not tile well. Adding their weighting to another matrix could
+    # be done to later normalize the predictions correctly by dividing the whole
+    # reconstructed thing by this matrix of weightings - to normalize things
+    # back from an impure windowing function that would have badly weighted
+    # windows.
+
+    # For example, since the U-net of Kaggle's DSTL satellite imagery feature
+    # prediction challenge's 3rd place winners use a different window size for
+    # the input and output of the neural net's patches predictions, it would be
+    # possible to fake a full-size window which would in fact just have a narrow
+    # non-zero dommain. This may require to augment the `subdivisions` argument
+    # to 4 rather than 2.
+
+    res = []
+    for pad in tqdm(pads):
+        # For every rotation:
+        # predict each rotation with smooth window
+        sd = _windowed_subdivs_multiclassbands(pad, window_size, subdivisions, real_classes, pred_func)
+
+        # Merge tiled overlapping patches smoothly.
+        one_padded_result = _recreate_from_subdivs(
+            sd, window_size, subdivisions,
+            padded_out_shape=list(pad.shape[:-1])+[real_classes])
+
+        res.append(one_padded_result)
+
+
+    # Merge after rotations:
+
+    padded_results = _rotate_mirror_undo(res)
+
+    # padded_results = _rotate_mirror_undo_by_vote(res, 5)
 
     prd = _unpad_img(padded_results, window_size, subdivisions)
 

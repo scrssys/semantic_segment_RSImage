@@ -17,18 +17,18 @@ import matplotlib.pyplot as plt
 
 # sys.exit()
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+# os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
 # TEST_SET = ['1.png','2.png','3.png']
-TEST_SET = ['1.png']
+# TEST_SET = ['1.png']
 # TEST_SET = ['industrial_3.png']
 
-image_size = 256
+# image_size = 256
 
-classes = [0., 1., 2., 3., 4.]
-
-labelencoder = LabelEncoder()
-labelencoder.fit(classes)
+# classes = [0., 1., 2., 3., 4.]
+#
+# labelencoder = LabelEncoder()
+# labelencoder.fit(classes)
 
 
 def args_parse():
@@ -44,25 +44,21 @@ def args_parse():
 
 # model path & test_image path
 
-model_path = './data/models/segnet.h5'
-test_image_path = './data/test/3.png'
+# model_path = './data/models/segnet.h5'
+# test_image_path = './data/test/3.png'
 
 # import model
-model = load_model(model_path)
+# model = load_model(model_path)
 
-window_size = 256
+# window_size = 256
 
-step = 128
-
-# nb_classes = 5
-
-# input_img = cv2.imread(test_image_path)
+# step = 128
 
 
 # test for predict_segnet()
-def get_predicted_pathces_from_image(img_path):
+def get_predicted_pathces_from_image(input_img, model, window_size, step, pre_func, labelencoder):
 
-    input_img = cv2.imread(img_path)
+    # input_img = cv2.imread(img_path)
     input_img = np.array(input_img)
     # input_img = np.transpose(input_img,(2,0,1))
     print (input_img.shape)
@@ -86,46 +82,45 @@ def get_predicted_pathces_from_image(img_path):
 
 
 
-    out_mask = predict_for_segnet(subdivs)
+    out_mask = pre_func(subdivs, model, window_size, labelencoder)
     print ("shape of out_mask:{}".format(out_mask.shape))
     # output image channel = 1
     out_img = out_mask.reshape(a,b,c,d,1)
 
     return out_img
 
-    # cv2.imwrite('./data/predict/pre_test.png', mask_output)
-    # return subdivs
 
 
 def mosaic_resut(predicted_patches):
     '''
 
     :param predicted_patches: should be 4D np array (patch_row, patch_column, x, y, channels)
-    :return:
+    :return: mosaic image (patch_row*x, patch_column*y, channels)
     '''
 
     assert (len(predicted_patches.shape) == 5)
     patch_row, patch_column, x, y, channels= predicted_patches.shape
 
     a =0
-    result = np.zeros((patch_row*x, patch_column*y), np.uint8)
+    result = np.zeros((patch_row*x, patch_column*y, channels), np.uint8)
     for i in range(0, patch_row*x, x):
         b=0
         for j in range(0, patch_column*y, y):
-            result[i:i+x, j:j+y] = predicted_patches[a,b,:,:,0]
+            result[i:i+x, j:j+y] = predicted_patches[a,b,:,:]
             b +=1
         a +=1
 
-    cv2.imwrite('./data/predict/pre_test.png', result)
+    cv2.imwrite('./data/predict/mosaic.png', result)
 
 
 
 
 
 
-def predict_for_segnet(small_img_patches):
+def predict_for_segnet_grayresult(small_img_patches, model, window_size,labelencoder):
     """
         Apply prediction on images arranged in a 4D array as a batch.
+        output is a (pathes, x, y, 1): gray image
     """
     small_img_patches = np.array(small_img_patches)
     print (small_img_patches.shape)
@@ -155,9 +150,10 @@ def predict_for_segnet(small_img_patches):
     return mask_output
 
 
-def predict_for_segnet_multiclassbands(small_img_patches, real_classes):
+def predict_for_segnet_multiclassbands(small_img_patches, model, real_classes,labelencoder):
     """
-        Apply prediction on images arranged in a 4D array as a batch.(patches, row,column, real_classes)
+        Apply prediction on images arranged in a 4D array as a batch.(patches, row,column, channels)
+        output is a (pathes, x, y, real_classes): a multiband image
     """
     small_img_patches = np.array(small_img_patches)
     print (small_img_patches.shape)
@@ -198,18 +194,10 @@ def predict_for_segnet_multiclassbands(small_img_patches, real_classes):
 
 
 
-def predict():
-    # load the trained convolutional neural network
-    print("[INFO] loading network...")
+def predict(image, model, window_size, labelencoder):
 
-    model = load_model(model_path)
-    # stride = args['stride']
-    stride = image_size
-    # for n in range(len(TEST_SET)):
-        # path = TEST_SET[n]
-        # load the image
-        # image = cv2.imread('./test/' + path)
-    image = cv2.imread(test_image_path)
+    stride = window_size
+
     h, w, _ = image.shape
     print 'h,w:', h, w
     padding_h = (h // stride + 1) * stride
@@ -224,7 +212,7 @@ def predict():
     mask_whole = np.zeros((padding_h, padding_w), dtype=np.uint8)
     for i in range(padding_h // stride):
         for j in range(padding_w // stride):
-            crop = padding_img[:3, i * stride:i * stride + image_size, j * stride:j * stride + image_size]
+            crop = padding_img[:3, i * stride:i * stride + window_size, j * stride:j * stride + window_size]
             # crop = crop.transpose(crop,(2,0,1))
             cb, ch, cw = crop.shape
             print ('crop:{}'.format(crop.shape))
@@ -243,53 +231,12 @@ def predict():
             # print (np.unique(pred))
             pred = pred.reshape((256, 256)).astype(np.uint8)
             # print 'pred:',pred.shape
-            mask_whole[i * stride:i * stride + image_size, j * stride:j * stride + image_size] = pred[:, :]
+            mask_whole[i * stride:i * stride + window_size, j * stride:j * stride + window_size] = pred[:, :]
     plt.imshow(mask_whole,cmap='gray')
     plt.title("Original predicted result")
     plt.show()
     cv2.imwrite('./data/predict/pre1.png', mask_whole[0:h, 0:w])
 
-
-if __name__ == '__main__':
-    # args = args_parse()
-
-    """1. test original code of predict()"""
-    # predict()
-    # sys.eixt()
-
-
-    """2. test code of flame tracer """
-    # predicted_patches = get_predicted_pathces_from_image(test_image_path)
-
-    # mosaic_resut(predicted_patches)
-
-    """ 3. true predict by segnet """
-
-    input_img = cv2.imread(test_image_path)
-    real_classes = len(classes) - 1
-
-    """3.1 test cheap """
-
-    # predictions_cheap = cheap_tiling_prediction_not_square_img_multiclassbands(
-    #     input_img,
-    #     window_size=window_size,
-    #     real_classes= real_classes,  # output channels = 真是的类别，总类别-背景
-    #     pred_func=predict_for_segnet_multiclassbands
-    # )
-    # cv2.imwrite('./data/predict/pre_cheap_fore3bands.png', predictions_cheap)
-    #
-    # sys.exit()
-
-    """3.2 test smooth """
-
-    predictions_smooth = predict_img_with_smooth_windowing_multiclassbands(
-        input_img,
-        window_size = window_size,
-        subdivisions=2,
-        real_classes=real_classes,  # output channels = 真是的类别，总类别-背景
-        pred_func=predict_for_segnet_multiclassbands
-    )
-    cv2.imwrite('./data/predict/predictions_smooth_multiclasses.png', predictions_smooth)
 
 
 

@@ -248,7 +248,7 @@ def _windowed_subdivs(padded_img, window_size, subdivisions, nb_classes, pred_fu
     return subdivs
 
 
-def _windowed_subdivs_multiclassbands(padded_img, window_size, subdivisions, real_classes, pred_func):
+def _windowed_subdivs_multiclassbands(padded_img, model, window_size, subdivisions, real_classes, pred_func, labelencoder):
     """
     Create tiled overlapping patches.
 
@@ -286,7 +286,7 @@ def _windowed_subdivs_multiclassbands(padded_img, window_size, subdivisions, rea
     subdivs = subdivs.reshape(a * b, c, d, e)
     gc.collect()
 
-    subdivs = pred_func(subdivs, real_classes)
+    subdivs = pred_func(subdivs, model, real_classes, labelencoder)
     gc.collect()
     subdivs = subdivs.astype("float")
     subdivs = np.array([patch * WINDOW_SPLINE_2D for patch in subdivs])
@@ -384,7 +384,7 @@ def predict_img_with_smooth_windowing(input_img, window_size, subdivisions, nb_c
     return prd
 
 
-def predict_img_with_smooth_windowing_multiclassbands(input_img, window_size, subdivisions, real_classes, pred_func):
+def predict_img_with_smooth_windowing_multiclassbands(input_img, model, window_size, subdivisions, real_classes, pred_func, labelencoder):
     """
     Apply the `pred_func` function to square patches of the image, and overlap
     the predictions to merge them smoothly.
@@ -418,7 +418,7 @@ def predict_img_with_smooth_windowing_multiclassbands(input_img, window_size, su
     for pad in tqdm(pads):
         # For every rotation:
         # predict each rotation with smooth window
-        sd = _windowed_subdivs_multiclassbands(pad, window_size, subdivisions, real_classes, pred_func)
+        sd = _windowed_subdivs_multiclassbands(pad, model, window_size, subdivisions, real_classes, pred_func, labelencoder)
 
         # Merge tiled overlapping patches smoothly.
         one_padded_result = _recreate_from_subdivs(
@@ -494,7 +494,7 @@ def cheap_tiling_prediction_not_square_img(img, window_size, real_classes, pred_
     return prd
 
 
-def cheap_tiling_prediction_not_square_img_multiclassbands(img, window_size, real_classes, pred_func):
+def cheap_tiling_prediction_not_square_img_multiclassbands(img, model, window_size, real_classes, pred_func, labelencoder):
     """
     Does predictions on an image without tiling.
     output: (x,y,nbclasses)
@@ -511,7 +511,7 @@ def cheap_tiling_prediction_not_square_img_multiclassbands(img, window_size, rea
     for i in tqdm(range(0, prd.shape[0], window_size)):
         for j in range(0, prd.shape[1], window_size):
             im = img[i:i + window_size, j:j + window_size]
-            tt = pred_func([im], real_classes)
+            tt = pred_func([im], model, real_classes, labelencoder)
             prd[i:i + window_size, j:j + window_size] = tt
     prd = prd[:original_shape[0], :original_shape[1]]
     if PLOT_PROGRESS:

@@ -392,6 +392,7 @@ def predict_img_with_smooth_windowing_multiclassbands(input_img, model, window_s
     See 6th, 7th and 8th idea here:
     http://blog.kaggle.com/2017/05/09/dstl-satellite-imagery-competition-3rd-place-winners-interview-vladimir-sergey/
     """
+    PLOT_PROGRESS = True
     pad = _pad_img(input_img, window_size, subdivisions)
     pads = _rotate_mirror_do(pad)
 
@@ -438,6 +439,8 @@ def predict_img_with_smooth_windowing_multiclassbands(input_img, model, window_s
 
     prd = prd[:input_img.shape[0], :input_img.shape[1], :]
 
+    if real_classes == 1: # only for real_classes = 1
+        prd =prd[:,:,0]
     if PLOT_PROGRESS:
         plt.imshow(prd)
         plt.title("Smoothly Merged Patches that were Tiled Tighter")
@@ -488,7 +491,7 @@ def cheap_tiling_prediction_not_square_img(img, window_size, real_classes, pred_
             prd[i:i+window_size, j:j+window_size] = pred_func([im])
     prd = prd[:original_shape[0], :original_shape[1]]
     if PLOT_PROGRESS:
-        plt.imshow(prd[:,:,0],cmap = 'gray')
+        plt.imshow(prd[:,:,0],cmap = "gray")
         plt.title("Cheaply Merged Patches")
         plt.show()
     return prd
@@ -514,6 +517,8 @@ def cheap_tiling_prediction_not_square_img_multiclassbands(img, model, window_si
             tt = pred_func([im], model, real_classes, labelencoder)
             prd[i:i + window_size, j:j + window_size] = tt
     prd = prd[:original_shape[0], :original_shape[1]]
+    if real_classes == 1: # only for real_classes=1
+        prd = prd[:,:,0]
     if PLOT_PROGRESS:
         plt.imshow(prd)
         plt.title("Cheaply Merged Patches")

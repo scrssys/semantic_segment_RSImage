@@ -24,7 +24,7 @@ from keras.models import *
 from keras.layers import *
 from keras.optimizers import *
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "4"
+os.environ["CUDA_VISIBLE_DEVICES"] = "2"
 seed = 7
 np.random.seed(seed)
 
@@ -39,9 +39,9 @@ n_label = 1
 from keras import backend as K
 K.set_image_dim_ordering('th')
 # K.set_image_dim_ordering('tf')
-model_save_path = './data/models/unet_channel_first.h5' # for channel_first
+model_save_path = './data/models/unet_channel_firstbuldlings.h5' # for channel_first
 # model_save_path = './data/models/unet_channel_last.h5' # for channel_first
-train_data_path = './data/traindata/buildings/'
+train_data_path = './data/traindata/unet/buildings/'
 
 
 def load_img(path, grayscale=False):
@@ -130,7 +130,7 @@ def generateValidData(batch_size, data=[]):
 
 
 def unet():
-    inputs = Input((3, img_w, img_h))
+    inputs = Input((3, img_w, img_h))  # channels_first
     # inputs = Input((img_w, img_h, 3))
 
     conv1 = Conv2D(32, (3, 3), activation="relu", padding="same")(inputs)
@@ -237,11 +237,37 @@ def unet():
 #
 #     return model
 
+
+import keras
+class CustomModelCheckpoint(keras.callbacks.Callback):
+
+    def __init__(self,  path):
+        # self.model = model
+        self.path = path
+        self.best_loss = np.inf
+
+    def on_epoch_end(self, epoch, logs=None):
+        val_loss = logs['val_loss']
+        if val_loss < self.best_loss:
+            print("\nValidation loss decreased from {} to {}, saving model".format(self.best_loss, val_loss))
+
+        self.model.save_weights(self.path, overwrite=True)
+
+        self.best_loss = val_loss
+
+
+from keras.utils import multi_gpu_model
 def train():
     EPOCHS = 2  # should be 10 or bigger number
     BS = 16
 
     model = unet()
+
+    """test the model fastly but can only train one epoch"""
+    # model = multi_gpu_model(model, gpus=4)
+    # model.compile(optimizer=Adam(lr=1e-5), loss='binary_crossentropy', metrics=['accuracy'])
+    ##### modelcheck = [CustomModelCheckpoint('./data/models/unet_fff.h5')]
+
     modelcheck = ModelCheckpoint(model_save_path, monitor='val_acc', save_best_only=True, mode='max')
     callable = [modelcheck]
     train_set, val_set = get_train_val()

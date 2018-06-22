@@ -244,6 +244,9 @@ def generateValidData(batch_size,data=[]):
                 valid_label = []
                 batch = 0
 
+
+
+
 def segnet_train():
     EPOCHS = 30
     BS = 16
@@ -268,6 +271,9 @@ def segnet_train():
                             validation_steps=valid_numb // BS,
                             callbacks=callable,
                             max_q_size=1)
+
+
+
 
 
 def predict():

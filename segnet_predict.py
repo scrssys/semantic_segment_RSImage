@@ -15,20 +15,21 @@ from smooth_tiled_predictions import predict_img_with_smooth_windowing, cheap_ti
 
 import matplotlib.pyplot as plt
 
-# sys.exit()
+from keras.models import Sequential
+from keras.layers import Conv2D,MaxPooling2D,UpSampling2D,BatchNormalization,Reshape,Permute,Activation
+from keras.utils.np_utils import to_categorical
+from keras.preprocessing.image import img_to_array
 
-# os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+from PIL import Image
 
-# TEST_SET = ['1.png','2.png','3.png']
-# TEST_SET = ['1.png']
-# TEST_SET = ['industrial_3.png']
+from keras import backend as K
+K.set_image_dim_ordering('th')  # for channel_first
+# K.set_image_dim_ordering('tf')
 
-# image_size = 256
-
-# classes = [0., 1., 2., 3., 4.]
+# img_w = 256
 #
-# labelencoder = LabelEncoder()
-# labelencoder.fit(classes)
+# img_h = 256
+# n_label =5
 
 
 def args_parse():
@@ -40,19 +41,6 @@ def args_parse():
                     help="crop slide stride", type=int, default=image_size)
     args = vars(ap.parse_args())
     return args
-
-
-# model path & test_image path
-
-# model_path = './data/models/segnet.h5'
-# test_image_path = './data/test/3.png'
-
-# import model
-# model = load_model(model_path)
-
-# window_size = 256
-
-# step = 128
 
 
 # test for predict_segnet()
@@ -167,12 +155,12 @@ def predict_for_segnet_multiclassbands(small_img_patches, model, real_classes,la
         crop = np.zeros((row, column, input_channels), np.uint8)
         crop = small_img_patches[p,:,:,:]
         crop = crop / 255.0
-        crop = crop.transpose(2,0,1)
+
+        # Using "img_to_array" to convert the dimensions ordering, to adapt "K.set_image_dim_ordering('**') "
+        crop = img_to_array(crop)
         crop = np.expand_dims(crop, axis=0)
-        # print ('crop:{}'.format(crop.shape))
         pred = model.predict_classes(crop, verbose=2)
         pred = labelencoder.inverse_transform(pred[0])
-        # print (np.unique(pred))
 
         pred = pred.reshape((row,column)).astype(np.uint8)
         # 将预测结果分波段存储
@@ -191,9 +179,6 @@ def predict_for_segnet_multiclassbands(small_img_patches, model, real_classes,la
     return mask_output
 
 
-
-
-
 def predict(image, model, window_size, labelencoder):
 
     stride = window_size
@@ -205,32 +190,31 @@ def predict(image, model, window_size, labelencoder):
     padding_img = np.zeros((padding_h, padding_w, 3), dtype=np.uint8)
     padding_img[0:h, 0:w, :] = image[:, :, :]
     padding_img = padding_img.astype("float") / 255.0
+
+    # Using "img_to_array" to convert the dimensions ordering, to adapt "K.set_image_dim_ordering('**') "
     padding_img = img_to_array(padding_img)
     print 'src:', padding_img.shape
-    padding_img = padding_img.transpose(2, 0, 1)
+    # padding_img = padding_img.transpose(2, 0, 1) # for channel_first
+
     print 'newsrc:', padding_img.shape
     mask_whole = np.zeros((padding_h, padding_w), dtype=np.uint8)
     for i in range(padding_h // stride):
         for j in range(padding_w // stride):
-            crop = padding_img[:3, i * stride:i * stride + window_size, j * stride:j * stride + window_size]
-            # crop = crop.transpose(crop,(2,0,1))
-            cb, ch, cw = crop.shape
+            # crop = padding_img[:3, i * stride:i * stride + window_size, j * stride:j * stride + window_size]
+            crop = padding_img[i * stride:i * stride + window_size, j * stride:j * stride + window_size, :3]
+            cb, ch, cw = crop.shape # for channel_first
+
             print ('crop:{}'.format(crop.shape))
-            # print 'cb,ch,cw:',cb,ch,cw
-            # sys.exit(0)
-            assert (ch == cw == 256)
-            # if ch != 256 or cw != 256:
-            #     print 'invalid size!'
-            #     continue
-                # sys.exit(0)
 
             crop = np.expand_dims(crop, axis=0)
+            # crop = crop.reshape((1,ch,cw,-1))
             print ('crop:{}'.format(crop.shape))
             pred = model.predict_classes(crop, verbose=2)
             pred = labelencoder.inverse_transform(pred[0])
-            # print (np.unique(pred))
+
             pred = pred.reshape((256, 256)).astype(np.uint8)
-            # print 'pred:',pred.shape
+            # pred = np.swapaxes(pred,0,1)
+
             mask_whole[i * stride:i * stride + window_size, j * stride:j * stride + window_size] = pred[:, :]
     plt.imshow(mask_whole,cmap='gray')
     plt.title("Original predicted result")
@@ -238,6 +222,17 @@ def predict(image, model, window_size, labelencoder):
     cv2.imwrite('./data/predict/pre1.png', mask_whole[0:h, 0:w])
 
 
+
+def load_img(path, grayscale=False, target_size=None):
+    img = Image.open(path)
+    if grayscale:
+        if img.mode != 'L':
+            img = img.convert('L')
+    if target_size:
+        wh_tuple = (target_size[1], target_size[0])
+        if img.size != wh_tuple:
+            img = img.resize(wh_tuple)
+    return img
 
 
 

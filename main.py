@@ -11,17 +11,21 @@ import argparse
 # from keras.preprocessing.image import img_to_array
 from keras.models import load_model
 from sklearn.preprocessing import LabelEncoder
-#
+from PIL import Image
+from keras.preprocessing.image import img_to_array
 #
 from segnet_predict import predict, predict_for_segnet_multiclassbands,get_predicted_pathces_from_image, mosaic_resut,predict_for_segnet_grayresult
 from smooth_tiled_predictions import predict_img_with_smooth_windowing_multiclassbands,cheap_tiling_prediction_not_square_img_multiclassbands
 
 from unet_predict import unet_predict,predict_for_unet_multiclassbands
 
+from keras import backend as K
+K.set_image_dim_ordering('th')
+# K.set_image_dim_ordering('tf')
 """
    The following global variables should be put into meta data file 
 """
-os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+os.environ["CUDA_VISIBLE_DEVICES"] = "5"
 
 segnet_classes = [0., 1., 2., 3., 4.]
 unet_classes = [0., 1.]
@@ -29,8 +33,11 @@ unet_classes = [0., 1.]
 
 # model path & test_image path
 
-unet_model_path = './data/models/unet_buildings.h5'
-segnet_model_path = './data/models/segnet.h5'
+unet_model_path = './data/models/unet_channel_first.h5'
+# unet_model_path = './data/models/unet_channel_last.h5'
+# segnet_model_path = './data/models/segnet_train_test_1.h5'
+# segnet_model_path = './data/models/segnet_channel_last.h5'
+segnet_model_path = './data/models/segnet_channel_first.h5' # for channel_first
 test_image_path = './data/test/1.png'
 
 window_size = 256
@@ -38,6 +45,8 @@ window_size = 256
 step = 128
 
 FLAG_USING_UNET = True
+
+
 
 if __name__ == '__main__':
 
@@ -54,6 +63,7 @@ if __name__ == '__main__':
 
     else:
         model = load_model(segnet_model_path)
+
         result_channels = len(segnet_classes) - 1
 
         labelencoder = LabelEncoder()
@@ -64,7 +74,8 @@ if __name__ == '__main__':
     #     unet_predict(input_img, model, window_size, labelencoder)
     # else:
     #     predict(input_img, model, window_size,labelencoder)
-
+    #
+    #
     # sys.eixt()
 
     """2. test code of flame tracer """

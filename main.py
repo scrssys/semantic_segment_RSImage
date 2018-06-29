@@ -33,12 +33,12 @@ unet_classes = [0., 1.]
 
 # model path & test_image path
 
-unet_model_path = './data/models/unet_channel_firstbuldlings.h5'
-# unet_model_path = './data/models/unet_channel_last.h5'
-# segnet_model_path = './data/models/segnet_train_test_1.h5'
-# segnet_model_path = './data/models/segnet_channel_last.h5'
-segnet_model_path = './data/models/segnet_channel_first.h5' # for channel_first
-test_image_path = './data/test/1.png'
+# unet_model_path = '../data/models/unet_channel_firstbuldlings.h5'
+unet_model_path = '../data/models/unet_channel_first_roads.h5'
+# segnet_model_path = '../data/models/segnet_train_test_1.h5'
+# segnet_model_path = '../data/models/segnet_channel_last.h5'
+segnet_model_path = '../data/models/segnet_channel_first.h5' # for channel_first
+test_image_path = '../data/test/1.png'
 
 window_size = 256
 
@@ -70,13 +70,13 @@ if __name__ == '__main__':
         labelencoder.fit(segnet_classes)
 
     """1. test original code of predict()"""
-    if FLAG_USING_UNET:
-        unet_predict(input_img, model, window_size, labelencoder)
-    else:
-        predict(input_img, model, window_size,labelencoder)
-
-
-    sys.eixt()
+    # if FLAG_USING_UNET:
+    #     unet_predict(input_img, model, window_size, labelencoder)
+    # else:
+    #     predict(input_img, model, window_size,labelencoder)
+    #
+    #
+    # sys.eixt()
 
     """2. test code of flame tracer """
     # predicted_patches = get_predicted_pathces_from_image(

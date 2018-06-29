@@ -40,10 +40,10 @@ image_sets = ['1.png', '2.png', '3.png']
 from keras import backend as K
 K.set_image_dim_ordering('th')
 # K.set_image_dim_ordering('tf')
-model_save_path = './data/models/segnet_channel_first.h5' # for channel_first
-# model_save_path = './data/models/segnet_channel_last.h5' # for channel_first
-# model_save_path = './data/models/segnet_train_test_tensorflow.h5'
-train_data_path = './data/traindata/'
+model_save_path = '../data/models/segnet_channel_first.h5' # for channel_first
+# model_save_path = '../data/models/segnet_channel_last.h5' # for channel_first
+# model_save_path = '../data/models/segnet_train_test_tensorflow.h5'
+train_data_path = '../data/traindata/'
 
 
 def SegNet():

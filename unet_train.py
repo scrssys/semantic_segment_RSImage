@@ -28,20 +28,18 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "2"
 seed = 7
 np.random.seed(seed)
 
-# data_shape = 360*480
 img_w = 256
 img_h = 256
-# 有一个为背景
-# n_label = 4+1
+
 n_label = 1
 
 
 from keras import backend as K
 K.set_image_dim_ordering('th')
 # K.set_image_dim_ordering('tf')
-model_save_path = './data/models/unet_channel_firstbuldlings.h5' # for channel_first
-# model_save_path = './data/models/unet_channel_last.h5' # for channel_first
-train_data_path = './data/traindata/unet/buildings/'
+model_save_path = '../data/models/unet_channel_first_roads.h5' # for channel_first
+# model_save_path = '../data/models/unet_channel_last.h5' # for channel_first
+train_data_path = '../data/traindata/unet/roads/'
 
 
 def load_img(path, grayscale=False):
@@ -49,13 +47,11 @@ def load_img(path, grayscale=False):
         img = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
     else:
         img = cv2.imread(path)
-        img = np.array(img, dtype="float") / 255.0
+        img = np.array(img, dtype="float") / 255.0  # MY image preprocessing
     return img
 
 
-# filepath = './unet_train/bulidings'
-
-
+"""get the train file name and divide to train and val parts"""
 def get_train_val(val_rate=0.25):
     train_url = []
     train_set = []
@@ -100,9 +96,8 @@ def generateData(batch_size, data=[]):
                 train_label = []
                 batch = 0
 
-            # data for validation
 
-
+# data for validation
 def generateValidData(batch_size, data=[]):
     # print 'generateValidData...'
     while True:
@@ -237,8 +232,9 @@ def unet():
 #
 #     return model
 
-
+""" For tes multiGPU model"""
 import keras
+from keras.utils import multi_gpu_model
 class CustomModelCheckpoint(keras.callbacks.Callback):
 
     def __init__(self,  path):
@@ -256,14 +252,14 @@ class CustomModelCheckpoint(keras.callbacks.Callback):
         self.best_loss = val_loss
 
 
-from keras.utils import multi_gpu_model
+
 def train():
     EPOCHS = 2  # should be 10 or bigger number
     BS = 16
 
     model = unet()
 
-    """test the model fastly but can only train one epoch"""
+    """test the model fastly but can only train one epoch, AND it does not work finally ^_^"""
     # model = multi_gpu_model(model, gpus=4)
     # model.compile(optimizer=Adam(lr=1e-5), loss='binary_crossentropy', metrics=['accuracy'])
     ##### modelcheck = [CustomModelCheckpoint('./data/models/unet_fff.h5')]

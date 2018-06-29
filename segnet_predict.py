@@ -98,7 +98,7 @@ def mosaic_resut(predicted_patches):
             b +=1
         a +=1
 
-    cv2.imwrite('./data/predict/mosaic.png', result)
+    cv2.imwrite('../data/predict/mosaic.png', result)
 
 
 
@@ -219,7 +219,7 @@ def predict(image, model, window_size, labelencoder):
     plt.imshow(mask_whole,cmap='gray')
     plt.title("Original predicted result")
     plt.show()
-    cv2.imwrite('./data/predict/pre1.png', mask_whole[0:h, 0:w])
+    cv2.imwrite('../data/predict/pre1.png', mask_whole[0:h, 0:w])
 
 
 

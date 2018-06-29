@@ -19,6 +19,8 @@ from keras import backend as K
 K.set_image_dim_ordering('th') # channel_first
 # K.set_image_dim_ordering('tf')
 
+import mxnet as mx
+
 
 def unet_predict(image, model, window_size, labelencoder):
 
@@ -30,7 +32,7 @@ def unet_predict(image, model, window_size, labelencoder):
     padding_w = (w // stride + 1) * stride
     padding_img = np.zeros((padding_h, padding_w, 3), dtype=np.uint8)
     padding_img[0:h, 0:w, :] = image[:, :, :]
-    # padding_img = padding_img.astype("float") / 255.0
+    padding_img = padding_img.astype("float") / 255.0
 
     padding_img = img_to_array(padding_img)
 
@@ -43,13 +45,18 @@ def unet_predict(image, model, window_size, labelencoder):
 
             cb, ch, cw = crop.shape
             print ('crop:{}'.format(crop.shape))
+            print (np.unique(crop))
 
             crop = np.expand_dims(crop, axis=0)
             print ('crop:{}'.format(crop.shape))
+
+
             pred = model.predict(crop, verbose=2)
-            print (np.unique(pred))
+            # print (np.unique(pred))
+            pred = pred +0.9
 
             pred = pred.reshape((256, 256)).astype(np.uint8)
+            print (np.unique(pred))
 
             mask_whole[i * stride:i * stride + window_size, j * stride:j * stride + window_size] = pred[:, :]
 
@@ -59,7 +66,7 @@ def unet_predict(image, model, window_size, labelencoder):
     plt.title("Original predicted result")
     plt.show()
 
-    cv2.imwrite('./data/predict/pre3.png', outputresult)
+    cv2.imwrite('../data/predict/testorignalpredict.png', outputresult)
 
 def predict_for_unet_multiclassbands(small_img_patches, model, real_classes,labelencoder):
     """
@@ -77,12 +84,13 @@ def predict_for_unet_multiclassbands(small_img_patches, model, real_classes,labe
     for p in range(patches):
         crop = np.zeros((row, column, input_channels), np.uint8)
         crop = small_img_patches[p,:,:,:]
-        # crop = crop / 255.0
+        crop = crop / 255.0
         # crop = crop.transpose(2,0,1) # for channel_first
         crop = img_to_array(crop)
         crop = np.expand_dims(crop, axis=0)
         # print ('crop:{}'.format(crop.shape))
         pred = model.predict(crop, verbose=2)
+        pred += 0.9
 
         pred = pred.reshape((row,column)).astype(np.uint8)
         # 将预测结果分波段存储

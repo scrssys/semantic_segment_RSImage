@@ -6,15 +6,24 @@ import os
 import numpy as np
 from tqdm import tqdm
 
+seed = 1
+np.random.seed(seed)
 
 img_w = 256
 img_h = 256
 
 image_sets = ['1.png', '2.png', '3.png', '4.png', '5.png']
 
+FLAG_USING_UNET = True
+segnet_labels = [0, 1, 2, 3, 4]
+unet_labels = [0, 1]
 
-source_path = './data/originaldata/unet_buildings/'
-output_path = './data/traindata/tee/'
+input_src_path = '../data/originaldata/unet/roads/src/'
+input_label_path = '../data/originaldata/unet/roads/label/'
+output_path = '../data/traindata/unet/roads/'
+"""for segnet train data"""
+# source_path = '../data/originaldata/segnet/'
+# output_path = '../data/traindata/segnet/'
 
 
 def gamma_transform(img, gamma):
@@ -76,21 +85,76 @@ def data_augment(xb, yb):
 
     return xb, yb
 
+"""check some invalid labels or NoData values"""
+def check_invalid_labels(img):
+    if FLAG_USING_UNET:
+        valid_labels = unet_labels
+    else:
+        valid_labels = segnet_labels
+
+    row, column = img.shape
+    for i in range(row):
+        for j in range(column):
+            assert (img[i,j] in valid_labels)
+
+
+""" check the size of src_img and label_img"""
+def check_src_label_size(srcimg, labelimg):
+    row_src, column_src,_ = srcimg.shape
+    row_label, column_label = labelimg.shape
+    assert (row_src==row_label and column_src==column_src)
+
+
+
+def get_file(file_path, file_type='.png'):
+    L=[]
+    for root,dirs,files in os.walk(file_path):
+        for file in files:
+            if os.path.splitext(file)[1]==file_type:
+                L.append(os.path.join(root,file))
+    return L
+
+
+
 
 def creat_dataset(image_num=50000, mode='original'):
     print('creating dataset...')
-    image_each = image_num / len(image_sets)
+
+    src_files = get_file(input_src_path)
+    image_each = image_num/len(src_files)
+
+    # image_each = image_num / len(image_sets)
+
     g_count = 0
-    for i in tqdm(range(len(image_sets))):
+    # for i in tqdm(range(len(image_sets))):
+    for scr_file in tqdm(src_files):
         count = 0
-        src_img = cv2.imread(source_path + 'src/' + image_sets[i])  # 3 channels
-        label_img = cv2.imread(source_path + 'label/' + image_sets[i], cv2.IMREAD_GRAYSCALE)  # single channel
+        # src_img = cv2.imread(source_path + 'src/' + image_sets[i])  # 3 channels
+        # label_img = cv2.imread(source_path + 'label/' + image_sets[i], cv2.IMREAD_GRAYSCALE)  # single channel
+
+        src_img = cv2.imread(scr_file)
+        label_file = input_label_path+os.path.split(scr_file)[1]
+        label_img = cv2.imread(label_file, cv2.IMREAD_GRAYSCALE)
+
+        check_src_label_size(src_img, label_img)
+
         X_height, X_width, _ = src_img.shape
+
         while count < image_each:
             random_width = random.randint(0, X_width - img_w - 1)
             random_height = random.randint(0, X_height - img_h - 1)
             src_roi = src_img[random_height: random_height + img_h, random_width: random_width + img_w, :]
             label_roi = label_img[random_height: random_height + img_h, random_width: random_width + img_w]
+
+            """check some invalid labels or NoData values"""
+            check_invalid_labels(label_roi)
+
+            """Cut down the pure background image with 80% probability"""
+            if len(np.unique(label_roi)) < 2:
+                if np.unique(label_roi)[0] ==0:
+                    if np.random.random()< 0.8:
+                        continue
+
             if mode == 'augment':
                 src_roi, label_roi = data_augment(src_roi, label_roi)
 

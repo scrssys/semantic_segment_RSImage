@@ -4,8 +4,8 @@ import cv2
 import sys, os
 import numpy as np
 
-input_path = './data/traindata/unet/water/label/'
-output_path = './data/traindata/unet/water/visulise/'
+input_path = '../data/traindata/unet/water/label/'
+output_path = '../data/traindata/unet/water/visulise/'
 
 
 def get_files(file_dir, format='.png'):

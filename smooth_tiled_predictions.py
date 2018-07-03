@@ -134,7 +134,6 @@ def _rotate_mirror_undo(im_mirrs):
     merging them implies to rotated them back in order and average things out.
 
     It is the D_4 (D4) Dihedral group:
-    https://en.wikipedia.org/wiki/Dihedral_group
     """
     origs = []
     origs.append(np.array(im_mirrs[0]))
@@ -161,7 +160,6 @@ def _rotate_mirror_undo_by_vote(im_mirrs, nb_classes):
     merging them implies to rotated them back in order and average things out.
 
     It is the D_4 (D4) Dihedral group:
-    https://en.wikipedia.org/wiki/Dihedral_group
 
     nb_classes: number of classes
     """
@@ -329,8 +327,6 @@ def predict_img_with_smooth_windowing(input_img, window_size, subdivisions, nb_c
     Apply the `pred_func` function to square patches of the image, and overlap
     the predictions to merge them smoothly.
 
-    See 6th, 7th and 8th idea here:
-    http://blog.kaggle.com/2017/05/09/dstl-satellite-imagery-competition-3rd-place-winners-interview-vladimir-sergey/
     """
     pad = _pad_img(input_img, window_size, subdivisions)
     pads = _rotate_mirror_do(pad)

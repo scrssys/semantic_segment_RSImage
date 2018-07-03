@@ -53,7 +53,7 @@ def unet_predict(image, model, window_size, labelencoder):
 
             pred = model.predict(crop, verbose=2)
             # print (np.unique(pred))
-            pred = pred +0.9
+            pred = pred +0.5
 
             pred = pred.reshape((256, 256)).astype(np.uint8)
             print (np.unique(pred))
@@ -90,7 +90,7 @@ def predict_for_unet_multiclassbands(small_img_patches, model, real_classes,labe
         crop = np.expand_dims(crop, axis=0)
         # print ('crop:{}'.format(crop.shape))
         pred = model.predict(crop, verbose=2)
-        pred += 0.9
+        pred += 0.5
 
         pred = pred.reshape((row,column)).astype(np.uint8)
         # 将预测结果分波段存储

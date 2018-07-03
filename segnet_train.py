@@ -34,7 +34,7 @@ classes = [0., 1., 2., 3., 4.]
 labelencoder = LabelEncoder()
 labelencoder.fit(classes)
 
-image_sets = ['1.png', '2.png', '3.png']
+# image_sets = ['1.png', '2.png', '3.png']
 
 # add by qiaozh 20180404
 from keras import backend as K
@@ -44,7 +44,7 @@ model_save_path = '../data/models/segnet_channel_first.h5' # for channel_first
 # model_save_path = '../data/models/segnet_channel_last.h5' # for channel_first
 # model_save_path = '../data/models/segnet_train_test_tensorflow.h5'
 
-train_data_path = '../data/traindata/'
+# train_data_path = '../data/traindata/'
 
 train_data_path = '../data/traindata/segnet/'
 

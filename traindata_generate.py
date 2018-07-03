@@ -5,6 +5,7 @@ import random
 import os
 import numpy as np
 from tqdm import tqdm
+import sys
 
 seed = 1
 np.random.seed(seed)
@@ -21,6 +22,7 @@ unet_labels = [0, 1]
 input_src_path = '../data/originaldata/unet/roads/src/'
 input_label_path = '../data/originaldata/unet/roads/label/'
 output_path = '../data/traindata/unet/roads/'
+
 """for segnet train data"""
 # source_path = '../data/originaldata/segnet/'
 # output_path = '../data/traindata/segnet/'
@@ -87,6 +89,9 @@ def data_augment(xb, yb):
 
 """check some invalid labels or NoData values"""
 def check_invalid_labels(img):
+
+    valid_labels=[0,1]
+
     if FLAG_USING_UNET:
         valid_labels = unet_labels
     else:
@@ -118,7 +123,11 @@ def get_file(file_path, file_type='.png'):
 
 
 def creat_dataset(image_num=50000, mode='original'):
+
     print('creating dataset...')
+
+    print('\ncreating dataset...')
+
 
     src_files = get_file(input_src_path)
     image_each = image_num/len(src_files)
@@ -134,6 +143,11 @@ def creat_dataset(image_num=50000, mode='original'):
 
         src_img = cv2.imread(scr_file)
         label_file = input_label_path+os.path.split(scr_file)[1]
+
+        if not os.path.isfile(label_file):
+            print("Have no file:".format(label_file))
+            sys.exit(-1)
+
         label_img = cv2.imread(label_file, cv2.IMREAD_GRAYSCALE)
 
         check_src_label_size(src_img, label_img)

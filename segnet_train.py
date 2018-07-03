@@ -43,7 +43,11 @@ K.set_image_dim_ordering('th')
 model_save_path = '../data/models/segnet_channel_first.h5' # for channel_first
 # model_save_path = '../data/models/segnet_channel_last.h5' # for channel_first
 # model_save_path = '../data/models/segnet_train_test_tensorflow.h5'
+
 train_data_path = '../data/traindata/'
+
+train_data_path = '../data/traindata/segnet/'
+
 
 
 def SegNet():

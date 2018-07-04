@@ -515,6 +515,9 @@ def cheap_tiling_prediction_not_square_img_multiclassbands(img, model, window_si
     prd = prd[:original_shape[0], :original_shape[1]]
     if real_classes == 1: # only for real_classes=1
         prd = prd[:,:,0]
+
+    if real_classes <3: # if band=2, it can not be display
+        PLOT_PROGRESS=False
     if PLOT_PROGRESS:
         plt.imshow(prd)
         plt.title("Cheaply Merged Patches")

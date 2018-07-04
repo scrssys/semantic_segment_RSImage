@@ -27,9 +27,11 @@ np.random.seed(seed)
 img_w = 256
 img_h = 256
 # 有一个为背景
-n_label = 4 + 1
+# n_label = 4 + 1
+# classes = [0., 1., 2., 3., 4.]
 
-classes = [0., 1., 2., 3., 4.]
+n_label = 2 + 1
+classes = [0., 1., 2.]
 
 labelencoder = LabelEncoder()
 labelencoder.fit(classes)
@@ -40,7 +42,7 @@ labelencoder.fit(classes)
 from keras import backend as K
 K.set_image_dim_ordering('th')
 # K.set_image_dim_ordering('tf')
-model_save_path = '../data/models/segnet_channel_first.h5' # for channel_first
+model_save_path = '../data/models/segnet_channel_first_012labels.h5' # for channel_first
 # model_save_path = '../data/models/segnet_channel_last.h5' # for channel_first
 # model_save_path = '../data/models/segnet_train_test_tensorflow.h5'
 
@@ -252,7 +254,7 @@ def generateValidData(batch_size,data=[]):
 
 
 def segnet_train():
-    EPOCHS = 30
+    EPOCHS = 20
     BS = 16
     model = SegNet()
     # model = multi_gpu_model(model, gpus=4)

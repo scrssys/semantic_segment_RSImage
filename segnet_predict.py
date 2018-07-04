@@ -200,8 +200,8 @@ def predict(image, model, window_size, labelencoder):
     mask_whole = np.zeros((padding_h, padding_w), dtype=np.uint8)
     for i in range(padding_h // stride):
         for j in range(padding_w // stride):
-            # crop = padding_img[:3, i * stride:i * stride + window_size, j * stride:j * stride + window_size]
-            crop = padding_img[i * stride:i * stride + window_size, j * stride:j * stride + window_size, :3]
+            crop = padding_img[:3, i * stride:i * stride + window_size, j * stride:j * stride + window_size]
+            # crop = padding_img[i * stride:i * stride + window_size, j * stride:j * stride + window_size, :3]
             cb, ch, cw = crop.shape # for channel_first
 
             print ('crop:{}'.format(crop.shape))
@@ -216,10 +216,13 @@ def predict(image, model, window_size, labelencoder):
             # pred = np.swapaxes(pred,0,1)
 
             mask_whole[i * stride:i * stride + window_size, j * stride:j * stride + window_size] = pred[:, :]
-    plt.imshow(mask_whole,cmap='gray')
+
+    outputresult = mask_whole[0:h, 0:w]
+    plt.imshow(outputresult,cmap='gray')
     plt.title("Original predicted result")
     plt.show()
-    cv2.imwrite('../data/predict/pre1.png', mask_whole[0:h, 0:w])
+    return outputresult
+    # cv2.imwrite('../data/predict/pre1.png', mask_whole[0:h, 0:w])
 
 
 

@@ -65,8 +65,9 @@ def unet_predict(image, model, window_size, labelencoder):
     plt.imshow(outputresult,cmap='gray')
     plt.title("Original predicted result")
     plt.show()
+    return outputresult
 
-    cv2.imwrite('../data/predict/testorignalpredict.png', outputresult)
+    # cv2.imwrite('../data/predict/testorignalpredict.png', outputresult)
 
 def predict_for_unet_multiclassbands(small_img_patches, model, real_classes,labelencoder):
     """

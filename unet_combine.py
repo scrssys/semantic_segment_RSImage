@@ -7,7 +7,7 @@ import numpy as np
 from tqdm import tqdm
 import matplotlib.pyplot as plt
 
-from base_fuctions import load_img
+from ulitities.base_functions import load_img
 
 FOREGROUND = 1 # define the foreground value
 

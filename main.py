@@ -27,7 +27,9 @@ K.set_image_dim_ordering('th')
 """
 os.environ["CUDA_VISIBLE_DEVICES"] = "2"
 
-segnet_classes = [0., 1., 2., 3., 4.]
+# segnet_classes = [0., 1., 2., 3., 4.]
+segnet_classes = [0., 1., 2.]
+
 unet_classes = [0., 1.]
 
 
@@ -37,16 +39,16 @@ unet_classes = [0., 1.]
 unet_model_path = '../data/models/unet_channel_first_buildings.h5'
 # segnet_model_path = '../data/models/segnet_train_test_1.h5'
 # segnet_model_path = '../data/models/segnet_channel_last.h5'
-segnet_model_path = '../data/models/segnet_channel_first.h5' # for channel_first
+segnet_model_path = '../data/models/segnet_channel_first_012labels.h5' # for channel_first
 test_image_path = '../data/test/1.png'
-output_mask = '../data/predict/unet/mask_buildings_img_'+os.path.split(test_image_path)[1]
+# output_mask = '../data/predict/unet/mask_buildings_img_'+os.path.split(test_image_path)[1]
+output_mask = '../data/predict/segnet/mask_segnet_img_'+os.path.split(test_image_path)[1]
+
+FLAG_USING_UNET = False
 
 window_size = 256
 
 step = 128
-
-FLAG_USING_UNET = True
-
 
 
 if __name__ == '__main__':
@@ -71,13 +73,13 @@ if __name__ == '__main__':
         labelencoder.fit(segnet_classes)
 
     """1. test original code of predict()"""
-    # if FLAG_USING_UNET:
-    #     unet_predict(input_img, model, window_size, labelencoder)
-    # else:
-    #     predict(input_img, model, window_size,labelencoder)
-    #
-    #
-    # sys.eixt()
+    if FLAG_USING_UNET:
+        result_test=unet_predict(input_img, model, window_size, labelencoder)
+    else:
+        result_test=predict(input_img, model, window_size,labelencoder)
+
+    cv2.imwrite(output_mask, result_test)
+    sys.exit()
 
     """2. test code of flame tracer """
     # predicted_patches = get_predicted_pathces_from_image(
@@ -90,31 +92,32 @@ if __name__ == '__main__':
     # )
     #
     # mosaic_resut(predicted_patches)
-    # sys.eixt()
+    # sys.exit()
 
     """ 3. true predict by segnet """
 
     """3.1 test cheap """
-    if FLAG_USING_UNET:
-        predictions_cheap = cheap_tiling_prediction_not_square_img_multiclassbands(
-            input_img,
-            model,
-            window_size=window_size,
-            real_classes=result_channels,  # output channels = 真是的类别，总类别-背景
-            pred_func=predict_for_unet_multiclassbands,
-            labelencoder=labelencoder
-        )
-    else:
-        predictions_cheap = cheap_tiling_prediction_not_square_img_multiclassbands(
-            input_img,
-            model,
-            window_size=window_size,
-            real_classes=result_channels,  # output channels = 真是的类别，总类别-背景
-            pred_func=predict_for_segnet_multiclassbands,
-            labelencoder=labelencoder
-        )
-    # cv2.imwrite('./data/predict/pre_cheap_multibands.png', predictions_cheap)
-    cv2.imwrite(output_mask, predictions_cheap)
+    # if FLAG_USING_UNET:
+    #     predictions_cheap = cheap_tiling_prediction_not_square_img_multiclassbands(
+    #         input_img,
+    #         model,
+    #         window_size=window_size,
+    #         real_classes=result_channels,  # output channels = 真是的类别，总类别-背景
+    #         pred_func=predict_for_unet_multiclassbands,
+    #         labelencoder=labelencoder
+    #     )
+    # else:
+    #     predictions_cheap = cheap_tiling_prediction_not_square_img_multiclassbands(
+    #         input_img,
+    #         model,
+    #         window_size=window_size,
+    #         real_classes=result_channels,  # output channels = 真是的类别，总类别-背景
+    #         pred_func=predict_for_segnet_multiclassbands,
+    #         labelencoder=labelencoder
+    #     )
+    # # cv2.imwrite('./data/predict/pre_cheap_multibands.png', predictions_cheap)
+    #
+    # cv2.imwrite(output_mask, predictions_cheap)
 
     # sys.exit()
 

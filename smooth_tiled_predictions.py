@@ -385,8 +385,7 @@ def predict_img_with_smooth_windowing_multiclassbands(input_img, model, window_s
     Apply the `pred_func` function to square patches of the image, and overlap
     the predictions to merge them smoothly.
 
-    See 6th, 7th and 8th idea here:
-    http://blog.kaggle.com/2017/05/09/dstl-satellite-imagery-competition-3rd-place-winners-interview-vladimir-sergey/
+    :return :real_class channels, range[0,255] corresponding to [0,1] probabilities
     """
     PLOT_PROGRESS = True
     pad = _pad_img(input_img, window_size, subdivisions)
@@ -435,13 +434,39 @@ def predict_img_with_smooth_windowing_multiclassbands(input_img, model, window_s
 
     prd = prd[:input_img.shape[0], :input_img.shape[1], :]
 
-    if real_classes == 1: # only for real_classes = 1
-        prd =prd[:,:,0]
+    # if real_classes == 1: # only for real_classes = 1
+    #     prd =prd[:,:,0]
+
+    """merge multiband prd to gray """
+    # gray_mask = np.zeros((input_img.shape[0],input_img.shape[1]),np.uint8)
+    # label_value = 0
+    # for ch in range(real_classes):
+    #     label_value +=1
+    #     print (np.unique(prd[:,:,ch]))
+    #     for i in range(input_img.shape[0]):
+    #         for j in range(input_img.shape[1]):
+    #             if prd[i,j,ch]>=0.5:
+    #                 gray_mask[i,j] = label_value
+
+
+    """
+    save [0,1] probabilities to [0,255]
+    """
+    prd = prd * 255.0
+
     if PLOT_PROGRESS:
-        plt.imshow(prd)
-        plt.title("Smoothly Merged Patches that were Tiled Tighter")
-        plt.show()
-    return prd
+        for idx in range(real_classes):
+            plt.imshow(prd[:,:,idx])
+            plt.title("Smoothly Merged Patches that were Tiled Tighter")
+            plt.show()
+
+    return prd  # probabilities for each target: [0,255]
+    # if PLOT_PROGRESS:
+    #     plt.imshow(gray_mask)
+    #     plt.title("Cheaply Merged Patches")
+    #     plt.show()
+    # return gray_mask
+
 
 
 def cheap_tiling_prediction(img, window_size, nb_classes, pred_func):
@@ -513,15 +538,26 @@ def cheap_tiling_prediction_not_square_img_multiclassbands(img, model, window_si
             tt = pred_func([im], model, real_classes, labelencoder)
             prd[i:i + window_size, j:j + window_size] = tt
     prd = prd[:original_shape[0], :original_shape[1]]
-    if real_classes == 1: # only for real_classes=1
-        prd = prd[:,:,0]
 
-    if real_classes <3: # if band=2, it can not be display
-        PLOT_PROGRESS=False
+    prd = prd*255.0
+
+
+    """merge multiband prd to gray """
+    # gray_mask = np.zeros((original_shape[0],original_shape[1]),np.uint8)
+    # label_value = 0
+    # for ch in range(real_classes):
+    #     label_value +=1
+    #     for i in range(original_shape[0]):
+    #         for j in range(original_shape[1]):
+    #             if abs(prd[i,j,ch]-1)<0.1:
+    #                 gray_mask[i,j] = label_value
+
+
     if PLOT_PROGRESS:
-        plt.imshow(prd)
-        plt.title("Cheaply Merged Patches")
-        plt.show()
+        for idx in range(real_classes):
+            plt.imshow(prd[:,:,idx])
+            plt.title("Cheaply Merged Patches")
+            plt.show()
     return prd
 
 

@@ -29,20 +29,20 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "2"
 
 # segnet_classes = [0., 1., 2., 3., 4.]
 segnet_classes = [0., 1., 2.]
+segnet_dict = {'road':1, 'building':2}
 
 unet_classes = [0., 1.]
 
 
 # model path & test_image path
 
-# unet_model_path = '../data/models/unet_channel_firstbuldlings.h5'
+# unet_model_path = '../data/models/unet_channel_first_roads.h5'
 unet_model_path = '../data/models/unet_channel_first_buildings.h5'
-# segnet_model_path = '../data/models/segnet_train_test_1.h5'
-# segnet_model_path = '../data/models/segnet_channel_last.h5'
+
 segnet_model_path = '../data/models/segnet_channel_first_012labels.h5' # for channel_first
 test_image_path = '../data/test/1.png'
-# output_mask = '../data/predict/unet/mask_buildings_img_'+os.path.split(test_image_path)[1]
-output_mask = '../data/predict/segnet/mask_segnet_img_'+os.path.split(test_image_path)[1]
+unet_output_mask = '../data/predict/unet/mask_unet_buildings_'+os.path.split(test_image_path)[1]
+segnet_output_path = '../data/predict/segnet/mask_segnet_'
 
 FLAG_USING_UNET = False
 
@@ -73,13 +73,13 @@ if __name__ == '__main__':
         labelencoder.fit(segnet_classes)
 
     """1. test original code of predict()"""
-    if FLAG_USING_UNET:
-        result_test=unet_predict(input_img, model, window_size, labelencoder)
-    else:
-        result_test=predict(input_img, model, window_size,labelencoder)
-
-    cv2.imwrite(output_mask, result_test)
-    sys.exit()
+    # if FLAG_USING_UNET:
+    #     result_test=unet_predict(input_img, model, window_size, labelencoder)
+    # else:
+    #     result_test=predict(input_img, model, window_size,labelencoder)
+    #
+    # cv2.imwrite('../data/predict/test.png', result_test)
+    # sys.exit()
 
     """2. test code of flame tracer """
     # predicted_patches = get_predicted_pathces_from_image(
@@ -94,7 +94,7 @@ if __name__ == '__main__':
     # mosaic_resut(predicted_patches)
     # sys.exit()
 
-    """ 3. true predict by segnet """
+    """ 3. true predict """
 
     """3.1 test cheap """
     # if FLAG_USING_UNET:
@@ -106,6 +106,7 @@ if __name__ == '__main__':
     #         pred_func=predict_for_unet_multiclassbands,
     #         labelencoder=labelencoder
     #     )
+    #     cv2.imwrite(unet_output_mask, predictions_cheap)
     # else:
     #     predictions_cheap = cheap_tiling_prediction_not_square_img_multiclassbands(
     #         input_img,
@@ -115,32 +116,37 @@ if __name__ == '__main__':
     #         pred_func=predict_for_segnet_multiclassbands,
     #         labelencoder=labelencoder
     #     )
-    # # cv2.imwrite('./data/predict/pre_cheap_multibands.png', predictions_cheap)
+    #     for key,val in segnet_dict.items():
+    #         output_file = segnet_output_path+key+'.png'
+    #         cv2.imwrite(output_file, predictions_cheap[:,:,val-1])  # achieve the integer automatically
     #
-    # cv2.imwrite(output_mask, predictions_cheap)
-
+    #
     # sys.exit()
 
-    # if FLAG_USING_UNET:
-    #     predictions_smooth = predict_img_with_smooth_windowing_multiclassbands(
-    #         input_img,
-    #         model,
-    #         window_size=window_size,
-    #         subdivisions=2,
-    #         real_classes=result_channels,  # output channels = 真是的类别，总类别-背景
-    #         pred_func=predict_for_unet_multiclassbands,
-    #         labelencoder=labelencoder
-    #     )
-    # else:
-    #     predictions_smooth = predict_img_with_smooth_windowing_multiclassbands(
-    #         input_img,
-    #         model,
-    #         window_size=window_size,
-    #         subdivisions=2,
-    #         real_classes=result_channels,  # output channels = 真是的类别，总类别-背景
-    #         pred_func=predict_for_segnet_multiclassbands,
-    #         labelencoder=labelencoder
-    #     )
+    if FLAG_USING_UNET:
+        predictions_smooth = predict_img_with_smooth_windowing_multiclassbands(
+            input_img,
+            model,
+            window_size=window_size,
+            subdivisions=2,
+            real_classes=result_channels,  # output channels = 真是的类别，总类别-背景
+            pred_func=predict_for_unet_multiclassbands,
+            labelencoder=labelencoder
+        )
+        cv2.imwrite(unet_output_mask, predictions_smooth)
+    else:
+        predictions_smooth = predict_img_with_smooth_windowing_multiclassbands(
+            input_img,
+            model,
+            window_size=window_size,
+            subdivisions=2,
+            real_classes=result_channels,  # output channels = 真是的类别，总类别-背景
+            pred_func=predict_for_segnet_multiclassbands,
+            labelencoder=labelencoder
+        )
 
-    # cv2.imwrite(output_mask, predictions_smooth)
+        for key,val in segnet_dict.items():
+            output_file = segnet_output_path+key+'.png'
+            cv2.imwrite(output_file, predictions_smooth[:,:,val-1])  # achieve the integer automatically
+
 

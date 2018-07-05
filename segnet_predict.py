@@ -170,6 +170,7 @@ def predict_for_segnet_multiclassbands(small_img_patches, model, real_classes,la
                 for j in range(column):
                     if pred[i,j] ==t+1:
                         res_pred[i,j,t]=1
+            print("\nband:{}   labels contain:{}".format(t,np.unique(res_pred[:,:,t])))
 
         mask_output.append(res_pred)
 
@@ -197,7 +198,7 @@ def predict(image, model, window_size, labelencoder):
     # padding_img = padding_img.transpose(2, 0, 1) # for channel_first
 
     print 'newsrc:', padding_img.shape
-    mask_whole = np.zeros((padding_h, padding_w), dtype=np.uint8)
+    mask_whole = np.zeros((padding_h, padding_w), dtype=np.float32)
     for i in range(padding_h // stride):
         for j in range(padding_w // stride):
             crop = padding_img[:3, i * stride:i * stride + window_size, j * stride:j * stride + window_size]
@@ -212,12 +213,12 @@ def predict(image, model, window_size, labelencoder):
             pred = model.predict_classes(crop, verbose=2)
             pred = labelencoder.inverse_transform(pred[0])
 
-            pred = pred.reshape((256, 256)).astype(np.uint8)
+            pred = pred.reshape(256, 256)
             # pred = np.swapaxes(pred,0,1)
 
             mask_whole[i * stride:i * stride + window_size, j * stride:j * stride + window_size] = pred[:, :]
 
-    outputresult = mask_whole[0:h, 0:w]
+    outputresult = mask_whole[0:h, 0:w]*255.0
     plt.imshow(outputresult,cmap='gray')
     plt.title("Original predicted result")
     plt.show()

@@ -36,7 +36,7 @@ def unet_predict(image, model, window_size, labelencoder):
 
     padding_img = img_to_array(padding_img)
 
-    mask_whole = np.zeros((padding_h, padding_w), dtype=np.uint8)
+    mask_whole = np.zeros((padding_h, padding_w), dtype=np.float32)
     for i in range(padding_h // stride):
         for j in range(padding_w // stride):
 
@@ -53,14 +53,15 @@ def unet_predict(image, model, window_size, labelencoder):
 
             pred = model.predict(crop, verbose=2)
             # print (np.unique(pred))
-            pred = pred +0.5
+            # pred = pred +0.5
 
-            pred = pred.reshape((256, 256)).astype(np.uint8)
+
+            pred = pred.reshape(256, 256)
             print (np.unique(pred))
 
             mask_whole[i * stride:i * stride + window_size, j * stride:j * stride + window_size] = pred[:, :]
 
-    outputresult = mask_whole[0:h, 0:w]
+    outputresult = mask_whole[0:h, 0:w]*255.0
 
     plt.imshow(outputresult,cmap='gray')
     plt.title("Original predicted result")
@@ -74,6 +75,8 @@ def predict_for_unet_multiclassbands(small_img_patches, model, real_classes,labe
         Apply prediction on images arranged in a 4D array as a batch.(patches, row,column, channels)
         output is a (pathes, x, y, real_classes): a multiband image
     """
+    assert(real_classes ==1 ) # only usefully for one target class
+
     small_img_patches = np.array(small_img_patches)
     print (small_img_patches.shape)
     assert (len(small_img_patches.shape) == 4)
@@ -91,16 +94,18 @@ def predict_for_unet_multiclassbands(small_img_patches, model, real_classes,labe
         crop = np.expand_dims(crop, axis=0)
         # print ('crop:{}'.format(crop.shape))
         pred = model.predict(crop, verbose=2)
-        pred += 0.5
+        # pred += 0.5
 
-        pred = pred.reshape((row,column)).astype(np.uint8)
+        # pred = pred.reshape((row,column)).astype(np.uint8)
+
         # 将预测结果分波段存储
-        res_pred = np.zeros((row,column,real_classes), np.uint8)
-        for t in range(real_classes):
-            for i in range(row):
-                for j in range(column):
-                    if pred[i,j] ==t+1:
-                        res_pred[i,j,t]=1
+        res_pred = np.zeros((row,column,real_classes), np.float32)
+        res_pred[:,:,0]= pred
+        # for t in range(real_classes):
+        #     for i in range(row):
+        #         for j in range(column):
+        #             if pred[i,j] ==t+1:
+        #                 res_pred[i,j,t]=1
 
         mask_output.append(res_pred)
 

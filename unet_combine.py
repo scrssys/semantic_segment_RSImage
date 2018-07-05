@@ -9,12 +9,21 @@ import matplotlib.pyplot as plt
 
 from ulitities.base_functions import load_img
 
-FOREGROUND = 1 # define the foreground value
+FOREGROUND = 40# for segnet:40; for unet=125; define the foreground value
 
-input_path = '../data/predict/unet/'
-output_file = '../data/predict/result_unet_1.png'
+ROAD_VALUE=125
+BUILDING_VALUE=255
 
-mask_pool = ['mask_road_img_1.png','mask_buildings_img_1.png']
+"""for unet"""
+# input_path = '../data/predict/unet/'
+# output_file = '../data/predict/result_unet_combined.png'
+#
+# mask_pool = ['mask_unet_roads_1.png','mask_unet_buildings_1.png']
+
+"""for segnet"""
+input_path = '../data/predict/segnet/'
+output_file = '../data/predict/result_segnet_combined.png'
+mask_pool = ['mask_segnet_building.png','mask_segnet_road.png']
 
 
 def check_input_file():
@@ -34,23 +43,37 @@ def check_input_file():
 
 
 def combine_all_mask(height, width,input_path,mask_pool):
+    """
+
+    :param height:
+    :param width:
+    :param input_path:
+    :param mask_pool:
+    :return:
+
+    prior: bulidings(2)>road(1)
+    """
     final_mask=np.zeros((height,width),np.uint8)
     for idx,file in enumerate(mask_pool):
         ret,img = load_img(input_path+file,grayscale=True)
         assert (ret == 0)
         label_value=0
         if 'road' in file:
-            label_value =1
-        elif 'buildings' in file:
-            label_value=2
+            label_value =ROAD_VALUE
+        elif 'building' in file:
+            label_value=BUILDING_VALUE
         # label_value = idx+1
         for i in tqdm(range(height)):
             for j in range(width):
-                if img[i,j]==FOREGROUND:
-                    if label_value==2:
+                if img[i,j]>=FOREGROUND:
+                    print ("img[{},{}]:{}".format(i,j,img[i,j]))
+                    if label_value==ROAD_VALUE:
                         final_mask[i,j]=label_value
-                    else:
-                        final_mask[i,j]=label_value
+                    elif label_value==BUILDING_VALUE:
+                        print ("final_mask[{},{}]:{}".format(i, j, final_mask[i, j]))
+                        if final_mask[i,j]!=ROAD_VALUE:
+                            final_mask[i,j]=label_value
+
     return final_mask
 
 

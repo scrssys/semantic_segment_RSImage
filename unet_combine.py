@@ -26,15 +26,15 @@ output_file = '../data/predict/result_segnet_combined.png'
 mask_pool = ['mask_segnet_building.png','mask_segnet_road.png']
 
 
-def check_input_file():
-    ret, img_1 = load_img(input_path+mask_pool[0],grayscale=True)
+def check_input_file(path,masks):
+    ret, img_1 = load_img(path+masks[0],grayscale=True)
     assert (ret == 0)
 
     height, width = img_1.shape
-    num_img = len(mask_pool)
+    num_img = len(masks)
 
     for next_index in range(1,num_img):
-        next_ret, next_img=load_img(input_path+mask_pool[next_index],grayscale=True)
+        next_ret, next_img=load_img(path+masks[next_index],grayscale=True)
         assert (next_ret ==0 )
         next_height, next_width = next_img.shape
         assert(height==next_height and width==next_width)
@@ -80,7 +80,7 @@ def combine_all_mask(height, width,input_path,mask_pool):
 
 if __name__=='__main__':
 
-    x,y=check_input_file()
+    x,y=check_input_file(input_path,mask_pool)
 
     result_mask=combine_all_mask(x,y,input_path,mask_pool)
 

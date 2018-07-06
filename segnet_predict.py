@@ -170,7 +170,7 @@ def predict_for_segnet_multiclassbands(small_img_patches, model, real_classes,la
                 for j in range(column):
                     if pred[i,j] ==t+1:
                         res_pred[i,j,t]=1
-            print("\nband:{}   labels contain:{}".format(t,np.unique(res_pred[:,:,t])))
+            # print("\nband:{}   labels contain:{}".format(t,np.unique(res_pred[:,:,t])))
 
         mask_output.append(res_pred)
 

@@ -34,17 +34,19 @@ segnet_dict = {'road':1, 'building':2}
 unet_classes = [0., 1.]
 
 
+FLAG_USING_UNET = True
+test_image_path = '../data/test/3.png'
 # model path & test_image path
 
 # unet_model_path = '../data/models/unet_channel_first_roads.h5'
+# unet_output_mask = '../data/predict/unet/mask_unet_roads_'+os.path.split(test_image_path)[1]
+
 unet_model_path = '../data/models/unet_channel_first_buildings.h5'
+unet_output_mask = '../data/predict/unet/mask_unet_buildings_'+os.path.split(test_image_path)[1]
 
 segnet_model_path = '../data/models/segnet_channel_first_012labels.h5' # for channel_first
-test_image_path = '../data/test/1.png'
-unet_output_mask = '../data/predict/unet/mask_unet_buildings_'+os.path.split(test_image_path)[1]
 segnet_output_path = '../data/predict/segnet/mask_segnet_'
 
-FLAG_USING_UNET = False
 
 window_size = 256
 

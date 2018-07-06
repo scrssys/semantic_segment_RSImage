@@ -1,14 +1,12 @@
 import numpy as np
 import cv2
+from tqdm import tqdm
 
 from ulitities.base_functions import load_img
 
-# RESULT_PREFIXX = ['./result1/', './result2/', './result3/']
-
 input_path = '../data/predict/'
-input_masks=['result_unet_combined_100.png','result_unet_combined125.png',
-             'result_segnet_combined.png','result_segnet_combined80.png']
-output_file = '../data/predict/final_result.png'
+input_masks=['unet/unet_combined_3.png','segnet/segnet_combined_3.png']
+output_file = '../data/predict/final_result_33.png'
 
 
 def check_input_file(path, masks):
@@ -37,7 +35,7 @@ def vote_per_image(height, width, path, masks):
 
     vote_mask=np.zeros((height,width), np.uint8)
 
-    for i in range(height):
+    for i in tqdm(range(height)):
         for j in range(width):
             record=np.zeros(256,np.uint8)
             for n in range(len(mask_list)):
@@ -45,35 +43,15 @@ def vote_per_image(height, width, path, masks):
                 pixel=mask[i,j]
                 record[pixel] +=1
 
+            """Alarming"""
+            # if record.argmax()==0: # if argmax of 0 = 125 or 255, not prior considering background(0)
+            #     record[0] -=1
+
             label=record.argmax()
-            print ("{},{} label={}".format(i,j,label))
+            # print ("{},{} label={}".format(i,j,label))
             vote_mask[i,j]=label
 
     return vote_mask
-
-
-
-    # # for j in range(len(RESULT_PREFIXX)):
-    # #     im = cv2.imread(RESULT_PREFIXX[j] + str(image_id) + '.png', 0)
-    # #     result_list.append(im)
-    #
-    # # each pixel
-    # height, width = result_list[0].shape
-    # vote_mask = np.zeros((height, width))
-    # for h in range(height):
-    #     for w in range(width):
-    #         record = np.zeros((1, 5))
-    #         for n in range(len(result_list)):
-    #             mask = result_list[n]
-    #             pixel = mask[h, w]
-    #             # print('pix:',pixel)
-    #             record[0, pixel] += 1
-    #
-    #         label = record.argmax()
-    #         # print(label)
-    #         vote_mask[h, w] = label
-    #
-    # cv2.imwrite('vote_mask' + str(image_id) + '.png', vote_mask)
 
 
 

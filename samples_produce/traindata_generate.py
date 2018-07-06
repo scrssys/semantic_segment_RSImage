@@ -7,6 +7,8 @@ import numpy as np
 from tqdm import tqdm
 import sys
 
+from ulitities.base_functions import get_file
+
 seed = 1
 np.random.seed(seed)
 
@@ -16,15 +18,24 @@ img_h = 256
 image_sets = ['1.png', '2.png', '3.png', '4.png', '5.png']
 
 FLAG_USING_UNET = True
-segnet_labels = [0, 1, 2, 3, 4]
+segnet_labels = [0, 1, 2]
 unet_labels = [0, 1]
 
-input_src_path = '../data/originaldata/unet/roads/src/'
-input_label_path = '../data/originaldata/unet/roads/label/'
-output_path = '../data/traindata/unet/roads/'
+"""for unet roads"""
+input_path = '../../data/originaldata/unet/roads/'
+# input_src_path = '../../data/originaldata/unet/roads/src/'
+# input_label_path = '../../data/originaldata/unet/roads/label/'
+output_path = '../../data/traindata/unet/roads/'
 
-"""for segnet train data"""
-# source_path = '../data/originaldata/segnet/'
+"""for unet buildings"""
+# input_path = '../../data/originaldata/unet/buildings/'
+# output_path = '../../data/traindata/unet/buildings/'
+
+"""
+for segnet train data, but not ready and do not tested
+
+"""
+# input_path = '../../data/originaldata/segnet/'
 # output_path = '../data/traindata/segnet/'
 
 
@@ -90,7 +101,7 @@ def data_augment(xb, yb):
 """check some invalid labels or NoData values"""
 def check_invalid_labels(img):
 
-    valid_labels=[0,1]
+    valid_labels=[]
 
     if FLAG_USING_UNET:
         valid_labels = unet_labels
@@ -110,39 +121,21 @@ def check_src_label_size(srcimg, labelimg):
     assert (row_src==row_label and column_src==column_src)
 
 
-
-def get_file(file_path, file_type='.png'):
-    L=[]
-    for root,dirs,files in os.walk(file_path):
-        for file in files:
-            if os.path.splitext(file)[1]==file_type:
-                L.append(os.path.join(root,file))
-    return L
-
-
-
-
-def creat_dataset(image_num=50000, mode='original'):
-
-    print('creating dataset...')
+def creat_dataset(image_num=50000, mode='original',
+                  in_path=input_path, out_path=output_path):
 
     print('\ncreating dataset...')
 
+    src_files,tt = get_file(os.path.join(in_path,'src/'))
+    assert(tt!=0)
 
-    src_files = get_file(input_src_path)
     image_each = image_num/len(src_files)
 
-    # image_each = image_num / len(image_sets)
-
     g_count = 0
-    # for i in tqdm(range(len(image_sets))):
     for scr_file in tqdm(src_files):
         count = 0
-        # src_img = cv2.imread(source_path + 'src/' + image_sets[i])  # 3 channels
-        # label_img = cv2.imread(source_path + 'label/' + image_sets[i], cv2.IMREAD_GRAYSCALE)  # single channel
-
         src_img = cv2.imread(scr_file)
-        label_file = input_label_path+os.path.split(scr_file)[1]
+        label_file = os.path.join(in_path,'label/')+os.path.split(scr_file)[1]
 
         if not os.path.isfile(label_file):
             print("Have no file:".format(label_file))
@@ -172,15 +165,44 @@ def creat_dataset(image_num=50000, mode='original'):
             if mode == 'augment':
                 src_roi, label_roi = data_augment(src_roi, label_roi)
 
-            visualize = np.zeros((256, 256)).astype(np.uint8)
             visualize = label_roi * 50
 
-            cv2.imwrite((output_path + 'visualize/%d.png' % g_count), visualize)
-            cv2.imwrite((output_path + 'src/%d.png' % g_count), src_roi)
-            cv2.imwrite((output_path + 'label/%d.png' % g_count), label_roi)
+            cv2.imwrite((out_path + 'visualize/%d.png' % g_count), visualize)
+            cv2.imwrite((out_path + 'src/%d.png' % g_count), src_roi)
+            cv2.imwrite((out_path + 'label/%d.png' % g_count), label_roi)
             count += 1
             g_count += 1
 
 
 if __name__ == '__main__':
-    creat_dataset(mode='augment')
+
+    """check input directories"""
+    if not os.path.isdir(os.path.join(input_path,'src/')):
+        print("No input src directory:{}".format(os.path.join(input_path,'src/')))
+        sys.exit(-1)
+    if not os.path.isdir(os.path.join(input_path,'label/')):
+        print("No input label directory:{}".format(os.path.join(input_path,'label/')))
+        sys.exit(-2)
+
+    if not os.path.isdir(output_path):
+        print("No output directory:{}".format(output_path))
+        os.mkdir(output_path)
+
+    """if not exist, new create it"""
+    output_src_path = os.path.join(output_path,'src/')
+    if not os.path.isdir(output_src_path):
+        print("No output directory:{}".format(output_src_path))
+        os.mkdir(output_src_path)
+
+    output_label_path = os.path.join(output_path, 'label/')
+    if not os.path.isdir(output_label_path):
+        print("No output directory:{}".format(output_label_path))
+        os.mkdir(output_label_path)
+
+    output_visualize_path = os.path.join(output_path, 'visualize/')
+    if not os.path.isdir(output_visualize_path):
+        print("No output directory:{}".format(output_visualize_path))
+        os.mkdir(output_visualize_path)
+
+
+    creat_dataset(mode='augment', in_path=input_path, out_path=output_path)

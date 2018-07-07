@@ -154,9 +154,7 @@ def predict_for_segnet_multiclassbands(small_img_patches, model, real_classes,la
 
     mask_output = []
     for p in range(patches):
-        # crop = np.zeros((row, column, input_channels), np.uint8)
         crop = small_img_patches[p,:,:,:]
-        # crop = crop / 255.0
 
         # Using "img_to_array" to convert the dimensions ordering, to adapt "K.set_image_dim_ordering('**') "
         crop = img_to_array(crop)

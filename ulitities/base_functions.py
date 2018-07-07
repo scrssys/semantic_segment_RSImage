@@ -6,6 +6,12 @@ import numpy as np
 
 
 def load_img(path, grayscale=False):
+    """
+
+    :param path: input image file path
+    :param grayscale:  bool value
+    :return: flag, image values
+    """
     if not os.path.isfile(path):
         print("input path is not a file!")
         return -1, None
@@ -20,9 +26,15 @@ def load_img(path, grayscale=False):
 
 
 
-def get_file(file_path, file_type='.png'):
+def get_file(file_dir, file_type='.png'):
+    """
+
+    :param file_dir: directory of input files, it may have sub_folders
+    :param file_type: file format, namely postfix
+    :return: L: a list of files under the file_dir and sub_folders; num: the length of L
+    """
     L=[]
-    for root,dirs,files in os.walk(file_path):
+    for root,dirs,files in os.walk(file_dir):
         for file in files:
             if os.path.splitext(file)[1]==file_type:
                 L.append(os.path.join(root,file))

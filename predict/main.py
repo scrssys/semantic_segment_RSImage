@@ -39,7 +39,7 @@ FLAG_USING_UNET = False
 APPROACH_FLAG=4 # 0: raw predict; 1:flame tracer for smooth; 2: cheap predict; else:smooth predict
 
 
-input_image = '../../data/test/3.png'
+input_image = '../../data/test/2.png'
 
 
 """(1.1) for unet road predict"""
@@ -52,7 +52,7 @@ unet_output_mask = '../../data/predict/unet/mask_unet_buildings_'+os.path.split(
 
 """(2) for unet road predict"""
 segnet_model_path = '../../data/models/segnet_channel_first_012labels.h5' # for channel_first
-segnet_output_path = '../../data/predict/segnet/mask_segnet_'
+segnet_output_path = '../../data/predict/segnet/mask_segnet_new_'
 
 window_size = 256
 

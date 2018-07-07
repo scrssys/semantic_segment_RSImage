@@ -167,6 +167,7 @@ def predict_for_segnet_multiclassbands(small_img_patches, model, real_classes,la
         pred = pred.reshape((row,column)).astype(np.uint8)
 
         # 将预测结果分波段存储
+        """method 1: by use np.where"""
         tmp =pred.reshape((row*column))
         res_pred = np.zeros((row * column, real_classes))
         for t in range(real_classes):
@@ -175,6 +176,7 @@ def predict_for_segnet_multiclassbands(small_img_patches, model, real_classes,la
         res_pred = res_pred.reshape((row, column, real_classes))
 
         """bad demo as following: (cost long time)"""
+        # """method 2: by looping through every index"""
         # res_pred = np.zeros((row, column, real_classes))
         # for i in range(row):
         #     for j in range(column):

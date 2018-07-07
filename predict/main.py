@@ -39,7 +39,7 @@ FLAG_USING_UNET = False
 APPROACH_FLAG=4 # 0: raw predict; 1:flame tracer for smooth; 2: cheap predict; else:smooth predict
 
 
-input_image = '../../data/test/11.png'
+input_image = '../../data/test/3.png'
 
 
 """(1.1) for unet road predict"""

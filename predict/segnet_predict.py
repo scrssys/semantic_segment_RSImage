@@ -167,14 +167,20 @@ def predict_for_segnet_multiclassbands(small_img_patches, model, real_classes,la
         pred = pred.reshape((row,column)).astype(np.uint8)
 
         # 将预测结果分波段存储
-        tmp = pred.reshape((row*column))
-        res_pred = np.zeros((row*column,real_classes))
-        for i in range(row*column):
-            for t in range(real_classes):
-                if tmp[i]==t+1:
-                    res_pred[i,t]=1
+        tmp =pred.reshape((row*column))
+        res_pred = np.zeros((row * column, real_classes))
+        for t in range(real_classes):
+            idx = np.where(tmp==t+1)
+            res_pred[idx,t]=1
+        res_pred = res_pred.reshape((row, column, real_classes))
 
-        res_pred = res_pred.reshape((row,column,real_classes))
+        """bad demo as following: (cost long time)"""
+        # res_pred = np.zeros((row, column, real_classes))
+        # for i in range(row):
+        #     for j in range(column):
+        #         for t in range(real_classes):
+        #             if pred[i,j]==t+1:
+        #                 res_pred[i,j,t]=1
 
         mask_output.append(res_pred)
 

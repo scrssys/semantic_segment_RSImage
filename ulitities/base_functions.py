@@ -19,10 +19,18 @@ def load_img(path, grayscale=False):
         img = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
     else:
         img = cv2.imread(path)
-        # img = np.array(img, dtype="float")
     return 0, img
 
-
+def load_img_normalization(path, grayscale=False):
+    if not os.path.isfile(path):
+        print("input path is not a file!")
+        return -1, None
+    if grayscale:
+        img = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
+    else:
+        img = cv2.imread(path)
+        img = np.array(img, dtype="float")/255.0
+    return 0, img
 
 
 

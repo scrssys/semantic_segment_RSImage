@@ -7,11 +7,6 @@ import os
 import sys
 import argparse
 from keras.preprocessing.image import img_to_array
-from keras.models import load_model
-# from sklearn.preprocessing import LabelEncoder
-
-import gc
-from smooth_tiled_predictions import predict_img_with_smooth_windowing, cheap_tiling_prediction_not_square_img,cheap_tiling_prediction_not_square_img_multiclassbands, predict_img_with_smooth_windowing_multiclassbands
 
 import matplotlib.pyplot as plt
 
@@ -38,10 +33,6 @@ def unet_predict(image, model, window_size, labelencoder):
         for j in range(padding_w // stride):
             crop = padding_img[:3, i * stride:i * stride + window_size, j * stride:j * stride + window_size]
             # crop = padding_img[i * stride:i * stride + window_size, j * stride:j * stride + window_size, :3]
-
-            cb, ch, cw = crop.shape
-            print ('crop:{}'.format(crop.shape))
-            print (np.unique(crop))
 
             crop = np.expand_dims(crop, axis=0)
             print ('crop:{}'.format(crop.shape))

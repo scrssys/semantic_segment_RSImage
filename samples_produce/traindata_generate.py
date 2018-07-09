@@ -17,15 +17,13 @@ img_h = 256
 
 image_sets = ['1.png', '2.png', '3.png', '4.png', '5.png']
 
-FLAG_USING_UNET = True
+FLAG_USING_UNET = False
 segnet_labels = [0, 1, 2]
 unet_labels = [0, 1]
 
 """for unet roads"""
-input_path = '../../data/originaldata/unet/roads/'
-# input_src_path = '../../data/originaldata/unet/roads/src/'
-# input_label_path = '../../data/originaldata/unet/roads/label/'
-output_path = '../../data/traindata/unet/roads/'
+# input_path = '../../data/originaldata/unet/roads/'
+# output_path = '../../data/traindata/unet/roads/'
 
 """for unet buildings"""
 # input_path = '../../data/originaldata/unet/buildings/'
@@ -33,10 +31,9 @@ output_path = '../../data/traindata/unet/roads/'
 
 """
 for segnet train data, but not ready and do not tested
-
 """
-# input_path = '../../data/originaldata/segnet/'
-# output_path = '../data/traindata/segnet/'
+input_path = '../../data/originaldata/segnet/'
+output_path = '../../data/traindata/segnet/'
 
 
 def gamma_transform(img, gamma):
@@ -121,25 +118,27 @@ def check_src_label_size(srcimg, labelimg):
     assert (row_src==row_label and column_src==column_src)
 
 
-def creat_dataset(image_num=50000, mode='original',
-                  in_path=input_path, out_path=output_path):
+def creat_dataset(in_path, out_path, image_num=50000, mode='original'):
 
     print('\ncreating dataset...')
 
-    src_files,tt = get_file(os.path.join(in_path,'src/'))
+    label_files,tt = get_file(os.path.join(in_path,'label/'))
     assert(tt!=0)
 
-    image_each = image_num/len(src_files)
+    image_each = image_num/len(label_files)
 
     g_count = 0
-    for scr_file in tqdm(src_files):
+    for label_file in tqdm(label_files):
         count = 0
-        src_img = cv2.imread(scr_file)
-        label_file = os.path.join(in_path,'label/')+os.path.split(scr_file)[1]
-
-        if not os.path.isfile(label_file):
-            print("Have no file:".format(label_file))
+        src_file = os.path.join(in_path, 'src/') + os.path.split(label_file)[1]
+        if not os.path.isfile(src_file):
+            print("Have no file:".format(src_file))
             sys.exit(-1)
+
+        src_img = cv2.imread(src_file)
+        # label_file = os.path.join(in_path,'label/')+os.path.split(scr_file)[1]
+
+
 
         label_img = cv2.imread(label_file, cv2.IMREAD_GRAYSCALE)
 
@@ -205,4 +204,4 @@ if __name__ == '__main__':
         os.mkdir(output_visualize_path)
 
 
-    creat_dataset(mode='augment', in_path=input_path, out_path=output_path)
+    creat_dataset(input_path, output_path, 5000, mode='augment')

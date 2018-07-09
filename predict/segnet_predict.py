@@ -6,18 +6,11 @@ import numpy as np
 import os
 import sys
 import argparse
-from keras.preprocessing.image import img_to_array
-from keras.models import load_model
-from sklearn.preprocessing import LabelEncoder
 
 import gc
-from smooth_tiled_predictions import predict_img_with_smooth_windowing, cheap_tiling_prediction_not_square_img,cheap_tiling_prediction_not_square_img_multiclassbands, predict_img_with_smooth_windowing_multiclassbands
 
 import matplotlib.pyplot as plt
 
-from keras.models import Sequential
-from keras.layers import Conv2D,MaxPooling2D,UpSampling2D,BatchNormalization,Reshape,Permute,Activation
-from keras.utils.np_utils import to_categorical
 from keras.preprocessing.image import img_to_array
 
 from PIL import Image
@@ -51,7 +44,6 @@ def get_predicted_pathces_from_image(input_img, model, window_size, step, pre_fu
     :return:
     """
     input_img = np.array(input_img)
-    # input_img = np.transpose(input_img,(2,0,1))
     print (input_img.shape)
     row, column, channel = input_img.shape
     assert channel < row
@@ -120,8 +112,7 @@ def predict_for_segnet_grayresult(small_img_patches, model, window_size,labelenc
     for p in range(patches):
         crop = np.zeros((row, column, input_channels), np.uint8)
         crop = small_img_patches[p,:,:,:]
-        crop = crop / 255.0
-        crop = crop.transpose(2,0,1)
+        crop = img_to_array(crop)
         crop = np.expand_dims(crop, axis=0)
         pred = model.predict_classes(crop, verbose=2)
         pred = labelencoder.inverse_transform(pred[0])

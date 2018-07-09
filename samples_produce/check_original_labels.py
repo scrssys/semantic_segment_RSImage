@@ -7,12 +7,19 @@ import cv2
 from tqdm import tqdm
 from ulitities.base_functions import load_img, get_file
 
-FLAG_USING_UNET = True
+
 segnet_labels = [0, 1, 2] # have not test for segnetlabels
 unet_labels = [0, 1]
 
-input_src_path = '../../data/originaldata/unet/roads/src/'
+FLAG_USING_UNET = False
+"""for unet"""
+# input_src_path = '../../data/originaldata/unet/roads/src/'
 input_label_path = '../../data/originaldata/unet/roads/label/'
+
+"""for sennet"""
+# input_src_path = '../../data/originaldata/segnet/src/'
+input_label_path = '../../data/originaldata/segnet/label/'
+
 
 HAS_INVALID_VALUE = False
 
@@ -29,7 +36,7 @@ def make_label_valid(img, true_values):
 
 
 if __name__ == '__main__':
-    src_files,num = get_file(input_src_path)
+    files,num = get_file(input_label_path)
     assert (num!=0)
 
     valid_labels = []
@@ -38,11 +45,11 @@ if __name__ == '__main__':
     else:
         valid_labels = segnet_labels
 
-    for src_file in tqdm(src_files):
-        label_file = input_label_path + os.path.split(src_file)[1]
-
-        ret,src_img = load_img(src_file)
-        assert(ret==0)
+    for label_file in tqdm(files):
+        # label_file = input_label_path + os.path.split(src_file)[1]
+        #
+        # ret,src_img = load_img(src_file)
+        # assert(ret==0)
 
         ret,label_img = load_img(label_file, grayscale=True)
         assert (ret == 0)
@@ -58,7 +65,8 @@ if __name__ == '__main__':
 
         if HAS_INVALID_VALUE == True:
             new_label_img = make_label_valid(label_img, valid_labels)
-            cv2.imwrite(label_file, new_label_img)
+            new_label_file = os.path.split(label_file)[0]+'new_'+os.path.split(label_file)[1]
+            cv2.imwrite(new_label_file, new_label_img)
             HAS_INVALID_VALUE = False
 
 

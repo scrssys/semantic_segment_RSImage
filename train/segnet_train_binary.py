@@ -28,11 +28,11 @@ img_w = 256
 img_h = 256
 
 # 有一个为背景
-n_label = 2 + 1
-classes = [0., 1., 2.]
+# n_label = 2 + 1
+# classes = [0., 1., 2.]
 
-# n_label = 1
-# classes = [0., 1.]
+n_label = 1
+classes = [0., 1.]
 
 labelencoder = LabelEncoder()
 labelencoder.fit(classes)
@@ -41,11 +41,11 @@ labelencoder.fit(classes)
 from keras import backend as K
 K.set_image_dim_ordering('th')
 # K.set_image_dim_ordering('tf')
-model_save_path = '../../data/models/segnet_channel_first332.h5' # for channel_first
+model_save_path = '../../data/models/segnet_channel_first_buildings.h5' # for channel_first
 # model_save_path = '../data/models/segnet_channel_last.h5' # for channel_first
 
 
-train_data_path = '../../data/traindata/segnet/'
+train_data_path = '../../data/traindata/unet/buildings/'
 
 
 
@@ -53,7 +53,7 @@ def SegNet():
     model = Sequential()
     #encoder
     model.add(Conv2D(64,(3,3),strides=(1,1),input_shape=(3,img_w,img_h),padding='same',activation='relu'))
-    # model.add(Conv2D(64, (3, 3), strides=(1, 1), input_shape=(img_w, img_h, 3), padding='same', activation='relu')) # for channels_last
+    # model.add(Conv2D(64, (3, 3), strides=(1, 1), input_shape=(img_w, img_h, 3), padding='same', activation='relu'))
     model.add(BatchNormalization())
     model.add(Conv2D(64,(3,3),strides=(1,1),padding='same',activation='relu'))
     model.add(BatchNormalization())
@@ -132,7 +132,7 @@ def SegNet():
 
     #(256,256)
     model.add(Conv2D(64, (3, 3), strides=(1, 1), input_shape=(3,img_w, img_h), padding='same', activation='relu'))
-    # model.add(Conv2D(64, (3, 3), strides=(1, 1), input_shape=(img_w, img_h, 3), padding='same', activation='relu')) # for channels_last
+    # model.add(Conv2D(64, (3, 3), strides=(1, 1), input_shape=(img_w, img_h, 3), padding='same', activation='relu'))
     model.add(BatchNormalization())
     model.add(Conv2D(64, (3, 3), strides=(1, 1), padding='same', activation='relu'))
     model.add(BatchNormalization())
@@ -141,8 +141,11 @@ def SegNet():
 
     #axis=1和axis=2互换位置，等同于np.swapaxes(layer,1,2)
     model.add(Permute((2,1)))
-    model.add(Activation('softmax'))
-    model.compile(loss='categorical_crossentropy',optimizer='sgd',metrics=['accuracy'])
+    # model.add(Activation('softmax'))
+    model.add(Activation('sigmoid')) # for test one class
+
+    # model.compile(loss='categorical_crossentropy',optimizer='sgd',metrics=['accuracy'])
+    model.compile(loss='binary_crossentropy', optimizer='sgd', metrics=['accuracy']) # for test one class
     model.summary()
     return model
 
@@ -205,7 +208,7 @@ def generateData(batch_size,data=[]):
                 train_data = np.array(train_data)
                 train_label = np.array(train_label).flatten()
                 train_label = labelencoder.transform(train_label)
-                train_label = to_categorical(train_label, num_classes=n_label)
+                # train_label = to_categorical(train_label, num_classes=n_label)
                 train_label = train_label.reshape((batch_size, img_w * img_h, n_label))
                 yield (train_data, train_label)
                 train_data = []
@@ -239,7 +242,7 @@ def generateValidData(batch_size,data=[]):
                 valid_data = np.array(valid_data)
                 valid_label = np.array(valid_label).flatten()
                 valid_label = labelencoder.transform(valid_label)
-                valid_label = to_categorical(valid_label, num_classes=n_label)
+                # valid_label = to_categorical(valid_label, num_classes=n_label)
                 valid_label = valid_label.reshape((batch_size,img_w * img_h,n_label))
                 yield (valid_data,valid_label)
                 valid_data = []

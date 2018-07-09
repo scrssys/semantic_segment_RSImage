@@ -28,15 +28,19 @@ K.set_image_dim_ordering('th')
 """
 os.environ["CUDA_VISIBLE_DEVICES"] = "2"
 
-# segnet_classes = [0., 1., 2., 3., 4.]
+
 segnet_classes = [0., 1., 2.]
 segnet_dict = {'road':1, 'building':2}
+
+# segnet_classes = [0., 1.]
+# segnet_dict = {'road':1}
 
 unet_classes = [0., 1.]
 
 
-FLAG_USING_UNET = False
-APPROACH_FLAG=4 # 0: raw predict; 1:flame tracer for smooth; 2: cheap predict; else:smooth predict
+FLAG_USING_UNET = True
+# FLAG_USING_UNET = False
+APPROACH_FLAG=5 # 0: raw predict; 1:flame tracer for smooth; 2: cheap predict; else:smooth predict
 
 
 input_image = '../../data/test/2.png'
@@ -47,11 +51,12 @@ input_image = '../../data/test/2.png'
 # unet_output_mask = '../../data/predict/unet/mask_unet_roads_'+os.path.split(test_image_path)[1]
 
 """(1.2)for unet road predict"""
-unet_model_path = '../../data/models/unet_channel_first_buildings.h5'
+unet_model_path = '../../data/models/unet_channel_first_buildings1.h5'
 unet_output_mask = '../../data/predict/unet/mask_unet_buildings_'+os.path.split(input_image)[1]
 
-"""(2) for unet road predict"""
-segnet_model_path = '../../data/models/segnet_channel_first_012labels.h5' # for channel_first
+
+"""(2) for segnet predict"""
+segnet_model_path = '../../data/models/segnet_channel_first0708_one1.h5' # for channel_first
 segnet_output_path = '../../data/predict/segnet/mask_segnet_new_'
 
 window_size = 256

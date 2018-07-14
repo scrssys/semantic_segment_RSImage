@@ -49,7 +49,7 @@ K.set_image_dim_ordering('th')
 # train_data_path = '../../data/traindata/unet/buildings/'
 
 """for"""
-model_save_path = '../../data/models/unet_channel_first_multiclass256256.h5' # for channel_first
+model_save_path = '../../data/models/unet_channel_first_multiclass_1D.h5' # for channel_first
 # train_data_path = '../../data/traindata/unet/roads/'
 train_data_path = '../../data/traindata/segnet/'
 
@@ -112,7 +112,8 @@ def generateData(batch_size, data=[]):
                 train_label = np.array(train_label).flatten()
                 # train_label = labelencoder.transform(train_label)
                 train_label = to_categorical(train_label, num_classes=n_label)
-                train_label = train_label.reshape((batch_size, img_w, img_h, n_label))
+                train_label = train_label.reshape((batch_size, img_w*img_h, n_label))
+                # train_label = train_label.reshape((batch_size, img_w, img_h, n_label))
 
                 yield (train_data, train_label)
                 train_data = []
@@ -146,7 +147,8 @@ def generateValidData(batch_size, data=[]):
                 valid_label = np.array(valid_label).flatten()
                 # valid_label = labelencoder.transform(valid_label)
                 valid_label = to_categorical(valid_label, num_classes=n_label)
-                valid_label = valid_label.reshape((batch_size, img_w,img_h, n_label))
+                valid_label = valid_label.reshape((batch_size, img_w*img_h, n_label))
+                # valid_label = valid_label.reshape((batch_size, img_w, img_h, n_label))
 
                 yield (valid_data, valid_label)
                 valid_data = []
@@ -199,10 +201,10 @@ def unet():
 
     # conv10 = Conv2D(n_label, (1, 1), activation="sigmoid")(conv9)
     conv10 = Conv2D(n_label, (1, 1), activation="softmax")(conv9)
-    # conv10 = Reshape((n_label, img_w*img_h))(conv10)  # 4D(bath_size, n_label,img_w, img_h)
+    conv10 = Reshape((n_label, img_w*img_h))(conv10)  # 4D(bath_size, n_label,img_w, img_h)
 
-    # conv10 = Permute((2,1))(conv10)
-    conv10 = Permute((2,3,1))(conv10)
+    conv10 = Permute((2,1))(conv10)
+    # conv10 = Permute((2,3,1))(conv10)
 
 
     model = Model(inputs=inputs, outputs=conv10)

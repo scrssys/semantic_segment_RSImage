@@ -33,10 +33,10 @@ img_h = 256
 
 # n_label = 1
 n_label = 2+1
-# classes = [0, 1, 2]
+classes = [0, 1, 2]
 
-# labelencoder = LabelEncoder()
-# labelencoder.fit(classes)
+labelencoder = LabelEncoder()
+labelencoder.fit(classes)
 
 
 from keras import backend as K
@@ -49,7 +49,7 @@ K.set_image_dim_ordering('th')
 # train_data_path = '../../data/traindata/unet/buildings/'
 
 """for"""
-model_save_path = '../../data/models/unet_channel_first_multiclassnew.h5' # for channel_first
+model_save_path = '../../data/models/unet_channel_first_multiclass256256.h5' # for channel_first
 # train_data_path = '../../data/traindata/unet/roads/'
 train_data_path = '../../data/traindata/segnet/'
 
@@ -97,20 +97,22 @@ def generateData(batch_size, data=[]):
             img = img_to_array(img)
             train_data.append(img)
             label = load_img(train_data_path + 'label/' + url, grayscale=True)
-            # label = img_to_array(label)
-            label = img_to_array(label).reshape((img_w * img_h,))
+            label = img_to_array(label)
+
+
+
+            label = label.reshape((img_w, img_h))
+            # label = img_to_array(label).reshape((img_w * img_h,))
+
             train_label.append(label)
             if batch % batch_size == 0:
                 # print 'get enough bacth!\n'
                 train_data = np.array(train_data)
 
-                train_label = np.array(train_label)
-
-                train_label = to_categorical(train_label, num_classes=n_label) # new added for multiclass
-
-                train_label = train_label.reshape((batch_size, img_w,img_h, n_label))
-                train_label = np.transpose(train_label,(0,3,1,2))
-
+                train_label = np.array(train_label).flatten()
+                # train_label = labelencoder.transform(train_label)
+                train_label = to_categorical(train_label, num_classes=n_label)
+                train_label = train_label.reshape((batch_size, img_w, img_h, n_label))
 
                 yield (train_data, train_label)
                 train_data = []
@@ -134,23 +136,17 @@ def generateValidData(batch_size, data=[]):
             img = img_to_array(img)
             valid_data.append(img)
             label = load_img(train_data_path + 'label/' + url, grayscale=True)
-            # label = img_to_array(label)
-            label = img_to_array(label).reshape((img_w * img_h,))
+            label = img_to_array(label)
+            label= label.reshape((img_w,img_h))
+            # label = img_to_array(label).reshape((img_w * img_h,))
             valid_label.append(label)
             if batch % batch_size == 0:
                 valid_data = np.array(valid_data)
 
-                # valid_label = np.array(valid_label)
                 valid_label = np.array(valid_label).flatten()
-                # print (np.unique(valid_label))
                 # valid_label = labelencoder.transform(valid_label)
                 valid_label = to_categorical(valid_label, num_classes=n_label)
-                # print (np.unique(valid_label))
-                valid_label = valid_label.reshape((batch_size, img_w,img_h, n_label))# new added for multiclass
-                valid_label = np.transpose(valid_label, (0,1,1,2))
-                # valid_label = valid_label.reshape((batch_size, img_w*img_h, n_label))
-                # valid_label = np.transpose(valid_label, (0, 2, 1))
-                # valid_label = valid_label.reshape((batch_size, n_label, img_w, img_h))
+                valid_label = valid_label.reshape((batch_size, img_w,img_h, n_label))
 
                 yield (valid_data, valid_label)
                 valid_data = []
@@ -203,10 +199,10 @@ def unet():
 
     # conv10 = Conv2D(n_label, (1, 1), activation="sigmoid")(conv9)
     conv10 = Conv2D(n_label, (1, 1), activation="softmax")(conv9)
-    # conv10 = Reshape((n_label, img_w*img_h))(conv10)  # new added
-    # conv10 = Reshape(conv10,(n_label, img_w * img_h))
+    # conv10 = Reshape((n_label, img_w*img_h))(conv10)  # 4D(bath_size, n_label,img_w, img_h)
+
     # conv10 = Permute((2,1))(conv10)
-    # conv10 = conv10.reshape((n_label,img_w*img_h))
+    conv10 = Permute((2,3,1))(conv10)
 
 
     model = Model(inputs=inputs, outputs=conv10)
@@ -297,7 +293,7 @@ class CustomModelCheckpoint(keras.callbacks.Callback):
 
 
 def train():
-    EPOCHS = 10  # should be 10 or bigger number
+    EPOCHS = 30  # should be 10 or bigger number
     BS = 16
 
     model = unet()

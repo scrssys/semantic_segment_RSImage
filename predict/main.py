@@ -38,12 +38,12 @@ segnet_dict = {'road':1, 'building':2}
 unet_classes = [0., 1.]
 
 
-FLAG_USING_UNET = True
-# FLAG_USING_UNET = False
+# FLAG_USING_UNET = True
+FLAG_USING_UNET = False
 APPROACH_FLAG=5 # 0: raw predict; 1:flame tracer for smooth; 2: cheap predict; else:smooth predict
 
 
-input_image = '../../data/test/2.png'
+input_image = '../../data/test/11.png'
 
 
 """(1.1) for unet road predict"""
@@ -78,6 +78,7 @@ if __name__ == '__main__':
     if FLAG_USING_UNET:
         model = load_model(unet_model_path)
         result_channels = len(unet_classes) - 1
+        # result_channels = len(unet_classes)
 
         labelencoder = LabelEncoder()
         labelencoder.fit(unet_classes)

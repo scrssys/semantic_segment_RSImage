@@ -161,6 +161,7 @@ def predict_for_segnet_multiclassbands(small_img_patches, model, real_classes,la
         res_pred = np.zeros((row * column, real_classes))
         for t in range(real_classes):
             idx = np.where(tmp==t+1)
+            # idx = np.where(tmp == t)
             res_pred[idx,t]=1
         res_pred = res_pred.reshape((row, column, real_classes))
 

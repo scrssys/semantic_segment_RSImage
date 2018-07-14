@@ -33,7 +33,7 @@ img_h = 256
 
 # n_label = 1
 n_label = 2+1
-classes = [0, 1, 2]
+classes = [0., 1., 2.]
 
 labelencoder = LabelEncoder()
 labelencoder.fit(classes)
@@ -43,13 +43,9 @@ from keras import backend as K
 K.set_image_dim_ordering('th')
 # K.set_image_dim_ordering('tf')
 
-"""for buildings"""
-# model_save_path = '../../data/models/unet_channel_first_buildings.h5' # for channel_first
-# model_save_path = '../../data/models/unet_channel_last.h5' # for channel_first
-# train_data_path = '../../data/traindata/unet/buildings/'
 
 """for"""
-model_save_path = '../../data/models/unet_channel_first_multiclass_1D.h5' # for channel_first
+model_save_path = '../../data/models/unet_channel_first_multiclass_1D_encoder.h5' # for channel_first
 # train_data_path = '../../data/traindata/unet/roads/'
 train_data_path = '../../data/traindata/segnet/'
 
@@ -110,7 +106,7 @@ def generateData(batch_size, data=[]):
                 train_data = np.array(train_data)
 
                 train_label = np.array(train_label).flatten()
-                # train_label = labelencoder.transform(train_label)
+                train_label = labelencoder.transform(train_label)
                 train_label = to_categorical(train_label, num_classes=n_label)
                 train_label = train_label.reshape((batch_size, img_w*img_h, n_label))
                 # train_label = train_label.reshape((batch_size, img_w, img_h, n_label))
@@ -139,13 +135,12 @@ def generateValidData(batch_size, data=[]):
             label = load_img(train_data_path + 'label/' + url, grayscale=True)
             label = img_to_array(label)
             label= label.reshape((img_w,img_h))
-            # label = img_to_array(label).reshape((img_w * img_h,))
             valid_label.append(label)
             if batch % batch_size == 0:
                 valid_data = np.array(valid_data)
 
                 valid_label = np.array(valid_label).flatten()
-                # valid_label = labelencoder.transform(valid_label)
+                valid_label = labelencoder.transform(valid_label)
                 valid_label = to_categorical(valid_label, num_classes=n_label)
                 valid_label = valid_label.reshape((batch_size, img_w*img_h, n_label))
                 # valid_label = valid_label.reshape((batch_size, img_w, img_h, n_label))
@@ -201,8 +196,7 @@ def unet():
 
     # conv10 = Conv2D(n_label, (1, 1), activation="sigmoid")(conv9)
     conv10 = Conv2D(n_label, (1, 1), activation="softmax")(conv9)
-    conv10 = Reshape((n_label, img_w*img_h))(conv10)  # 4D(bath_size, n_label,img_w, img_h)
-
+    conv10 = Reshape((n_label, img_w*img_h))(conv10)  # 4D(bath_size, n_label, img_w*img_h)
     conv10 = Permute((2,1))(conv10)
     # conv10 = Permute((2,3,1))(conv10)
 
@@ -212,66 +206,6 @@ def unet():
     model.compile(optimizer='sgd', loss='categorical_crossentropy', metrics=['accuracy'])
     return model
 
-"""
-    Download form web, this is original U-net
-    However, there is some wrong
-"""
-# def unet(pretrained_weights=None, input_size=(256, 256, 3)):
-#     inputs = Input(input_size)
-#     conv1 = Conv2D(64, 3, activation='relu', padding='same', kernel_initializer='he_normal')(inputs)
-#     conv1 = Conv2D(64, 3, activation='relu', padding='same', kernel_initializer='he_normal')(conv1)
-#     pool1 = MaxPooling2D(pool_size=(2, 2))(conv1)
-#     conv2 = Conv2D(128, 3, activation='relu', padding='same', kernel_initializer='he_normal')(pool1)
-#     conv2 = Conv2D(128, 3, activation='relu', padding='same', kernel_initializer='he_normal')(conv2)
-#     pool2 = MaxPooling2D(pool_size=(2, 2))(conv2)
-#     conv3 = Conv2D(256, 3, activation='relu', padding='same', kernel_initializer='he_normal')(pool2)
-#     conv3 = Conv2D(256, 3, activation='relu', padding='same', kernel_initializer='he_normal')(conv3)
-#     pool3 = MaxPooling2D(pool_size=(2, 2))(conv3)
-#     conv4 = Conv2D(512, 3, activation='relu', padding='same', kernel_initializer='he_normal')(pool3)
-#     conv4 = Conv2D(512, 3, activation='relu', padding='same', kernel_initializer='he_normal')(conv4)
-#     drop4 = Dropout(0.5)(conv4)
-#     pool4 = MaxPooling2D(pool_size=(2, 2))(drop4)
-#
-#     conv5 = Conv2D(1024, 3, activation='relu', padding='same', kernel_initializer='he_normal')(pool4)
-#     conv5 = Conv2D(1024, 3, activation='relu', padding='same', kernel_initializer='he_normal')(conv5)
-#     drop5 = Dropout(0.5)(conv5)
-#
-#     up6 = Conv2D(512, 2, activation='relu', padding='same', kernel_initializer='he_normal')(
-#         UpSampling2D(size=(2, 2))(drop5))
-#     merge6 = merge([drop4, up6], mode='concat', concat_axis=3)
-#     conv6 = Conv2D(512, 3, activation='relu', padding='same', kernel_initializer='he_normal')(merge6)
-#     conv6 = Conv2D(512, 3, activation='relu', padding='same', kernel_initializer='he_normal')(conv6)
-#
-#     up7 = Conv2D(256, 2, activation='relu', padding='same', kernel_initializer='he_normal')(
-#         UpSampling2D(size=(2, 2))(conv6))
-#     merge7 = merge([conv3, up7], mode='concat', concat_axis=3)
-#     conv7 = Conv2D(256, 3, activation='relu', padding='same', kernel_initializer='he_normal')(merge7)
-#     conv7 = Conv2D(256, 3, activation='relu', padding='same', kernel_initializer='he_normal')(conv7)
-#
-#     up8 = Conv2D(128, 2, activation='relu', padding='same', kernel_initializer='he_normal')(
-#         UpSampling2D(size=(2, 2))(conv7))
-#     merge8 = merge([conv2, up8], mode='concat', concat_axis=3)
-#     conv8 = Conv2D(128, 3, activation='relu', padding='same', kernel_initializer='he_normal')(merge8)
-#     conv8 = Conv2D(128, 3, activation='relu', padding='same', kernel_initializer='he_normal')(conv8)
-#
-#     up9 = Conv2D(64, 2, activation='relu', padding='same', kernel_initializer='he_normal')(
-#         UpSampling2D(size=(2, 2))(conv8))
-#     merge9 = merge([conv1, up9], mode='concat', concat_axis=3)
-#     conv9 = Conv2D(64, 3, activation='relu', padding='same', kernel_initializer='he_normal')(merge9)
-#     conv9 = Conv2D(64, 3, activation='relu', padding='same', kernel_initializer='he_normal')(conv9)
-#     conv9 = Conv2D(2, 3, activation='relu', padding='same', kernel_initializer='he_normal')(conv9)
-#     conv10 = Conv2D(1, 1, activation='sigmoid')(conv9)
-#
-#     model = Model(input=inputs, output=conv10)
-#
-#     model.compile(optimizer=Adam(lr=1e-4), loss='binary_crossentropy', metrics=['accuracy'])
-#
-#     # model.summary()
-#
-#     if (pretrained_weights):
-#         model.load_weights(pretrained_weights)
-#
-#     return model
 
 """ For tes multiGPU model"""
 import keras

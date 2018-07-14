@@ -40,7 +40,8 @@ unet_classes = [0., 1.]
 
 # FLAG_USING_UNET = True
 FLAG_USING_UNET = False
-APPROACH_FLAG=5 # 0: raw predict; 1:flame tracer for smooth; 2: cheap predict; else:smooth predict
+FLAG_APPROACH_PREDICT=0 # 0: raw predict; 1:flame tracer for smooth; 2: cheap predict; else:smooth predict
+FLAG_USING_MODEL=0 # 0:Unet two-category; 1:Unet multi-category; 2:segnet two-category; 3:segnet multi-category
 
 
 input_image = '../../data/test/11.png'
@@ -56,7 +57,7 @@ unet_output_mask = '../../data/predict/unet/mask_unet_buildings_'+os.path.split(
 
 
 """(2) for segnet predict"""
-segnet_model_path = '../../data/models/segnet_channel_first0708_one1.h5' # for channel_first
+segnet_model_path = '../../data/models/segnet_channel_first.h5' # for channel_first
 segnet_output_path = '../../data/predict/segnet/mask_segnet_new_'
 
 window_size = 256
@@ -91,7 +92,7 @@ if __name__ == '__main__':
         labelencoder = LabelEncoder()
         labelencoder.fit(segnet_classes)
 
-    if APPROACH_FLAG ==0:
+    if FLAG_APPROACH_PREDICT ==0:
         """0. test original code of predict()"""
         if FLAG_USING_UNET:
             result_test = unet_predict(input_img, model, window_size, labelencoder)
@@ -99,7 +100,7 @@ if __name__ == '__main__':
             result_test = predict(input_img, model, window_size, labelencoder)
         cv2.imwrite('../data/predict/test.png', result_test)
 
-    elif APPROACH_FLAG==1:
+    elif FLAG_APPROACH_PREDICT==1:
         """1. test code of flame tracer """
         predicted_patches = get_predicted_pathces_from_image(
             input_img,
@@ -110,7 +111,7 @@ if __name__ == '__main__':
             labelencoder=labelencoder)
         mosaic_resut(predicted_patches)
 
-    elif APPROACH_FLAG==2:
+    elif FLAG_APPROACH_PREDICT==2:
         """2. test cheap  predict"""
         if FLAG_USING_UNET:
             predictions_cheap = cheap_tiling_prediction_not_square_img_multiclassbands(

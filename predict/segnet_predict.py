@@ -182,7 +182,7 @@ def predict_for_segnet_multiclassbands(small_img_patches, model, real_classes,la
     return mask_output
 
 
-def predict(image, model, window_size, labelencoder):
+def segnet_predict_binary(image, model, window_size):
 
     stride = window_size
 
@@ -209,11 +209,15 @@ def predict(image, model, window_size, labelencoder):
             crop = np.expand_dims(crop, axis=0)
             print ('crop:{}'.format(crop.shape))
             pred = model.predict_classes(crop, verbose=2)
-            pred = labelencoder.inverse_transform(pred[0])
+            # print("labels:{}".format(np.unique(pred[0])))
+            # pred = labelencoder.inverse_transform(pred[0])
+            # print("transformed labels:{}".format(np.unique(pred)))
 
-            pred = pred.reshape(256, 256)
+            pred = pred[0].reshape(256, 256)
 
             mask_whole[i * stride:i * stride + window_size, j * stride:j * stride + window_size] = pred[:, :]
+
+
 
     outputresult = mask_whole[0:h, 0:w]*255.0
     plt.imshow(outputresult,cmap='gray')
@@ -221,7 +225,56 @@ def predict(image, model, window_size, labelencoder):
     plt.show()
     return outputresult
 
+def segnet_predict_multiclass(image, model, window_size, channels):
 
+    stride = window_size
+
+    h, w, _ = image.shape
+    print 'h,w:', h, w
+    padding_h = (h // stride + 1) * stride
+    padding_w = (w // stride + 1) * stride
+    padding_img = np.zeros((padding_h, padding_w, 3))
+    padding_img[0:h, 0:w, :] = image[:, :, :]
+
+    # Using "img_to_array" to convert the dimensions ordering, to adapt "K.set_image_dim_ordering('**') "
+    padding_img = img_to_array(padding_img)
+    print 'src:', padding_img.shape
+
+    mask_whole = np.zeros((padding_h, padding_w), dtype=np.float32)
+    for i in range(padding_h // stride):
+        for j in range(padding_w // stride):
+            crop = padding_img[:3, i * stride:i * stride + window_size, j * stride:j * stride + window_size]
+            # crop = padding_img[i * stride:i * stride + window_size, j * stride:j * stride + window_size, :3]
+            cb, ch, cw = crop.shape # for channel_first
+
+            print ('crop:{}'.format(crop.shape))
+
+            crop = np.expand_dims(crop, axis=0)
+            print ('crop:{}'.format(crop.shape))
+            pred = model.predict_classes(crop, verbose=2)
+            print("labels:{}".format(np.unique(pred[0])))
+            # pred = labelencoder.inverse_transform(pred[0])
+            print("transformed labels:{}".format(np.unique(pred)))
+
+            pred = pred[0].reshape(256, 256)
+
+            mask_whole[i * stride:i * stride + window_size, j * stride:j * stride + window_size] = pred[:, :]
+
+    tmp = mask_whole[0:h, 0:w]
+    tmp = tmp.astype(np.uint8)
+    tmp = tmp.reshape((h * w))
+    res_pred = np.zeros((h * w, channels))
+    for t in range(channels):
+        idx = np.where(tmp == t + 1)
+        # idx = np.where(tmp == t)
+        res_pred[idx, t] = 1
+    res_pred = res_pred.reshape((h, w, channels))
+
+    outputresult = res_pred*255.0
+    plt.imshow(outputresult[:,:,1],cmap='gray')
+    plt.title("Original predicted result")
+    plt.show()
+    return outputresult
 
 
 

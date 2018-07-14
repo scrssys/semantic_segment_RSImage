@@ -246,7 +246,7 @@ def _windowed_subdivs(padded_img, window_size, subdivisions, nb_classes, pred_fu
     return subdivs
 
 
-def _windowed_subdivs_multiclassbands(padded_img, model, window_size, subdivisions, real_classes, pred_func, labelencoder):
+def _windowed_subdivs_multiclassbands(padded_img, model, window_size, subdivisions, real_classes, pred_func):
     """
     Create tiled overlapping patches.
 
@@ -284,7 +284,7 @@ def _windowed_subdivs_multiclassbands(padded_img, model, window_size, subdivisio
     subdivs = subdivs.reshape(a * b, c, d, e)
     gc.collect()
 
-    subdivs = pred_func(subdivs, model, real_classes, labelencoder)
+    subdivs = pred_func(subdivs, model, real_classes)
     gc.collect()
     subdivs = subdivs.astype("float")
     subdivs = np.array([patch * WINDOW_SPLINE_2D for patch in subdivs])
@@ -380,7 +380,7 @@ def predict_img_with_smooth_windowing(input_img, window_size, subdivisions, nb_c
     return prd
 
 
-def predict_img_with_smooth_windowing_multiclassbands(input_img, model, window_size, subdivisions, real_classes, pred_func, labelencoder):
+def predict_img_with_smooth_windowing_multiclassbands(input_img, model, window_size, subdivisions, real_classes, pred_func):
     """
     Apply the `pred_func` function to square patches of the image, and overlap
     the predictions to merge them smoothly.
@@ -414,7 +414,7 @@ def predict_img_with_smooth_windowing_multiclassbands(input_img, model, window_s
     for pad in tqdm(pads):
         # For every rotation:
         # predict each rotation with smooth window
-        sd = _windowed_subdivs_multiclassbands(pad, model, window_size, subdivisions, real_classes, pred_func, labelencoder)
+        sd = _windowed_subdivs_multiclassbands(pad, model, window_size, subdivisions, real_classes, pred_func)
 
         # Merge tiled overlapping patches smoothly.
         one_padded_result = _recreate_from_subdivs(

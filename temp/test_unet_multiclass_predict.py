@@ -28,7 +28,7 @@ input_image = '../../data/test/1.png'
 
 
 """(1.1) for unet road predict"""
-unet_model_path = '../../data/models/unet_channel_first_multiclass65536.h5'
+unet_model_path = '../../data/models/unet_channel_first_multiclass.h5'
 unet_output_mask = '../../data/predict/unet/mask_unet_roads_'+os.path.split(input_image)[1]
 
 
@@ -39,7 +39,7 @@ window_size = 256
 
 
 
-def cheap_predict(input_img, model):
+def cheap_predict(input_img, model,label_encoder):
     stride = window_size
 
     h, w, _ = input_img.shape
@@ -60,27 +60,35 @@ def cheap_predict(input_img, model):
             # crop = padding_img[i * stride:i * stride + window_size, j * stride:j * stride + window_size, :3]
             cb, ch, cw = crop.shape  # for channel_first
 
-            print ('crop:{}'.format(crop.shape))
+            # print ('crop:{}'.format(crop.shape))
 
             crop = np.expand_dims(crop, axis=0)
-            print ('crop:{}'.format(crop.shape))
+            # print ('crop:{}'.format(crop.shape))
             pred = model.predict(crop, verbose=2)
-            pred = pred[0].reshape(window_size, window_size, 3)
-            pred[0, :, :] = 0
-            # pred = labelencoder.inverse_transform(pred[0])
-            print(np.unique(pred))
+            # print (np.unique(pred))
+            pred = label_encoder.inverse_transform(pred[0])
+            # print (np.unique(pred))
+            pred = pred.reshape(window_size, window_size, 3)
+            # print (np.unique(pred))
+            # pred[0, :, :] = 0
+
+            # print(np.unique(pred))
 
             # pred = pred[0,:,:,:]
-            print(np.unique(pred))
+            # print(np.unique(pred))
 
             mask_whole[i * stride:i * stride + window_size, j * stride:j * stride + window_size, :] = pred[:, :, :]
 
     outputresult = mask_whole[0:h, 0:w, :] * 255
+    # print (np.unique(outputresult))
+    # print (np.unique(outputresult[:,:,0]))
+    # print (np.unique(outputresult[:,:,1]))
 
-    # plt.imshow(outputresult[:,:,1])
-    plt.imshow(outputresult)
+    plt.imshow(outputresult[:,:,2])
+    # plt.imshow(outputresult)
     plt.title("Original predicted result")
     plt.show()
+    cv2.imwrite('../../data/predict/unet/mask_multiclass_test.png', outputresult)
 
 
 def new_predict_for_unet_multiclass(small_img_patches, model, real_classes,labelencoder):
@@ -127,20 +135,20 @@ if __name__=='__main__':
     input_img = np.array(input_img, dtype="float") / 255.0  # must do it
     model = load_model(unet_model_path)
 
-    # cheap_predict(input_img,model)
+    cheap_predict(input_img,model,labelencoder)
 
-    predictions_smooth = predict_img_with_smooth_windowing_multiclassbands(
-        input_img,
-        model,
-        window_size=window_size,
-        subdivisions=2,
-        real_classes=3,  # output channels = 是真的类别,
-        pred_func=new_predict_for_unet_multiclass,
-        labelencoder=labelencoder
-    )
-    plt.imshow(predictions_smooth)
-    plt.title("Original predicted result")
-    plt.show()
+    # predictions_smooth = predict_img_with_smooth_windowing_multiclassbands(
+    #     input_img,
+    #     model,
+    #     window_size=window_size,
+    #     subdivisions=2,
+    #     real_classes=3,  # output channels = 是真的类别,
+    #     pred_func=new_predict_for_unet_multiclass,
+    #     labelencoder=labelencoder
+    # )
+    # plt.imshow(predictions_smooth)
+    # plt.title("Original predicted result")
+    # plt.show()
 
 
 

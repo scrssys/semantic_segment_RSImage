@@ -42,10 +42,11 @@ from keras import backend as K
 K.set_image_dim_ordering('th')
 # K.set_image_dim_ordering('tf')
 model_save_path = '../../data/models/segnet_channel_first_buildings.h5' # for channel_first
+model_save_path = '../../data/models/segnet_channel_first_roads.h5' # for channel_first
 # model_save_path = '../data/models/segnet_channel_last.h5' # for channel_first
 
 
-train_data_path = '../../data/traindata/unet/buildings/'
+train_data_path = '../../data/traindata/unet/roads/'
 
 
 

@@ -29,31 +29,31 @@ img_h = 256
 
 # 有一个为背景
 n_label = 2 + 1
-classes = [0., 1., 2.]
+# classes = [0., 1., 2.]
 
 # n_label = 1
 # classes = [0., 1.]
 
-labelencoder = LabelEncoder()
-labelencoder.fit(classes)
+# labelencoder = LabelEncoder()
+# labelencoder.fit(classes)
 
 # add by qiaozh 20180404
 from keras import backend as K
-K.set_image_dim_ordering('th')
-# K.set_image_dim_ordering('tf')
-model_save_path = '../../data/models/segnet_channel_first332.h5' # for channel_first
-# model_save_path = '../data/models/segnet_channel_last.h5' # for channel_first
+# K.set_image_dim_ordering('th')
+K.set_image_dim_ordering('tf')
+# model_save_path = '../../data/models/segnet_channel_first.h5' # for channel_first
+model_save_path = '../../data/models/segnet_multiclass.h5' # for channel_first
 
 
-train_data_path = '../../data/traindata/segnet/'
+train_data_path = '../../data/traindata/multiclass/'
 
 
 
 def SegNet():
     model = Sequential()
     #encoder
-    model.add(Conv2D(64,(3,3),strides=(1,1),input_shape=(3,img_w,img_h),padding='same',activation='relu'))
-    # model.add(Conv2D(64, (3, 3), strides=(1, 1), input_shape=(img_w, img_h, 3), padding='same', activation='relu')) # for channels_last
+    # model.add(Conv2D(64,(3,3),strides=(1,1),input_shape=(3,img_w,img_h),padding='same',activation='relu'))
+    model.add(Conv2D(64, (3, 3), strides=(1, 1), input_shape=(img_w, img_h, 3), padding='same', activation='relu')) # for channels_last
     model.add(BatchNormalization())
     model.add(Conv2D(64,(3,3),strides=(1,1),padding='same',activation='relu'))
     model.add(BatchNormalization())
@@ -131,16 +131,17 @@ def SegNet():
     model.add(UpSampling2D(size=(2, 2)))
 
     #(256,256)
-    model.add(Conv2D(64, (3, 3), strides=(1, 1), input_shape=(3,img_w, img_h), padding='same', activation='relu'))
-    # model.add(Conv2D(64, (3, 3), strides=(1, 1), input_shape=(img_w, img_h, 3), padding='same', activation='relu')) # for channels_last
+    # model.add(Conv2D(64, (3, 3), strides=(1, 1), input_shape=(3,img_w, img_h), padding='same', activation='relu'))
+    model.add(Conv2D(64, (3, 3), strides=(1, 1), input_shape=(img_w, img_h, 3), padding='same', activation='relu')) # for channels_last
     model.add(BatchNormalization())
     model.add(Conv2D(64, (3, 3), strides=(1, 1), padding='same', activation='relu'))
     model.add(BatchNormalization())
     model.add(Conv2D(n_label, (1, 1), strides=(1, 1), padding='same'))
-    model.add(Reshape((n_label,img_w*img_h)))
+    # model.add(Reshape((n_label,img_w*img_h)))
+    model.add(Reshape((img_w * img_h, n_label)))
 
     #axis=1和axis=2互换位置，等同于np.swapaxes(layer,1,2)
-    model.add(Permute((2,1)))
+    # model.add(Permute((2,1)))
     model.add(Activation('softmax'))
     model.compile(loss='categorical_crossentropy',optimizer='sgd',metrics=['accuracy'])
     model.summary()
@@ -204,7 +205,7 @@ def generateData(batch_size,data=[]):
                 #print 'get enough bacth!\n'
                 train_data = np.array(train_data)
                 train_label = np.array(train_label).flatten()
-                train_label = labelencoder.transform(train_label)
+                # train_label = labelencoder.transform(train_label)
                 train_label = to_categorical(train_label, num_classes=n_label)
                 train_label = train_label.reshape((batch_size, img_w * img_h, n_label))
                 yield (train_data, train_label)
@@ -238,7 +239,7 @@ def generateValidData(batch_size,data=[]):
             if batch % batch_size==0:
                 valid_data = np.array(valid_data)
                 valid_label = np.array(valid_label).flatten()
-                valid_label = labelencoder.transform(valid_label)
+                # valid_label = labelencoder.transform(valid_label)
                 valid_label = to_categorical(valid_label, num_classes=n_label)
                 valid_label = valid_label.reshape((batch_size,img_w * img_h,n_label))
                 yield (valid_data,valid_label)
@@ -292,7 +293,7 @@ def predict():
     # img = img_to_array(img).reshape((1, img_h, img_w, -1))
     img = np.expand_dims(img, axis=0)
     pred = model.predict_classes(img, verbose=2)
-    pred = labelencoder.inverse_transform(pred[0])
+    # pred = labelencoder.inverse_transform(pred[0])
     print np.unique(pred)
     pred = pred.reshape((img_h, img_w)).astype(np.uint8)
 

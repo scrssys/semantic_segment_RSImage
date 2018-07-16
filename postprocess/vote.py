@@ -5,8 +5,8 @@ from tqdm import tqdm
 from ulitities.base_functions import load_img
 
 input_path = '../../data/predict/'
-input_masks=['unet/unet_combined_3.png','segnet/segnet_combined_3.png']
-output_file = '../../data/predict/final_result_3.png'
+input_masks=['unet/unet_binary_combined_1.png', 'unet/unet_multiclass_combined_1.png','segnet/segnet_binary_combined_1.png','segnet/segnet_multiclass_combined_1.png']
+output_file = '../../data/predict/final_result_1.png'
 
 
 def check_input_file(path, masks):

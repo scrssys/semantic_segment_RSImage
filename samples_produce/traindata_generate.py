@@ -30,7 +30,7 @@ unet_labels = [0, 1]
 # output_path = '../../data/traindata/unet/buildings/'
 
 """
-for segnet train data, but not ready and do not tested
+for segnet train data
 """
 input_path = '../../data/originaldata/segnet/'
 output_path = '../../data/traindata/segnet/'

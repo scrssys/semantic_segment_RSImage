@@ -16,13 +16,17 @@ BUILDING_VALUE=255
 
 """for unet"""
 # input_path = '../../data/predict/unet/'
-# output_file = '../../data/predict/unet/unet_combined_3.png'
-# mask_pool = ['mask_unet_buildings_3.png','mask_unet_roads_3.png']
+output_file = '../../data/predict/unet/unet_binary_combined_1.png'
+mask_pool = ['mask_binary_1_buildings.png','mask_binary_1_roads.png']
+# output_file = '../../data/predict/unet/unet_multiclass_combined_1.png'
+# mask_pool = ['mask_multiclass_1_buildings.png','mask_multiclass_1_roads.png']
 
 """for segnet"""
 input_path = '../../data/predict/segnet/'
-output_file = '../../data/predict/segnet/segnet_combined_3.png'
-mask_pool = ['mask_segnet_building_3.png','mask_segnet_road_3.png']
+# output_file = '../../data/predict/segnet/segnet_binary_combined_1.png'
+# mask_pool = ['mask_binary_1_buildings.png','mask_binary_1_roads.png']
+# output_file = '../../data/predict/segnet/segnet_multiclass_combined_1.png'
+# mask_pool = ['mask_multiclass_1_buildings.png','mask_multiclass_1_roads.png']
 
 
 def check_input_file(path,masks):

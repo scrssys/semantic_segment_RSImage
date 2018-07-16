@@ -14,10 +14,10 @@ from sklearn.preprocessing import LabelEncoder
 from PIL import Image
 from keras.preprocessing.image import img_to_array
 #
-from segnet_predict import predict, predict_for_segnet_multiclassbands,get_predicted_pathces_from_image, mosaic_resut,predict_for_segnet_grayresult
-from smooth_tiled_predictions import predict_img_with_smooth_windowing_multiclassbands,cheap_tiling_prediction_not_square_img_multiclassbands
+from predict.segnet_predict import predict, predict_for_segnet_multiclassbands,get_predicted_pathces_from_image, mosaic_resut,predict_for_segnet_grayresult
+from predict.smooth_tiled_predictions import predict_img_with_smooth_windowing_multiclassbands,cheap_tiling_prediction_not_square_img_multiclassbands
 
-from unet_predict import unet_predict,predict_for_unet_multiclassbands
+from predict.unet_predict import unet_predict,predict_for_unet_multiclassbands
 
 
 from keras import backend as K

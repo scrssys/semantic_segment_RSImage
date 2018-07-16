@@ -16,8 +16,8 @@ from keras.preprocessing.image import img_to_array
 from PIL import Image
 
 from keras import backend as K
-K.set_image_dim_ordering('th')  # for channel_first
-# K.set_image_dim_ordering('tf')
+# K.set_image_dim_ordering('th')  # for channel_first
+K.set_image_dim_ordering('tf')
 
 
 def args_parse():
@@ -127,7 +127,7 @@ def predict_for_segnet_grayresult(small_img_patches, model, window_size,labelenc
     return mask_output
 
 
-def predict_for_segnet_multiclassbands(small_img_patches, model, real_classes,labelencoder):
+def smooth_predict_for_segnet_binary(small_img_patches, model, real_classes):
     """
 
     :param small_img_patches: input image 4D array (patches, row,column, channels)
@@ -151,9 +151,45 @@ def predict_for_segnet_multiclassbands(small_img_patches, model, real_classes,la
         crop = img_to_array(crop)
         crop = np.expand_dims(crop, axis=0)
         pred = model.predict_classes(crop, verbose=2)
-        pred = labelencoder.inverse_transform(pred[0])
+
+        pred = pred.reshape((row,column))
+        res_pred = np.expand_dims(pred, axis=-1)
+
+        mask_output.append(res_pred)
+
+    mask_output = np.array(mask_output)
+    print ("Shape of mask_output:{}".format(mask_output.shape))
+
+    return mask_output
+
+def smooth_predict_for_segnet_multiclass(small_img_patches, model, real_classes):
+    """
+
+    :param small_img_patches: input image 4D array (patches, row,column, channels)
+    :param model: pretrained model
+    :param real_classes: the number of classes and the channels of output mask
+    :param labelencoder:
+    :return: predict mask 4D array (patches, row,column, real_classes)
+    """
+
+    small_img_patches = np.array(small_img_patches)
+    print (small_img_patches.shape)
+    assert (len(small_img_patches.shape) == 4)
+
+    patches,row,column,input_channels = small_img_patches.shape
+
+    mask_output = []
+    for p in range(patches):
+        crop = small_img_patches[p,:,:,:]
+
+        # Using "img_to_array" to convert the dimensions ordering, to adapt "K.set_image_dim_ordering('**') "
+        crop = img_to_array(crop)
+        crop = np.expand_dims(crop, axis=0)
+        pred = model.predict_classes(crop, verbose=2)
+        # pred = labelencoder.inverse_transform(pred[0])
 
         pred = pred.reshape((row,column)).astype(np.uint8)
+
 
         # 将预测结果分波段存储
         """method 1: by use np.where"""
@@ -181,7 +217,6 @@ def predict_for_segnet_multiclassbands(small_img_patches, model, real_classes,la
 
     return mask_output
 
-
 def segnet_predict_binary(image, model, window_size):
 
     stride = window_size
@@ -200,8 +235,8 @@ def segnet_predict_binary(image, model, window_size):
     mask_whole = np.zeros((padding_h, padding_w), dtype=np.float32)
     for i in range(padding_h // stride):
         for j in range(padding_w // stride):
-            crop = padding_img[:3, i * stride:i * stride + window_size, j * stride:j * stride + window_size]
-            # crop = padding_img[i * stride:i * stride + window_size, j * stride:j * stride + window_size, :3]
+            # crop = padding_img[:3, i * stride:i * stride + window_size, j * stride:j * stride + window_size]
+            crop = padding_img[i * stride:i * stride + window_size, j * stride:j * stride + window_size, :3]
             cb, ch, cw = crop.shape # for channel_first
 
             print ('crop:{}'.format(crop.shape))
@@ -243,8 +278,8 @@ def segnet_predict_multiclass(image, model, window_size, channels):
     mask_whole = np.zeros((padding_h, padding_w), dtype=np.float32)
     for i in range(padding_h // stride):
         for j in range(padding_w // stride):
-            crop = padding_img[:3, i * stride:i * stride + window_size, j * stride:j * stride + window_size]
-            # crop = padding_img[i * stride:i * stride + window_size, j * stride:j * stride + window_size, :3]
+            # crop = padding_img[:3, i * stride:i * stride + window_size, j * stride:j * stride + window_size]
+            crop = padding_img[i * stride:i * stride + window_size, j * stride:j * stride + window_size, :3]
             cb, ch, cw = crop.shape # for channel_first
 
             print ('crop:{}'.format(crop.shape))

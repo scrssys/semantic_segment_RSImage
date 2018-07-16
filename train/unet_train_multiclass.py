@@ -33,21 +33,21 @@ img_h = 256
 
 # n_label = 1
 n_label = 2+1
-classes = [0., 1., 2.]
+# classes = [0., 1., 2.]
 
-labelencoder = LabelEncoder()
-labelencoder.fit(classes)
+# labelencoder = LabelEncoder()
+# labelencoder.fit(classes)
 
 
 from keras import backend as K
-K.set_image_dim_ordering('th')
-# K.set_image_dim_ordering('tf')
+# K.set_image_dim_ordering('th')
+K.set_image_dim_ordering('tf')
 
 
 """for"""
-model_save_path = '../../data/models/unet_channel_first_multiclass_1D_encoder.h5' # for channel_first
+model_save_path = '../../data/models/unet_multiclass.h5' # for channel_first
 # train_data_path = '../../data/traindata/unet/roads/'
-train_data_path = '../../data/traindata/segnet/'
+train_data_path = '../../data/traindata/multiclass/'
 
 
 def load_img(path, grayscale=False):
@@ -106,10 +106,9 @@ def generateData(batch_size, data=[]):
                 train_data = np.array(train_data)
 
                 train_label = np.array(train_label).flatten()
-                train_label = labelencoder.transform(train_label)
+                # train_label = labelencoder.transform(train_label)
                 train_label = to_categorical(train_label, num_classes=n_label)
                 train_label = train_label.reshape((batch_size, img_w*img_h, n_label))
-                # train_label = train_label.reshape((batch_size, img_w, img_h, n_label))
 
                 yield (train_data, train_label)
                 train_data = []
@@ -140,7 +139,7 @@ def generateValidData(batch_size, data=[]):
                 valid_data = np.array(valid_data)
 
                 valid_label = np.array(valid_label).flatten()
-                valid_label = labelencoder.transform(valid_label)
+                # valid_label = labelencoder.transform(valid_label)
                 valid_label = to_categorical(valid_label, num_classes=n_label)
                 valid_label = valid_label.reshape((batch_size, img_w*img_h, n_label))
                 # valid_label = valid_label.reshape((batch_size, img_w, img_h, n_label))
@@ -151,9 +150,11 @@ def generateValidData(batch_size, data=[]):
                 batch = 0
 
 
+
+
 def unet():
-    inputs = Input((3, img_w, img_h))  # channels_first
-    # inputs = Input((img_w, img_h, 3))
+    # inputs = Input((3, img_w, img_h))  # channels_first
+    inputs = Input((img_w, img_h, 3))
 
     conv1 = Conv2D(32, (3, 3), activation="relu", padding="same")(inputs)
     conv1 = Conv2D(32, (3, 3), activation="relu", padding="same")(conv1)
@@ -177,29 +178,30 @@ def unet():
     conv5 = Conv2D(512, (3, 3), activation="relu", padding="same")(conv5)
     drop5 = Dropout(0.5)(conv5)
 
-    # up6 = concatenate([UpSampling2D(size=(2, 2))(conv5), conv4], axis=1)
-    up6 = concatenate([UpSampling2D(size=(2, 2))(drop5), conv4], axis=1)
+    # up6 = concatenate([UpSampling2D(size=(2, 2))(drop5), conv4], axis=1)
+    up6 = concatenate([UpSampling2D(size=(2, 2))(drop5), conv4], axis=3)
     conv6 = Conv2D(256, (3, 3), activation="relu", padding="same")(up6)
     conv6 = Conv2D(256, (3, 3), activation="relu", padding="same")(conv6)
 
-    up7 = concatenate([UpSampling2D(size=(2, 2))(conv6), conv3], axis=1)
+    # up7 = concatenate([UpSampling2D(size=(2, 2))(conv6), conv3], axis=1)
+    up7 = concatenate([UpSampling2D(size=(2, 2))(conv6), conv3], axis=3)
     conv7 = Conv2D(128, (3, 3), activation="relu", padding="same")(up7)
     conv7 = Conv2D(128, (3, 3), activation="relu", padding="same")(conv7)
 
-    up8 = concatenate([UpSampling2D(size=(2, 2))(conv7), conv2], axis=1)
+    # up8 = concatenate([UpSampling2D(size=(2, 2))(conv7), conv2], axis=1)
+    up8 = concatenate([UpSampling2D(size=(2, 2))(conv7), conv2], axis=3)
     conv8 = Conv2D(64, (3, 3), activation="relu", padding="same")(up8)
     conv8 = Conv2D(64, (3, 3), activation="relu", padding="same")(conv8)
 
-    up9 = concatenate([UpSampling2D(size=(2, 2))(conv8), conv1], axis=1)
+    # up9 = concatenate([UpSampling2D(size=(2, 2))(conv8), conv1], axis=1)
+    up9 = concatenate([UpSampling2D(size=(2, 2))(conv8), conv1], axis=3)
     conv9 = Conv2D(32, (3, 3), activation="relu", padding="same")(up9)
     conv9 = Conv2D(32, (3, 3), activation="relu", padding="same")(conv9)
 
     # conv10 = Conv2D(n_label, (1, 1), activation="sigmoid")(conv9)
     conv10 = Conv2D(n_label, (1, 1), activation="softmax")(conv9)
-    conv10 = Reshape((n_label, img_w*img_h))(conv10)  # 4D(bath_size, n_label, img_w*img_h)
-    conv10 = Permute((2,1))(conv10)
-    # conv10 = Permute((2,3,1))(conv10)
 
+    conv10 = Reshape((img_w*img_h, n_label))(conv10)  # 4D(bath_size, img_w*img_h, n_label)
 
     model = Model(inputs=inputs, outputs=conv10)
     # model.compile(optimizer='Adam', loss='binary_crossentropy', metrics=['accuracy'])

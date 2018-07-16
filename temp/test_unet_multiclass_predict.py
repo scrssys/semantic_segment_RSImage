@@ -53,7 +53,7 @@ def cheap_predict(input_img, model,label_encoder):
     padding_img = img_to_array(padding_img)
     print 'src:', padding_img.shape
 
-    mask_whole = np.zeros((padding_h, padding_w, 3), dtype=np.float32)
+    mask_whole = np.zeros((padding_h, padding_w), dtype=np.float32)
     for i in range(padding_h // stride):
         for j in range(padding_w // stride):
             crop = padding_img[:3, i * stride:i * stride + window_size, j * stride:j * stride + window_size]
@@ -66,26 +66,21 @@ def cheap_predict(input_img, model,label_encoder):
             # print ('crop:{}'.format(crop.shape))
             pred = model.predict(crop, verbose=2)
             # print (np.unique(pred))
-            pred = label_encoder.inverse_transform(pred[0])
+            # pred = label_encoder.inverse_transform(pred[0])
             # print (np.unique(pred))
-            pred = pred.reshape(window_size, window_size, 3)
-            # print (np.unique(pred))
-            # pred[0, :, :] = 0
+            pred = np.argmax(pred,axis=2)
+            pred = pred.reshape(window_size, window_size)
 
-            # print(np.unique(pred))
 
-            # pred = pred[0,:,:,:]
-            # print(np.unique(pred))
+            mask_whole[i * stride:i * stride + window_size, j * stride:j * stride + window_size] = pred[:, :]
 
-            mask_whole[i * stride:i * stride + window_size, j * stride:j * stride + window_size, :] = pred[:, :, :]
-
-    outputresult = mask_whole[0:h, 0:w, :] * 255
+    outputresult = mask_whole[0:h, 0:w] * 255
     # print (np.unique(outputresult))
     # print (np.unique(outputresult[:,:,0]))
     # print (np.unique(outputresult[:,:,1]))
 
-    plt.imshow(outputresult[:,:,2])
-    # plt.imshow(outputresult)
+    # plt.imshow(outputresult[:,:,2])
+    plt.imshow(outputresult)
     plt.title("Original predicted result")
     plt.show()
     cv2.imwrite('../../data/predict/unet/mask_multiclass_test.png', outputresult)

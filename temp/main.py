@@ -1,6 +1,7 @@
 #coding:utf8
 """"
     This is main procedure for remote sensing image semantic segmentation
+    However, this file has been replaced by "all_predict.py"
 
 """
 import cv2

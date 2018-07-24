@@ -15,25 +15,15 @@ np.random.seed(seed)
 img_w = 256
 img_h = 256
 
-image_sets = ['1.png', '2.png', '3.png', '4.png', '5.png']
+valid_labels=[0,1,2]
 
-FLAG_USING_UNET = False
-segnet_labels = [0, 1, 2]
-unet_labels = [0, 1]
+FLAG_BINARY = False
 
-"""for unet roads"""
-# input_path = '../../data/originaldata/unet/roads/'
-# output_path = '../../data/traindata/unet/roads/'
 
-"""for unet buildings"""
-# input_path = '../../data/originaldata/unet/buildings/'
-# output_path = '../../data/traindata/unet/buildings/'
+input_path = '../../data/originaldata/all/'
 
-"""
-for segnet train data
-"""
-input_path = '../../data/originaldata/segnet/'
-output_path = '../../data/traindata/segnet/'
+
+output_path = '../../data/traindata/'
 
 
 def gamma_transform(img, gamma):
@@ -95,21 +85,6 @@ def data_augment(xb, yb):
 
     return xb, yb
 
-"""check some invalid labels or NoData values"""
-def check_invalid_labels(img):
-
-    valid_labels=[]
-
-    if FLAG_USING_UNET:
-        valid_labels = unet_labels
-    else:
-        valid_labels = segnet_labels
-
-    row, column = img.shape
-    for i in range(row):
-        for j in range(column):
-            assert (img[i,j] in valid_labels)
-
 
 """ check the size of src_img and label_img"""
 def check_src_label_size(srcimg, labelimg):
@@ -118,7 +93,14 @@ def check_src_label_size(srcimg, labelimg):
     assert (row_src==row_label and column_src==column_src)
 
 
-def creat_dataset(in_path, out_path, image_num=50000, mode='original'):
+"""check some invalid labels or NoData values"""
+def check_invalid_labels(img, labels):
+    local_labels = np.unique(img)
+    for ll in local_labels:
+        assert(ll in labels)
+
+
+def creat_dataset_multiclass(in_path, out_path, image_num=50000, mode='original'):
 
     print('\ncreating dataset...')
 
@@ -135,14 +117,14 @@ def creat_dataset(in_path, out_path, image_num=50000, mode='original'):
             print("Have no file:".format(src_file))
             sys.exit(-1)
 
+        print("src file:{}".format(os.path.split(src_file)[1]))
         src_img = cv2.imread(src_file)
-        # label_file = os.path.join(in_path,'label/')+os.path.split(scr_file)[1]
-
-
 
         label_img = cv2.imread(label_file, cv2.IMREAD_GRAYSCALE)
 
+        """Check image size and invalid labels"""
         check_src_label_size(src_img, label_img)
+        check_invalid_labels(label_img, valid_labels)
 
         X_height, X_width, _ = src_img.shape
 
@@ -151,9 +133,6 @@ def creat_dataset(in_path, out_path, image_num=50000, mode='original'):
             random_height = random.randint(0, X_height - img_h - 1)
             src_roi = src_img[random_height: random_height + img_h, random_width: random_width + img_w, :]
             label_roi = label_img[random_height: random_height + img_h, random_width: random_width + img_w]
-
-            """check some invalid labels or NoData values"""
-            check_invalid_labels(label_roi)
 
             """Cut down the pure background image with 80% probability"""
             if len(np.unique(label_roi)) < 2:
@@ -173,6 +152,104 @@ def creat_dataset(in_path, out_path, image_num=50000, mode='original'):
             g_count += 1
 
 
+def creat_dataset_binary(in_path, out_path, image_num=50000, mode='original'):
+    print('\ncreating dataset...')
+
+    label_files,tt = get_file(os.path.join(in_path,'label/'))
+    assert(tt!=0)
+
+    image_each = image_num/len(label_files)
+
+    g_count = 0
+    for label_file in tqdm(label_files):
+
+        src_file = os.path.join(in_path, 'src/') + os.path.split(label_file)[1]
+        if not os.path.isfile(src_file):
+            print("Have no file:".format(src_file))
+            sys.exit(-1)
+
+        print("src file:{}".format(os.path.split(src_file)[1]))
+        src_img = cv2.imread(src_file)
+
+        label_img = cv2.imread(label_file, cv2.IMREAD_GRAYSCALE)
+
+        """Check image size and invalid labels"""
+        check_src_label_size(src_img, label_img)
+        check_invalid_labels(label_img, valid_labels)
+
+        X_height, X_width, _ = src_img.shape
+
+        print("\n1: produce road labels")
+        # temp_img = label_img
+        # temp_img = temp_img.reshape((X_height*X_width))
+        # index = np.where(temp_img==1) # 1: roads
+        # road_label = np.zeros((X_height*X_width), np.uint8)
+        # road_label[index]=1
+        # road_label=road_label.reshape((X_height,X_width))
+
+        temp_img = label_img
+        index = np.where(temp_img == 1)  # 1: roads
+        road_label = np.zeros((X_height, X_width), np.uint8)
+        road_label[index] = 1
+
+        print(np.unique(road_label))
+        count = 0
+        while count < image_each:
+            random_width = random.randint(0, X_width - img_w - 1)
+            random_height = random.randint(0, X_height - img_h - 1)
+            src_roi = src_img[random_height: random_height + img_h, random_width: random_width + img_w, :]
+            label_roi = road_label[random_height: random_height + img_h, random_width: random_width + img_w]
+
+            """Cut down the pure background image with 80% probability"""
+            if len(np.unique(label_roi)) < 2:
+                if np.unique(label_roi)[0] ==0:
+                    if np.random.random()< 0.8:
+                        continue
+
+            if mode == 'augment':
+                src_roi, label_roi = data_augment(src_roi, label_roi)
+
+            visualize = label_roi * 50
+
+            cv2.imwrite((out_path + 'roads/visualize/%d.png' % g_count), visualize)
+            cv2.imwrite((out_path + 'roads/src/%d.png' % g_count), src_roi)
+            cv2.imwrite((out_path + 'roads/label/%d.png' % g_count), label_roi)
+            count += 1
+            g_count += 1
+
+        print("\n2: produce buildings labels")
+        temp_img = label_img
+        temp_img = temp_img.reshape((X_height * X_width))
+        index = np.where(temp_img == 2) # 2: buildings
+        building_label = np.zeros((X_height * X_width), np.uint8)
+        building_label[index] = 1
+        building_label=building_label.reshape((X_height, X_width))
+        print(np.unique(road_label))
+
+        count = 0
+        while count < image_each:
+            random_width = random.randint(0, X_width - img_w - 1)
+            random_height = random.randint(0, X_height - img_h - 1)
+            src_roi = src_img[random_height: random_height + img_h, random_width: random_width + img_w, :]
+            label_roi = building_label[random_height: random_height + img_h, random_width: random_width + img_w]
+
+            """Cut down the pure background image with 80% probability"""
+            if len(np.unique(label_roi)) < 2:
+                if np.unique(label_roi)[0] == 0:
+                    if np.random.random() < 0.8:
+                        continue
+
+            if mode == 'augment':
+                src_roi, label_roi = data_augment(src_roi, label_roi)
+
+            visualize = label_roi * 50
+
+            cv2.imwrite((out_path + 'buildings/visualize/%d.png' % g_count), visualize)
+            cv2.imwrite((out_path + 'buildings/src/%d.png' % g_count), src_roi)
+            cv2.imwrite((out_path + 'buildings/label/%d.png' % g_count), label_roi)
+            count += 1
+            g_count += 1
+
 if __name__ == '__main__':
 
     """check input directories"""
@@ -183,25 +260,16 @@ if __name__ == '__main__':
         print("No input label directory:{}".format(os.path.join(input_path,'label/')))
         sys.exit(-2)
 
-    if not os.path.isdir(output_path):
-        print("No output directory:{}".format(output_path))
-        os.mkdir(output_path)
 
-    """if not exist, new create it"""
-    output_src_path = os.path.join(output_path,'src/')
-    if not os.path.isdir(output_src_path):
-        print("No output directory:{}".format(output_src_path))
-        os.mkdir(output_src_path)
-
-    output_label_path = os.path.join(output_path, 'label/')
-    if not os.path.isdir(output_label_path):
-        print("No output directory:{}".format(output_label_path))
-        os.mkdir(output_label_path)
-
-    output_visualize_path = os.path.join(output_path, 'visualize/')
-    if not os.path.isdir(output_visualize_path):
-        print("No output directory:{}".format(output_visualize_path))
-        os.mkdir(output_visualize_path)
+    if FLAG_BINARY == True:
+        output_path = ''.join([output_path, '/binary/'])
+    else:
+        output_path = ''.join([output_path, '/multiclass/'])
 
 
-    creat_dataset(input_path, output_path, 5000, mode='augment')
+    if FLAG_BINARY==True:
+        print("Produce labels for binary classification")
+        creat_dataset_binary(input_path, output_path, 100000, mode='augment')
+    else:
+        print("produce labels for multiclass")
+        creat_dataset_multiclass(input_path, output_path, 100000, mode='augment')

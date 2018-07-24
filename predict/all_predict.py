@@ -39,7 +39,7 @@ FLAG_APPROACH_PREDICT=4 # 0: raw predict; 1:flame tracer for smooth; 2: cheap pr
 # FLAG_USING_MODEL = 0 # 0:Unet two-category; 1:Unet multi-category; 2:segnet two-category; 3:segnet multi-category
 
 
-input_image = '../../data/test/1.png'
+input_image = '../../data/test/H48G036036_1.png'
 
 window_size = 256
 step = 128
@@ -58,12 +58,12 @@ if __name__ == '__main__':
     abs_filename = abs_filename.split(".")[0]
     print (abs_filename)
 
+    model_name = '../../data/models/unet_roads.h5'
     # model_name = '../../data/models/unet_buildings.h5'
-    # model_name = '../../data/models/unet_roads.h5'
     # model_name = '../../data/models/unet_multiclass.h5'
-    # model_name = '../../data/models/segnet_buildings.h5'
     # model_name = '../../data/models/segnet_roads.h5'
-    model_name = '../../data/models/segnet_multiclass.h5'
+    # model_name = '../../data/models/segnet_buildings.h5'
+    # model_name = '../../data/models/segnet_multiclass.h5'
 
 
     """get parameters from moldel name"""
@@ -71,11 +71,11 @@ if __name__ == '__main__':
         if 'buildings' in model_name:
             FLAG_USING_MODEL=0
             result_channels = 1
-            output_mask = ''.join(['../../data/predict/unet/mask_binary_', abs_filename, '_buildings_', '.png'])
+            output_mask = ''.join(['../../data/predict/unet/mask_binary_', abs_filename, '_buildings.png'])
         elif 'roads' in model_name:
             FLAG_USING_MODEL = 0
             result_channels = 1
-            output_mask = ''.join(['../../data/predict/unet/mask_binary_', abs_filename, '_roads_', '.png'])
+            output_mask = ''.join(['../../data/predict/unet/mask_binary_', abs_filename, '_roads.png'])
         elif 'multiclass' in model_name:
             FLAG_USING_MODEL = 1
             result_channels = len(multi_classes) - 1
@@ -84,44 +84,22 @@ if __name__ == '__main__':
         if 'buildings' in model_name:
             FLAG_USING_MODEL=2
             result_channels = 1
-            output_mask = ''.join(['../../data/predict/segnet/mask_binary_', abs_filename, '_buildings_', '.png'])
+            output_mask = ''.join(['../../data/predict/segnet/mask_binary_', abs_filename, '_buildings.png'])
         elif 'roads' in model_name:
             FLAG_USING_MODEL = 2
             result_channels = 1
-            output_mask = ''.join(['../../data/predict/segnet/mask_binary_', abs_filename, '_roads_', '.png'])
+            output_mask = ''.join(['../../data/predict/segnet/mask_binary_', abs_filename, '_roads.png'])
         elif 'multiclass' in model_name:
             FLAG_USING_MODEL = 3
             result_channels = len(multi_classes) - 1
             output_mask = ''.join(['../../data/predict/segnet/mask_multiclass_', abs_filename,'_'])
 
-
     print("[INFO] loading network...")
     model = load_model(model_name)
 
-    # if FLAG_USING_MODEL==0:
-    #     model = load_model('../../data/models/unet_buildings.h5')
-    #     # model = load_model('../../data/models/unet_roads.h5')  # for roads
-    #     result_channels = len(binary_classes) - 1
-    #     output_mask = '../../data/predict/unet/mask_binary_buildings_'+os.path.split(input_image)[1]
-    #
-    # elif FLAG_USING_MODEL==1:
-    #     model = load_model('../../data/models/unet_multiclass.h5')
-    #     result_channels = len(multi_classes)-1
-    #     output_mask = '../../data/predict/unet/mask_multiclass_'
-    # elif FLAG_USING_MODEL==2:
-    #     model = load_model('../../data/models/segnet_buildings.h5')
-    #     # model = load_model('../../data/models/segnet_roads.h5')
-    #     result_channels = len(binary_classes) - 1
-    #     output_mask = '../../data/predict/segnet/mask_binary_roads_'+os.path.split(input_image)[1]
-    # elif FLAG_USING_MODEL==3:
-    #     # model = load_model('../../data/models/segnet_channel_first_multiclass.h5')
-    #     model = load_model('../../data/models/segnet_multiclass.h5')
-    #     result_channels = len(multi_classes)-1
-    #     output_mask = '../../data/predict/segnet/mask_multiclass_'
-
-
+    """predict by two approaches: 0: patch predict; else: smooth predict"""
     if FLAG_APPROACH_PREDICT ==0:
-        """0. test original code of predict()"""
+        print("[INFO]0. test original code of predict()")
         if FLAG_USING_MODEL==0:
             result_test = unet_predict_binary(input_img, model, window_size)
             cv2.imwrite(output_mask, result_test)
@@ -138,10 +116,10 @@ if __name__ == '__main__':
             for key, val in multi_dict.items():
                 output_file = output_mask + key + '.png'
                 cv2.imwrite(output_file, result_test[:, :, val - 1])  # achieve the integer automatically
-
     else:
-        """sooth predict"""
+        print("[INFO]sooth predict")
         if FLAG_USING_MODEL==0:
+            print("unet binary")
             predictions_smooth = predict_img_with_smooth_windowing_multiclassbands(
                 input_img,
                 model,
@@ -154,6 +132,7 @@ if __name__ == '__main__':
 
             cv2.imwrite(output_mask, predictions_smooth)
         elif FLAG_USING_MODEL == 1:
+            print("unet multiclass")
             predictions_smooth = predict_img_with_smooth_windowing_multiclassbands(
                 input_img,
                 model,

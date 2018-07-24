@@ -38,13 +38,15 @@ from keras import backend as K
 # K.set_image_dim_ordering('th')
 K.set_image_dim_ordering('tf')
 
+"""for roads"""
+model_save_path = '../../data/models/unet_roads.h5'
+train_data_path = '../../data/traindata/binary/roads/'
+
 """for buildings"""
 # model_save_path = '../../data/models/unet_buildings.h5'
 # train_data_path = '../../data/traindata/binary/buildings/'
 
-"""for roads"""
-model_save_path = '../../data/models/unet_roads.h5'
-train_data_path = '../../data/traindata/binary/roads/'
+
 
 
 def load_img(path, grayscale=False):

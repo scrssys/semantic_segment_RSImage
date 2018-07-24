@@ -48,3 +48,15 @@ def get_file(file_dir, file_type='.png'):
                 L.append(os.path.join(root,file))
     num = len(L)
     return L, num
+
+""" check the size of src_img and label_img"""
+def compare_two_image_size(img_one, img_two, grayscale=False):
+    if grayscale:
+        h1, w1 = img_one.shape
+        h2, w2 = img_two.shape
+        assert(h1==h2 and w1==w2)
+    else:
+        h1, w1, _ = img_one.shape
+        h2, w2, _ = img_two.shape
+        assert (h1 == h2 and w1 == w2)
+

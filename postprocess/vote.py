@@ -5,8 +5,9 @@ from tqdm import tqdm
 from ulitities.base_functions import load_img
 
 input_path = '../../data/predict/'
-input_masks=['unet/unet_binary_combined_1.png', 'unet/unet_multiclass_combined_1.png','segnet/segnet_binary_combined_1.png','segnet/segnet_multiclass_combined_1.png']
-output_file = '../../data/predict/final_result_1.png'
+input_masks=['unet/unet_binary_combined_3.png', 'unet/unet_multiclass_combined_3.png',
+             'segnet/segnet_binary_combined_3.png','segnet/segnet_multiclass_combined_3.png']
+output_file = '../../data/predict/final_result_31.png'
 
 
 def check_input_file(path, masks):
@@ -44,8 +45,8 @@ def vote_per_image(height, width, path, masks):
                 record[pixel] +=1
 
             """Alarming"""
-            # if record.argmax()==0: # if argmax of 0 = 125 or 255, not prior considering background(0)
-            #     record[0] -=1
+            if record.argmax()==0: # if argmax of 0 = 125 or 255, not prior considering background(0)
+                record[0] -=1
 
             label=record.argmax()
             # print ("{},{} label={}".format(i,j,label))

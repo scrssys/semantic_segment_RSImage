@@ -42,11 +42,13 @@ from keras import backend as K
 # K.set_image_dim_ordering('th')
 K.set_image_dim_ordering('tf')
 
-# model_save_path = '../../data/models/segnet_buildings.h5'
-# train_data_path = '../../data/traindata/binary/buildings/'
+# model_save_path = '../../data/models/segnet_roads.h5'
+# train_data_path = '../../data/traindata/binary/roads/'
 
-model_save_path = '../../data/models/segnet_roads.h5'
-train_data_path = '../../data/traindata/binary/roads/'
+model_save_path = '../../data/models/segnet_buildings.h5'
+train_data_path = '../../data/traindata/binary/buildings/'
+
+
 
 def SegNet():
     model = Sequential()
@@ -279,7 +281,7 @@ def predict():
     model = SegNet()
     model.load_weights(model_save_path)
     # while True:
-    print "please input the test img path:"
+    print("please input the test img path:")
     test_imgpath = './data/test/0.png'
     img = load_img(test_imgpath, target_size=(img_w, img_h))
     img = img_to_array(img)
@@ -289,7 +291,7 @@ def predict():
     img = np.expand_dims(img, axis=0)
     pred = model.predict_classes(img, verbose=2)
     pred = labelencoder.inverse_transform(pred[0])
-    print np.unique(pred)
+    print(np.unique(pred))
     pred = pred.reshape((img_h, img_w)).astype(np.uint8)
 
     plt.imshow(pred, cmap='gray')

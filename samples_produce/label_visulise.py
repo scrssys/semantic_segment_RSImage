@@ -27,7 +27,7 @@ if __name__ == '__main__':
         img = img*100
         filename = os.path.split(file)[1]
         outfile = os.path.join(output_path,filename)
-        print (outfile)
+        print(outfile)
 
         cv2.imwrite(outfile, img)
 

@@ -4,13 +4,14 @@ from PIL import Image
 import cv2
 import numpy as np
 from base_functions import load_img
+import matplotlib.pyplot as plt
 
 
-input_file = '../../data/originaldata/all/src/H48G036036.png'
+input_file = '../../data/originaldata/all/src/H48G033037.png'
 
-output_test_file = '../../data/test/H48G036036_1.png'
+output_test_file = '../../data/test/H48G033037_1.png'
 
-window_size = 2048
+window_size = 4096
 
 if __name__=='__main__':
     # img = cv2.imread(input_file)
@@ -24,5 +25,9 @@ if __name__=='__main__':
     y = np.random.randint(0, width - window_size - 1)
 
     output_img = img[x:x+window_size, y:y+window_size,:]
+
+    plt.imshow(output_img)
+    plt.show()
+
 
     cv2.imwrite(output_test_file, output_img)

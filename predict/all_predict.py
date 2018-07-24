@@ -39,7 +39,7 @@ FLAG_APPROACH_PREDICT=4 # 0: raw predict; 1:flame tracer for smooth; 2: cheap pr
 # FLAG_USING_MODEL = 0 # 0:Unet two-category; 1:Unet multi-category; 2:segnet two-category; 3:segnet multi-category
 
 
-input_image = '../../data/test/H48G036036_1.png'
+input_image = '../../data/test/H48G033037_1.png'
 
 window_size = 256
 step = 128
@@ -58,8 +58,8 @@ if __name__ == '__main__':
     abs_filename = abs_filename.split(".")[0]
     print (abs_filename)
 
-    model_name = '../../data/models/unet_roads.h5'
-    # model_name = '../../data/models/unet_buildings.h5'
+    # model_name = '../../data/models/unet_roads.h5'
+    model_name = '../../data/models/unet_buildings.h5'
     # model_name = '../../data/models/unet_multiclass.h5'
     # model_name = '../../data/models/segnet_roads.h5'
     # model_name = '../../data/models/segnet_buildings.h5'

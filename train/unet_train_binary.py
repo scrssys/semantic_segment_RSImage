@@ -39,12 +39,12 @@ from keras import backend as K
 K.set_image_dim_ordering('tf')
 
 """for roads"""
-model_save_path = '../../data/models/unet_roads.h5'
-train_data_path = '../../data/traindata/binary/roads/'
+# model_save_path = '../../data/models/unet_roads.h5'
+# train_data_path = '../../data/traindata/binary/roads/'
 
 """for buildings"""
-# model_save_path = '../../data/models/unet_buildings.h5'
-# train_data_path = '../../data/traindata/binary/buildings/'
+model_save_path = '../../data/models/unet_buildings_satRGB.h5'
+train_data_path = '../../data/traindata/satellites/RGB/binary/buildings/'
 
 
 
@@ -232,18 +232,18 @@ def train():
                             validation_data=generateValidData(BS, val_set), validation_steps=valid_numb // BS,
                             callbacks=callable, max_q_size=1)
 
-    # plot the training loss and accuracy
-    # plt.style.use("ggplot")
-    # plt.figure()
-    # N = EPOCHS
-    # plt.plot(np.arange(0, N), H.history["loss"], label="train_loss")
-    # plt.plot(np.arange(0, N), H.history["val_loss"], label="val_loss")
-    # plt.plot(np.arange(0, N), H.history["acc"], label="train_acc")
-    # plt.plot(np.arange(0, N), H.history["val_acc"], label="val_acc")
-    # plt.title("Training Loss and Accuracy on U-Net Satellite Seg")
-    # plt.xlabel("Epoch #")
-    # plt.ylabel("Loss/Accuracy")
-    # plt.legend(loc="lower left")
+    #plot the training loss and accuracy
+    plt.style.use("ggplot")
+    plt.figure()
+    N = EPOCHS
+    plt.plot(np.arange(0, N), H.history["loss"], label="train_loss")
+    plt.plot(np.arange(0, N), H.history["val_loss"], label="val_loss")
+    plt.plot(np.arange(0, N), H.history["acc"], label="train_acc")
+    plt.plot(np.arange(0, N), H.history["val_acc"], label="val_acc")
+    plt.title("Training Loss and Accuracy on U-Net Satellite Seg")
+    plt.xlabel("Epoch #")
+    plt.ylabel("Loss/Accuracy")
+    plt.legend(loc="lower left")
     # plt.savefig(args["plot"])
 
 

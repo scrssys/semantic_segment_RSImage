@@ -17,13 +17,14 @@ img_h = 256
 
 valid_labels=[0,1,2]
 
-FLAG_BINARY = False
+# FLAG_BINARY = False
+FLAG_BINARY = True
 
 
-input_path = '../../data/originaldata/all/'
+input_path = '../../data/originaldata/SatRGB/'
 
 
-output_path = '../../data/traindata/'
+output_path = '../../data/traindata/satellites/RGB/'
 
 
 def gamma_transform(img, gamma):
@@ -269,7 +270,7 @@ if __name__ == '__main__':
 
     if FLAG_BINARY==True:
         print("Produce labels for binary classification")
-        creat_dataset_binary(input_path, output_path, 100000, mode='augment')
+        creat_dataset_binary(input_path, output_path, 50000, mode='augment')
     else:
         print("produce labels for multiclass")
-        creat_dataset_multiclass(input_path, output_path, 100000, mode='augment')
+        creat_dataset_multiclass(input_path, output_path, 50000, mode='augment')

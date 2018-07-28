@@ -7,11 +7,11 @@ from base_functions import load_img
 import matplotlib.pyplot as plt
 
 
-input_file = '../../data/originaldata/all/src/H48G033037.png'
+input_file = '../../data/originaldata/SatNRG/src/GF2_changning_20160606.png'
 
-output_test_file = '../../data/test/H48G033037_1.png'
+output_test_file = '../../data/test/GF2_changning_1.png'
 
-window_size = 4096
+window_size = 2048
 
 if __name__=='__main__':
     # img = cv2.imread(input_file)

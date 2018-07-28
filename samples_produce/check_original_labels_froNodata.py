@@ -23,7 +23,7 @@ import matplotlib.pyplot as plt
 # input_label_path = '../../data/originaldata/segnet/label/'
 
 
-input_label_path = '../../data/originaldata/all/label/'
+input_label_path = '../../data/originaldata/SatRGB/label/'
 valid_labels = [0, 1, 2]
 
 HAS_INVALID_VALUE = False
@@ -92,6 +92,8 @@ if __name__ == '__main__':
 
         plt.imshow(label_img, cmap='gray')
         plt.show()
+
+    print("Check completely!\n")
 
 
 

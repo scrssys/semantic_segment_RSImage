@@ -3,6 +3,8 @@
 from PyQt5.QtWidgets import QApplication, QWidget, QDialog, QMainWindow
 from MainWin import Ui_MainWindow
 from label_check import Ui_Dialog_label_check
+from qgis.core import *
+
 
 class mywindow(QMainWindow, Ui_MainWindow):
     def __init__(self):
@@ -25,5 +27,6 @@ if __name__=='__main__':
     import sys
     app=QApplication(sys.argv)
     widget=mywindow()
+    # widget = child_label()
     widget.show()
     sys.exit(app.exec_())

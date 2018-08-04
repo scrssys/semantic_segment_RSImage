@@ -150,7 +150,10 @@ def smooth_predict_for_segnet_binary(small_img_patches, model, real_classes):
         # Using "img_to_array" to convert the dimensions ordering, to adapt "K.set_image_dim_ordering('**') "
         crop = img_to_array(crop)
         crop = np.expand_dims(crop, axis=0)
-        pred = model.predict_classes(crop, verbose=2)
+        # pred = model.predict_classes(crop, verbose=2)
+        # pred = model.predict_proba(crop, verbose=2)
+        pred = model.predict(crop, verbose=2)
+        pred = np.argmax(pred,axis=2)
 
         pred = pred.reshape((row,column))
         res_pred = np.expand_dims(pred, axis=-1)
@@ -185,7 +188,9 @@ def smooth_predict_for_segnet_multiclass(small_img_patches, model, real_classes)
         # Using "img_to_array" to convert the dimensions ordering, to adapt "K.set_image_dim_ordering('**') "
         crop = img_to_array(crop)
         crop = np.expand_dims(crop, axis=0)
-        pred = model.predict_classes(crop, verbose=2)
+        # pred = model.predict_classes(crop, verbose=2)
+        pred = model.predict_proba(crop, verbose=2)
+        pred = np.argmax(pred,axis=2)
         # pred = labelencoder.inverse_transform(pred[0])
 
         pred = pred.reshape((row,column)).astype(np.uint8)

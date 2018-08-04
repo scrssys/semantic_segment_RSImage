@@ -47,7 +47,7 @@ K.set_image_dim_ordering('tf')
 """for"""
 model_save_path = '../../data/models/unet_multiclass.h5' # for channel_first
 # train_data_path = '../../data/traindata/unet/roads/'
-train_data_path = '../../data/traindata/multiclass/'
+train_data_path = '../../data/traindata/CCF_traindata/multiclass/'
 
 
 def load_img(path, grayscale=False):

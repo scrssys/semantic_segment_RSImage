@@ -4,7 +4,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import argparse
 import numpy as np
-from keras.models import Sequential
+from keras.models import Sequential,load_model
 from keras.layers import Conv2D,MaxPooling2D,UpSampling2D,BatchNormalization,Reshape,Permute,Activation
 from keras.utils.np_utils import to_categorical
 
@@ -45,7 +45,7 @@ K.set_image_dim_ordering('tf')
 model_save_path = '../../data/models/segnet_multiclass.h5' # for channel_first
 
 
-train_data_path = '../../data/traindata/multiclass/'
+train_data_path = '../../data/traindata/all/multiclass/'
 
 
 
@@ -280,30 +280,49 @@ def segnet_train():
 """
 this function only for test
 """
-def predict():
-    model = SegNet()
-    model.load_weights(model_save_path)
-    # while True:
-    print("please input the test img path:")
-    test_imgpath = './data/test/0.png'
-    img = load_img(test_imgpath, target_size=(img_w, img_h))
-    img = img_to_array(img)
-    # img = img.transpose(2,0.1)
+window_size=256
 
-    # img = img_to_array(img).reshape((1, img_h, img_w, -1))
-    img = np.expand_dims(img, axis=0)
-    pred = model.predict_classes(img, verbose=2)
-    # pred = labelencoder.inverse_transform(pred[0])
-    print(np.unique(pred))
-    pred = pred.reshape((img_h, img_w)).astype(np.uint8)
+def segnet_predict(image,model):
+    stride = window_size
 
-    plt.imshow(pred, cmap='gray')
-    plt.title("predict test")
+    h, w, _ = image.shape
+    print('h,w:', h, w)
+    padding_h = (h // stride + 1) * stride
+    padding_w = (w // stride + 1) * stride
+    padding_img = np.zeros((padding_h, padding_w, 3))
+    padding_img[0:h, 0:w, :] = image[:, :, :]
+
+    padding_img = img_to_array(padding_img)
+
+    mask_whole = np.zeros((padding_h, padding_w), dtype=np.float32)
+    for i in list(range(padding_h // stride)):
+        for j in list(range(padding_w // stride)):
+            crop = padding_img[i * stride:i * stride + window_size, j * stride:j * stride + window_size, :3]
+
+            crop = np.expand_dims(crop, axis=0)
+            print('crop:{}'.format(crop.shape))
+
+            # pred = model.predict_classes(crop, verbose=2)
+            # pred = model.predict(crop, verbose=2)
+            pred = model.predict_proba(crop, verbose=2)
+            pred = np.argmax(pred,axis=2)  #for one hot encoding
+
+            pred = pred.reshape(256, 256)
+            print(np.unique(pred))
+
+
+            mask_whole[i * stride:i * stride + window_size, j * stride:j * stride + window_size] = pred[:, :]
+
+    # outputresult = mask_whole[0:h, 0:w] * 255.0
+    outputresult =mask_whole[0:h,0:w]
+    # outputresult = outputresult.astype(np.uint8)
+
+
+    plt.imshow(outputresult, cmap='gray')
+    plt.title("Original predicted result")
     plt.show()
-    # pred_img = Image.fromarray(pred)
-    # pred_img.save('1.png', format='png')
-
-
+    cv2.imwrite('../../data//predict/segnet/test_onehotmult.png',outputresult*125)
+    return outputresult
 
 
 if __name__ =='__main__':
@@ -313,4 +332,17 @@ if __name__ =='__main__':
 
     segnet_train()
 
-    # predict()
+    # print("test ....................predict by segnet .....\n")
+    # img_path = '../../data/test/11.png'
+    # import sys
+    #
+    # if not os.path.isfile(img_path):
+    #     print("no file: {}".forma(img_path))
+    #     sys.exit(-1)
+    #
+    # input_img = cv2.imread(img_path)
+    # input_img = np.array(input_img, dtype="float") / 255.0  # must do it
+    #
+    # new_model = load_model(model_save_path)
+    #
+    # segnet_predict(input_img, new_model)

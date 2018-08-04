@@ -3,26 +3,31 @@ import matplotlib
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
-import argparse
 import numpy as np
-from keras.models import Sequential
+from keras.models import Sequential,load_model
 from keras.layers import Conv2D, MaxPooling2D, UpSampling2D, BatchNormalization, Reshape, Permute, Activation, Input
 from keras.utils.np_utils import to_categorical
 from keras.preprocessing.image import img_to_array
 from keras.callbacks import ModelCheckpoint
-from sklearn.preprocessing import LabelEncoder
 from keras.models import Model
 from keras.layers.merge import concatenate
 from PIL import Image
 import matplotlib.pyplot as plt
 import cv2
 import random
+import sys
 import os
 from tqdm import tqdm
-
 from keras.models import *
 from keras.layers import *
 from keras.optimizers import *
+
+from keras import backend as K
+K.set_image_dim_ordering('tf')
+
+
+from semantic_segmentation_networks import binary_unet, binary_fcnnet, binary_segnet
+from ulitities.base_functions import load_img_normalization
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "2"
 seed = 7
@@ -31,22 +36,21 @@ np.random.seed(seed)
 img_w = 256
 img_h = 256
 
-n_label = 1
+n_label = 1+1
+
+dict_network={0: 'unet', 1: 'fcnnet', 2: 'segnet'}
+dict_target={0: 'roads', 1: 'buildings'}
+
+FLAG_USING_NETWORK = 2  # 0:unet; 1:fcn; 2:segnet;
+FLAG_TARGET_CLASS = 1   # 0:roads; 1:buildings
+FLAG_MAKE_TEST=True
 
 
-from keras import backend as K
-# K.set_image_dim_ordering('th')
-K.set_image_dim_ordering('tf')
+model_save_path = ''.join(['../../data/models/',dict_network[FLAG_USING_NETWORK], '_', dict_target[FLAG_TARGET_CLASS],'_binary''.h5'])
+print("model save as to: {}".format(model_save_path))
 
-"""for roads"""
-# model_save_path = '../../data/models/unet_roads.h5'
-# train_data_path = '../../data/traindata/binary/roads/'
-
-"""for buildings"""
-model_save_path = '../../data/models/unet_buildings_satRGB.h5'
-train_data_path = '../../data/traindata/satellites/RGB/binary/buildings/'
-
-
+train_data_path = ''.join(['../../data/traindata/CCF_traindata/binary/',dict_target[FLAG_TARGET_CLASS], '/'])
+print("traindata from: {}".format(train_data_path))
 
 
 def load_img(path, grayscale=False):
@@ -98,6 +102,7 @@ def generateData(batch_size, data=[]):
                 # print 'get enough bacth!\n'
                 train_data = np.array(train_data)
                 train_label = np.array(train_label)
+                train_label = to_categorical(train_label, num_classes=n_label)  # one_hot coding
                 train_label = train_label.reshape((batch_size, img_w * img_h, n_label))
                 yield (train_data, train_label)
                 train_data = []
@@ -126,65 +131,12 @@ def generateValidData(batch_size, data=[]):
             if batch % batch_size == 0:
                 valid_data = np.array(valid_data)
                 valid_label = np.array(valid_label)
+                valid_label = to_categorical(valid_label, num_classes=n_label)
                 valid_label = valid_label.reshape((batch_size, img_w * img_h, n_label))
                 yield (valid_data, valid_label)
                 valid_data = []
                 valid_label = []
                 batch = 0
-
-
-def unet():
-    # inputs = Input((3, img_w, img_h))  # channels_first
-    inputs = Input((img_w, img_h, 3))
-
-    conv1 = Conv2D(32, (3, 3), activation="relu", padding="same")(inputs)
-    conv1 = Conv2D(32, (3, 3), activation="relu", padding="same")(conv1)
-    pool1 = MaxPooling2D(pool_size=(2, 2))(conv1)
-
-    conv2 = Conv2D(64, (3, 3), activation="relu", padding="same")(pool1)
-    conv2 = Conv2D(64, (3, 3), activation="relu", padding="same")(conv2)
-    pool2 = MaxPooling2D(pool_size=(2, 2))(conv2)
-
-    conv3 = Conv2D(128, (3, 3), activation="relu", padding="same")(pool2)
-    conv3 = Conv2D(128, (3, 3), activation="relu", padding="same")(conv3)
-    pool3 = MaxPooling2D(pool_size=(2, 2))(conv3)
-
-    conv4 = Conv2D(256, (3, 3), activation="relu", padding="same")(pool3)
-    conv4 = Conv2D(256, (3, 3), activation="relu", padding="same")(conv4)
-    # pool4 = MaxPooling2D(pool_size=(2, 2))(conv4)
-    drop4 = Dropout(0.5)(conv4) # add 20180621
-    pool4 = MaxPooling2D(pool_size=(2, 2))(drop4)
-
-    conv5 = Conv2D(512, (3, 3), activation="relu", padding="same")(pool4)
-    conv5 = Conv2D(512, (3, 3), activation="relu", padding="same")(conv5)
-    drop5 = Dropout(0.5)(conv5)
-
-    # up6 = concatenate([UpSampling2D(size=(2, 2))(drop5), conv4], axis=1)
-    up6 = concatenate([UpSampling2D(size=(2, 2))(drop5), conv4], axis=3)
-    conv6 = Conv2D(256, (3, 3), activation="relu", padding="same")(up6)
-    conv6 = Conv2D(256, (3, 3), activation="relu", padding="same")(conv6)
-
-    # up7 = concatenate([UpSampling2D(size=(2, 2))(conv6), conv3], axis=1)
-    up7 = concatenate([UpSampling2D(size=(2, 2))(conv6), conv3], axis=3)
-    conv7 = Conv2D(128, (3, 3), activation="relu", padding="same")(up7)
-    conv7 = Conv2D(128, (3, 3), activation="relu", padding="same")(conv7)
-
-    # up8 = concatenate([UpSampling2D(size=(2, 2))(conv7), conv2], axis=1)
-    up8 = concatenate([UpSampling2D(size=(2, 2))(conv7), conv2], axis=3)
-    conv8 = Conv2D(64, (3, 3), activation="relu", padding="same")(up8)
-    conv8 = Conv2D(64, (3, 3), activation="relu", padding="same")(conv8)
-
-    # up9 = concatenate([UpSampling2D(size=(2, 2))(conv8), conv1], axis=1)
-    up9 = concatenate([UpSampling2D(size=(2, 2))(conv8), conv1], axis=3)
-    conv9 = Conv2D(32, (3, 3), activation="relu", padding="same")(up9)
-    conv9 = Conv2D(32, (3, 3), activation="relu", padding="same")(conv9)
-
-    conv10 = Conv2D(n_label, (1, 1), activation="sigmoid")(conv9)
-    conv10 = Reshape((img_w * img_h, n_label))(conv10)  # 4D(bath_size, img_w*img_h, n_label)
-
-    model = Model(inputs=inputs, outputs=conv10)
-    model.compile(optimizer='Adam', loss='binary_crossentropy', metrics=['accuracy'])
-    return model
 
 
 
@@ -208,12 +160,10 @@ class CustomModelCheckpoint(keras.callbacks.Callback):
         self.best_loss = val_loss
 
 
-
-def train():
+"""Train model ............................................."""
+def train(model):
     EPOCHS = 10  # should be 10 or bigger number
     BS = 16
-
-    model = unet()
 
     """test the model fastly but can only train one epoch, AND it does not work finally ^_^"""
     # model = multi_gpu_model(model, gpus=4)
@@ -244,20 +194,56 @@ def train():
     plt.xlabel("Epoch #")
     plt.ylabel("Loss/Accuracy")
     plt.legend(loc="lower left")
-    # plt.savefig(args["plot"])
+    fig_train_acc=''.join(['../../data/models/train_acc_', dict_network[FLAG_USING_NETWORK],'.png'])
+    plt.savefig(fig_train_acc)
 
 
-def args_parse():
-    # construct the argument parse and parse the arguments
-    ap = argparse.ArgumentParser()
-    ap.add_argument("-d", "--data", help="training data's path",
-                    default=True)
-    ap.add_argument("-m", "--model", required=True,
-                    help="path to output model")
-    ap.add_argument("-p", "--plot", type=str, default="plot.png",
-                    help="path to output accuracy/loss plot")
-    args = vars(ap.parse_args())
-    return args
+
+"""
+Test the model which has been trained right now
+"""
+window_size=256
+
+def test_predict(image,model):
+    stride = window_size
+
+    h, w, _ = image.shape
+    print('h,w:', h, w)
+    padding_h = (h // stride + 1) * stride
+    padding_w = (w // stride + 1) * stride
+    padding_img = np.zeros((padding_h, padding_w, 3))
+    padding_img[0:h, 0:w, :] = image[:, :, :]
+
+    padding_img = img_to_array(padding_img)
+
+    mask_whole = np.zeros((padding_h, padding_w), dtype=np.float32)
+    for i in list(range(padding_h // stride)):
+        for j in list(range(padding_w // stride)):
+            crop = padding_img[i * stride:i * stride + window_size, j * stride:j * stride + window_size, :3]
+
+            crop = np.expand_dims(crop, axis=0)
+            print('crop:{}'.format(crop.shape))
+
+            # pred = model.predict(crop, verbose=2)
+            pred = model.predict(crop, verbose=2)
+            pred = np.argmax(pred, axis=2)  #for one hot encoding
+
+            pred = pred.reshape(256, 256)
+            print(np.unique(pred))
+
+
+            mask_whole[i * stride:i * stride + window_size, j * stride:j * stride + window_size] = pred[:, :]
+
+    outputresult =mask_whole[0:h,0:w]
+    # outputresult = outputresult.astype(np.uint8)
+
+    plt.imshow(outputresult, cmap='gray')
+    plt.title("Original predicted result")
+    plt.show()
+    cv2.imwrite('../../data/predict/test_model.png',outputresult*255)
+    return outputresult
+
+
 
 
 if __name__ == '__main__':
@@ -265,4 +251,28 @@ if __name__ == '__main__':
     if not os.path.isdir(train_data_path):
         print ("train data does not exist in the path:\n {}".format(train_data_path))
 
-    train()
+    if FLAG_USING_NETWORK==0:
+        model = binary_unet(n_label)
+    elif FLAG_USING_NETWORK==1:
+        model = binary_fcnnet(n_label)
+    elif FLAG_USING_NETWORK==2:
+        model=binary_segnet(n_label)
+
+    print("Train by : {}".format(dict_network[FLAG_USING_NETWORK]))
+    # train(model)
+
+    if FLAG_MAKE_TEST:
+        print("test ....................predict by trained model .....\n")
+        test_img_path = '../../data/test/1.png'
+        import sys
+
+        if not os.path.isfile(test_img_path):
+            print("no file: {}".forma(test_img_path))
+            sys.exit(-1)
+
+        ret, input_img = load_img_normalization(test_img_path)
+        # model_save_path ='../../data/models/unet_buildings_onehot.h5'
+
+        new_model = load_model(model_save_path)
+
+        test_predict(input_img, new_model)

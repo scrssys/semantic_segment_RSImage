@@ -139,6 +139,7 @@ def smooth_predict_for_unet_binary(small_img_patches, model, real_classes):
         crop = np.expand_dims(crop, axis=0)
         # print ('crop:{}'.format(crop.shape))
         pred = model.predict(crop, verbose=2)
+        pred = np.argmax(pred, axis=2)
         pred = pred.reshape((row,column))
 
         # 将预测结果2D expand to 3D

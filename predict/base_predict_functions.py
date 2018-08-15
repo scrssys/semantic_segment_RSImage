@@ -41,7 +41,7 @@ def smooth_predict_for_binary(small_img_patches, model, real_classes):
         # print ('crop:{}'.format(crop.shape))
         pred = model.predict(crop, verbose=2)
         pred = np.argmax(pred, axis=2)
-        print(np.unique(pred))
+        # print(np.unique(pred))
         pred = pred.reshape((row,column))
 
         # 将预测结果2D expand to 3D
@@ -125,15 +125,14 @@ def orignal_predict(image,model,window_size):
             crop = padding_img[i * stride:i * stride + window_size, j * stride:j * stride + window_size, :3]
 
             crop = np.expand_dims(crop, axis=0)
-            print('crop:{}'.format(crop.shape))
+            # print('crop:{}'.format(crop.shape))
 
             # pred = model.predict(crop, verbose=2)
             pred = model.predict(crop, verbose=2)
             pred = np.argmax(pred, axis=2)  #for one hot encoding
 
             pred = pred.reshape(256, 256)
-            print(np.unique(pred))
-
+            # print(np.unique(pred))
 
             mask_whole[i * stride:i * stride + window_size, j * stride:j * stride + window_size] = pred[:, :]
 

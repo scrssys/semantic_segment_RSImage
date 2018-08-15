@@ -9,8 +9,8 @@ import sys
 
 from ulitities.base_functions import get_file
 
-seed = 1
-np.random.seed(seed)
+# seed = 1
+# np.random.seed(seed)
 
 img_w = 256
 img_h = 256
@@ -24,7 +24,7 @@ FLAG_BINARY = True
 input_path = '../../data/originaldata/SatRGB/'
 
 
-output_path = '../../data/traindata/satellites/RGB/'
+output_path = '../../data/traindata/SatRGB/'
 
 
 def gamma_transform(img, gamma):
@@ -116,7 +116,8 @@ def creat_dataset_multiclass(in_path, out_path, image_num=50000, mode='original'
         src_file = os.path.join(in_path, 'src/') + os.path.split(label_file)[1]
         if not os.path.isfile(src_file):
             print("Have no file:".format(src_file))
-            sys.exit(-1)
+            continue
+            # sys.exit(-1)
 
         print("src file:{}".format(os.path.split(src_file)[1]))
         src_img = cv2.imread(src_file)
@@ -125,7 +126,7 @@ def creat_dataset_multiclass(in_path, out_path, image_num=50000, mode='original'
 
         """Check image size and invalid labels"""
         check_src_label_size(src_img, label_img)
-        check_invalid_labels(label_img, valid_labels)
+        # check_invalid_labels(label_img, valid_labels)
 
         X_height, X_width, _ = src_img.shape
 
@@ -135,11 +136,28 @@ def creat_dataset_multiclass(in_path, out_path, image_num=50000, mode='original'
             src_roi = src_img[random_height: random_height + img_h, random_width: random_width + img_w, :]
             label_roi = label_img[random_height: random_height + img_h, random_width: random_width + img_w]
 
-            """Cut down the pure background image with 80% probability"""
+            """ignore nodata area"""
+            FLAG_HAS_NODATA=False
+            tmp= np.unique(label_roi)
+            for tt in tmp:
+                if tt not in valid_labels:
+                    FLAG_HAS_NODATA =True
+                    continue
+
+            if FLAG_HAS_NODATA==True:
+                continue
+
+
+            # """Cut down the pure background image with 80% probability"""
+            # if len(np.unique(label_roi)) < 2:
+            #     if np.unique(label_roi)[0] ==0:
+            #         if np.random.random()< 0.8:
+            #             continue
+
+            """ignore whole background area"""
             if len(np.unique(label_roi)) < 2:
-                if np.unique(label_roi)[0] ==0:
-                    if np.random.random()< 0.8:
-                        continue
+                if 0 in np.unique(label_roi):
+                    continue
 
             if mode == 'augment':
                 src_roi, label_roi = data_augment(src_roi, label_roi)
@@ -167,7 +185,8 @@ def creat_dataset_binary(in_path, out_path, image_num=50000, mode='original'):
         src_file = os.path.join(in_path, 'src/') + os.path.split(label_file)[1]
         if not os.path.isfile(src_file):
             print("Have no file:".format(src_file))
-            sys.exit(-1)
+            continue
+            # sys.exit(-1)
 
         print("src file:{}".format(os.path.split(src_file)[1]))
         src_img = cv2.imread(src_file)
@@ -176,20 +195,13 @@ def creat_dataset_binary(in_path, out_path, image_num=50000, mode='original'):
 
         """Check image size and invalid labels"""
         check_src_label_size(src_img, label_img)
-        check_invalid_labels(label_img, valid_labels)
+        # check_invalid_labels(label_img, valid_labels)
 
         X_height, X_width, _ = src_img.shape
 
-        print("\n1: produce road labels")
-        # temp_img = label_img
-        # temp_img = temp_img.reshape((X_height*X_width))
-        # index = np.where(temp_img==1) # 1: roads
-        # road_label = np.zeros((X_height*X_width), np.uint8)
-        # road_label[index]=1
-        # road_label=road_label.reshape((X_height,X_width))
 
-        temp_img = label_img
-        index = np.where(temp_img == 1)  # 1: roads
+        print("\n1: produce road labels---------------------")
+        index = np.where(label_img == 1)  # 1: roads
         road_label = np.zeros((X_height, X_width), np.uint8)
         road_label[index] = 1
 
@@ -201,11 +213,27 @@ def creat_dataset_binary(in_path, out_path, image_num=50000, mode='original'):
             src_roi = src_img[random_height: random_height + img_h, random_width: random_width + img_w, :]
             label_roi = road_label[random_height: random_height + img_h, random_width: random_width + img_w]
 
-            """Cut down the pure background image with 80% probability"""
+            """ignore nodata area"""
+            FLAG_HAS_NODATA = False
+            tmp = np.unique(label_img[random_height: random_height + img_h, random_width: random_width + img_w])
+            for tt in tmp:
+                if tt not in valid_labels:
+                    FLAG_HAS_NODATA = True
+                    continue
+
+            if FLAG_HAS_NODATA==True:
+                continue
+
+            # """Cut down the pure background image with 80% probability"""
+            # if len(np.unique(label_roi)) < 2:
+            #     if np.unique(label_roi)[0] ==0:
+            #         if np.random.random()< 0.8:
+            #             continue
+
+            """ignore whole background area"""
             if len(np.unique(label_roi)) < 2:
-                if np.unique(label_roi)[0] ==0:
-                    if np.random.random()< 0.8:
-                        continue
+                if 0 in np.unique(label_roi):
+                    continue
 
             if mode == 'augment':
                 src_roi, label_roi = data_augment(src_roi, label_roi)
@@ -218,14 +246,14 @@ def creat_dataset_binary(in_path, out_path, image_num=50000, mode='original'):
             count += 1
             g_count += 1
 
-        print("\n2: produce buildings labels")
-        temp_img = label_img
-        temp_img = temp_img.reshape((X_height * X_width))
-        index = np.where(temp_img == 2) # 2: buildings
-        building_label = np.zeros((X_height * X_width), np.uint8)
+
+
+
+
+        print("\n2: produce buildings labels---------------------")
+        index = np.where(label_img == 2)  # 1: buildings
+        building_label = np.zeros((X_height, X_width), np.uint8)
         building_label[index] = 1
-        building_label=building_label.reshape((X_height, X_width))
-        print(np.unique(road_label))
 
         count = 0
         while count < image_each:
@@ -234,11 +262,27 @@ def creat_dataset_binary(in_path, out_path, image_num=50000, mode='original'):
             src_roi = src_img[random_height: random_height + img_h, random_width: random_width + img_w, :]
             label_roi = building_label[random_height: random_height + img_h, random_width: random_width + img_w]
 
+            """ignore nodata area"""
+            FLAG_HAS_NODATA = False
+            tmp = np.unique(label_img[random_height: random_height + img_h, random_width: random_width + img_w])
+            for tt in tmp:
+                if tt not in valid_labels:
+                    FLAG_HAS_NODATA = True
+                    continue
+
+            if FLAG_HAS_NODATA == True:
+                continue
+
             """Cut down the pure background image with 80% probability"""
+            # if len(np.unique(label_roi)) < 2:
+            #     if np.unique(label_roi)[0] == 0:
+            #         if np.random.random() < 0.8:
+            #             continue
+
+            """ignore whole background area"""
             if len(np.unique(label_roi)) < 2:
-                if np.unique(label_roi)[0] == 0:
-                    if np.random.random() < 0.8:
-                        continue
+                if 0 in np.unique(label_roi):
+                    continue
 
             if mode == 'augment':
                 src_roi, label_roi = data_augment(src_roi, label_roi)
@@ -273,4 +317,4 @@ if __name__ == '__main__':
         creat_dataset_binary(input_path, output_path, 50000, mode='augment')
     else:
         print("produce labels for multiclass")
-        creat_dataset_multiclass(input_path, output_path, 50000, mode='augment')
+        creat_dataset_multiclass(input_path, output_path, 100000, mode='augment')

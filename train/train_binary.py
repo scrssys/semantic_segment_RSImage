@@ -8,7 +8,7 @@ from keras.models import Sequential,load_model
 from keras.layers import Conv2D, MaxPooling2D, UpSampling2D, BatchNormalization, Reshape, Permute, Activation, Input
 from keras.utils.np_utils import to_categorical
 from keras.preprocessing.image import img_to_array
-from keras.callbacks import ModelCheckpoint
+from keras.callbacks import ModelCheckpoint, EarlyStopping, History,ReduceLROnPlateau
 from keras.models import Model
 from keras.layers.merge import concatenate
 from PIL import Image
@@ -29,7 +29,7 @@ K.set_image_dim_ordering('tf')
 from semantic_segmentation_networks import binary_unet, binary_fcnnet, binary_segnet
 from ulitities.base_functions import load_img_normalization
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "2"
+os.environ["CUDA_VISIBLE_DEVICES"] = "4"
 seed = 7
 np.random.seed(seed)
 
@@ -41,15 +41,15 @@ n_label = 1+1
 dict_network={0: 'unet', 1: 'fcnnet', 2: 'segnet'}
 dict_target={0: 'roads', 1: 'buildings'}
 
-FLAG_USING_NETWORK = 2  # 0:unet; 1:fcn; 2:segnet;
+FLAG_USING_NETWORK = 0  # 0:unet; 1:fcn; 2:segnet;
 FLAG_TARGET_CLASS = 1   # 0:roads; 1:buildings
 FLAG_MAKE_TEST=True
 
 
-model_save_path = ''.join(['../../data/models/',dict_network[FLAG_USING_NETWORK], '_', dict_target[FLAG_TARGET_CLASS],'_binary''.h5'])
+model_save_path = ''.join(['../../data/models/SatRGB/',dict_network[FLAG_USING_NETWORK], '_', dict_target[FLAG_TARGET_CLASS],'_binary''.h5'])
 print("model save as to: {}".format(model_save_path))
 
-train_data_path = ''.join(['../../data/traindata/CCF_traindata/binary/',dict_target[FLAG_TARGET_CLASS], '/'])
+train_data_path = ''.join(['../../data/traindata/SatRGB/binary/',dict_target[FLAG_TARGET_CLASS], '/'])
 print("traindata from: {}".format(train_data_path))
 
 
@@ -159,10 +159,9 @@ class CustomModelCheckpoint(keras.callbacks.Callback):
 
         self.best_loss = val_loss
 
-
 """Train model ............................................."""
 def train(model):
-    EPOCHS = 10  # should be 10 or bigger number
+    EPOCHS = 40  # should be 10 or bigger number
     BS = 16
 
     """test the model fastly but can only train one epoch, AND it does not work finally ^_^"""
@@ -170,8 +169,35 @@ def train(model):
     # model.compile(optimizer=Adam(lr=1e-5), loss='binary_crossentropy', metrics=['accuracy'])
     ##### modelcheck = [CustomModelCheckpoint('./data/models/unet_fff.h5')]
 
-    modelcheck = ModelCheckpoint(model_save_path, monitor='val_acc', save_best_only=True, mode='max')
-    callable = [modelcheck]
+    model_checkpoint = ModelCheckpoint(model_save_path, monitor='val_acc', save_best_only=True, mode='max')
+    model_earlystop=EarlyStopping(monitor='val_acc', patience=10, verbose=0, mode='max')
+    #
+    # model_checkpoint = ModelCheckpoint(
+    #     model_save_path,
+    #     monitor='val_jaccard_coef_int',
+    #     save_best_only=False)
+    # model_earlystop = EarlyStopping(
+    #     monitor='val_jaccard_coef_int',
+    #     patience=5,
+    #     verbose=0,
+    #     mode='max')
+
+    """自动调整学习率"""
+    # model_reduceLR=ReduceLROnPlateau(
+    #     monitor='val_jaccard_coef_int',
+    #     factor=0.1,
+    #     patience=3,
+    #     verbose=0,
+    #     mode='max',
+    #     epsilon=0.0001,
+    #     cooldown=0,
+    #     min_lr=0
+    # )
+
+    model_history = History()
+
+    # callable = [model_checkpoint,model_earlystop, model_reduceLR, model_history]
+    callable = [model_checkpoint,model_earlystop, model_history]
     train_set, val_set = get_train_val()
     train_numb = len(train_set)
     valid_numb = len(val_set)
@@ -190,11 +216,14 @@ def train(model):
     plt.plot(np.arange(0, N), H.history["val_loss"], label="val_loss")
     plt.plot(np.arange(0, N), H.history["acc"], label="train_acc")
     plt.plot(np.arange(0, N), H.history["val_acc"], label="val_acc")
+    plt.plot(np.arange(0, N), H.history["jaccard_coef_int"], label="train_jaccard_coef_int")
+    plt.plot(np.arange(0, N), H.history["val_jaccard_coef_int"], label="val_jaccard_coef_int")
     plt.title("Training Loss and Accuracy on U-Net Satellite Seg")
     plt.xlabel("Epoch #")
     plt.ylabel("Loss/Accuracy")
     plt.legend(loc="lower left")
-    fig_train_acc=''.join(['../../data/models/train_acc_', dict_network[FLAG_USING_NETWORK],'.png'])
+    fig_train_acc = ''.join(['../../data/models/train_acc_', dict_network[FLAG_USING_NETWORK], '_',
+                           dict_target[FLAG_TARGET_CLASS], '.png'])
     plt.savefig(fig_train_acc)
 
 
@@ -259,7 +288,7 @@ if __name__ == '__main__':
         model=binary_segnet(n_label)
 
     print("Train by : {}".format(dict_network[FLAG_USING_NETWORK]))
-    # train(model)
+    train(model)
 
     if FLAG_MAKE_TEST:
         print("test ....................predict by trained model .....\n")

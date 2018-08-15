@@ -8,7 +8,7 @@ from keras.models import Sequential,load_model
 from keras.layers import Conv2D, MaxPooling2D, UpSampling2D, BatchNormalization, Reshape, Permute, Activation, Input
 from keras.utils.np_utils import to_categorical
 from keras.preprocessing.image import img_to_array
-from keras.callbacks import ModelCheckpoint, EarlyStopping
+from keras.callbacks import ModelCheckpoint, EarlyStopping, ReduceLROnPlateau, History
 from keras.models import Model
 from keras.layers.merge import concatenate
 from PIL import Image
@@ -26,7 +26,7 @@ from keras import backend as K
 K.set_image_dim_ordering('tf')
 
 
-from semantic_segmentation_networks import multiclass_unet, multiclass_fcnnet, multiclass_segnet
+from semantic_segmentation_networks import multiclass_unet_jaccard, multiclass_fcnnet_jaccard, multiclass_segnet_jaccard
 from ulitities.base_functions import load_img_normalization
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "3"
@@ -44,7 +44,7 @@ FLAG_USING_NETWORK = 0  # 0:unet; 1:fcn; 2:segnet;
 FLAG_MAKE_TEST=True
 
 
-model_save_path = ''.join(['../../data/models/SatRGB/',dict_network[FLAG_USING_NETWORK], '_multiclass.h5'])
+model_save_path = ''.join(['../../data/models/SatRGB/',dict_network[FLAG_USING_NETWORK], '_multiclass_jaccard.h5'])
 print("model save as to: {}".format(model_save_path))
 
 train_data_path = ''.join(['../../data/traindata/SatRGB/multiclass/'])
@@ -160,7 +160,7 @@ class CustomModelCheckpoint(keras.callbacks.Callback):
 
 """Train model ............................................."""
 def train(model):
-    EPOCHS = 10  # should be 10 or bigger number
+    EPOCHS = 40  # should be 10 or bigger number
     BS = 16
 
     """test the model fastly but can only train one epoch, AND it does not work finally ^_^"""
@@ -168,9 +168,37 @@ def train(model):
     # model.compile(optimizer=Adam(lr=1e-5), loss='binary_crossentropy', metrics=['accuracy'])
     ##### modelcheck = [CustomModelCheckpoint('./data/models/unet_fff.h5')]
 
-    modelcheck = ModelCheckpoint(model_save_path, monitor='val_acc', save_best_only=True, mode='max')
-    model_earlystop = EarlyStopping(monitor='val_acc', patience=1, verbose=0, mode='max')
-    callable = [modelcheck, model_earlystop]
+    # modelcheck = ModelCheckpoint(model_save_path, monitor='val_acc', save_best_only=True, mode='max')
+    # model_earlystop = EarlyStopping(monitor='val_acc', patience=1, verbose=0, mode='max')
+    # callable = [modelcheck, model_earlystop]
+
+    model_checkpoint = ModelCheckpoint(
+        model_save_path,
+        monitor='val_jaccard_coef_int',
+        save_best_only=False)
+    model_earlystop = EarlyStopping(
+        monitor='val_jaccard_coef_int',
+        patience=5,
+        verbose=0,
+        mode='max')
+
+    """自动调整学习率"""
+    model_reduceLR = ReduceLROnPlateau(
+        monitor='val_jaccard_coef_int',
+        factor=0.1,
+        patience=3,
+        verbose=0,
+        mode='max',
+        epsilon=0.0001,
+        cooldown=0,
+        min_lr=0
+    )
+
+    model_history = History()
+
+    callable = [model_checkpoint, model_earlystop, model_reduceLR, model_history]
+
+
     train_set, val_set = get_train_val()
     train_numb = len(train_set)
     valid_numb = len(val_set)
@@ -251,11 +279,11 @@ if __name__ == '__main__':
         print ("train data does not exist in the path:\n {}".format(train_data_path))
 
     if FLAG_USING_NETWORK==0:
-        model = multiclass_unet(n_label)
+        model = multiclass_unet_jaccard(n_label)
     elif FLAG_USING_NETWORK==1:
-        model = multiclass_fcnnet(n_label)
+        model = multiclass_fcnnet_jaccard(n_label)
     elif FLAG_USING_NETWORK==2:
-        model=multiclass_segnet(n_label)
+        model=multiclass_segnet_jaccard(n_label)
 
     print("Train by : {}".format(dict_network[FLAG_USING_NETWORK]))
     train(model)
@@ -266,7 +294,7 @@ if __name__ == '__main__':
         import sys
 
         if not os.path.isfile(test_img_path):
-            print("no file: {}".forma(test_img_path))
+            print("no file: {}".format(test_img_path))
             sys.exit(-1)
 
         ret, input_img = load_img_normalization(test_img_path)

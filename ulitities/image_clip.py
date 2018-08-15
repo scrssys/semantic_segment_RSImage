@@ -7,15 +7,14 @@ from base_functions import load_img
 import matplotlib.pyplot as plt
 
 
-input_file = '../../data/originaldata/SatNRG/src/GF2_changning_20160606.png'
+input_src_file = '/home/omnisky/PycharmProjects/data/originaldata/sat4bands/src/ruoergai_2_321band.png'
 
-output_test_file = '../../data/test/GF2_changning_1.png'
+clip_src_file = '../../data/test/GF2_changning_1.png'
 
 window_size = 2048
 
 if __name__=='__main__':
-    # img = cv2.imread(input_file)
-    ret, img =load_img(input_file)
+    ret, img =load_img(input_src_file)
     assert (ret==0)
 
     height,width,_ = img.shape
@@ -30,4 +29,4 @@ if __name__=='__main__':
     plt.show()
 
 
-    cv2.imwrite(output_test_file, output_img)
+    cv2.imwrite(clip_src_file, output_img)

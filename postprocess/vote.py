@@ -51,6 +51,8 @@ def vote_per_image(height, width, path, masks):
             label=record.argmax()
             # print ("{},{} label={}".format(i,j,label))
             vote_mask[i,j]=label
+    vote_mask[vote_mask==125]=1
+    vote_mask[vote_mask == 255] = 2
 
     return vote_mask
 

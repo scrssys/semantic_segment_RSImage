@@ -434,21 +434,6 @@ def predict_img_with_smooth_windowing_multiclassbands(input_img, model, window_s
 
     prd = prd[:input_img.shape[0], :input_img.shape[1], :]
 
-    # if real_classes == 1: # only for real_classes = 1
-    #     prd =prd[:,:,0]
-
-    """merge multiband prd to gray """
-    # gray_mask = np.zeros((input_img.shape[0],input_img.shape[1]),np.uint8)
-    # label_value = 0
-    # for ch in range(real_classes):
-    #     label_value +=1
-    #     print (np.unique(prd[:,:,ch]))
-    #     for i in range(input_img.shape[0]):
-    #         for j in range(input_img.shape[1]):
-    #             if prd[i,j,ch]>=0.5:
-    #                 gray_mask[i,j] = label_value
-
-
     """
     save [0,1] probabilities to [0,255]
     """
@@ -461,11 +446,7 @@ def predict_img_with_smooth_windowing_multiclassbands(input_img, model, window_s
             plt.show()
 
     return prd  # probabilities for each target: [0,255]
-    # if PLOT_PROGRESS:
-    #     plt.imshow(gray_mask)
-    #     plt.title("Cheaply Merged Patches")
-    #     plt.show()
-    # return gray_mask
+
 
 
 

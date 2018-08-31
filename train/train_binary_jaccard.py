@@ -36,7 +36,7 @@ np.random.seed(seed)
 img_w = 256
 img_h = 256
 
-n_label = 1+1
+n_label = 1
 
 dict_network={0: 'unet', 1: 'fcnnet', 2: 'segnet'}
 dict_target={0: 'roads', 1: 'buildings'}
@@ -46,10 +46,10 @@ FLAG_TARGET_CLASS = 0   # 0:roads; 1:buildings
 FLAG_MAKE_TEST=True
 
 
-model_save_path = ''.join(['../../data/models/SatRGB/',dict_network[FLAG_USING_NETWORK], '_', dict_target[FLAG_TARGET_CLASS],'_binary_jaccard''.h5'])
+model_save_path = ''.join(['../../data/models/sat_urban_nrg/',dict_network[FLAG_USING_NETWORK], '_', dict_target[FLAG_TARGET_CLASS],'_binary_jaccard.h5'])
 print("model save as to: {}".format(model_save_path))
 
-train_data_path = ''.join(['../../data/traindata/SatRGB/binary/',dict_target[FLAG_TARGET_CLASS], '/'])
+train_data_path = ''.join(['../../data/traindata/sat_urban_nrg/binary/',dict_target[FLAG_TARGET_CLASS], '/'])
 print("traindata from: {}".format(train_data_path))
 
 
@@ -102,7 +102,7 @@ def generateData(batch_size, data=[]):
                 # print 'get enough bacth!\n'
                 train_data = np.array(train_data)
                 train_label = np.array(train_label)
-                train_label = to_categorical(train_label, num_classes=n_label)  # one_hot coding
+                # train_label = to_categorical(train_label, num_classes=n_label)  # one_hot coding
                 train_label = train_label.reshape((batch_size, img_w * img_h, n_label))
                 yield (train_data, train_label)
                 train_data = []
@@ -131,7 +131,7 @@ def generateValidData(batch_size, data=[]):
             if batch % batch_size == 0:
                 valid_data = np.array(valid_data)
                 valid_label = np.array(valid_label)
-                valid_label = to_categorical(valid_label, num_classes=n_label)
+                # valid_label = to_categorical(valid_label, num_classes=n_label)
                 valid_label = valid_label.reshape((batch_size, img_w * img_h, n_label))
                 yield (valid_data, valid_label)
                 valid_data = []
@@ -160,25 +160,28 @@ class CustomModelCheckpoint(keras.callbacks.Callback):
         self.best_loss = val_loss
 
 """Train model ............................................."""
-def train(model):
-    EPOCHS = 40  # should be 10 or bigger number
+def train(model,model_path):
+    EPOCHS = 100  # should be 10 or bigger number
     BS = 16
 
-    """test the model fastly but can only train one epoch, AND it does not work finally ^_^"""
-    # model = multi_gpu_model(model, gpus=4)
-    # model.compile(optimizer=Adam(lr=1e-5), loss='binary_crossentropy', metrics=['accuracy'])
-    ##### modelcheck = [CustomModelCheckpoint('./data/models/unet_fff.h5')]
+    if os.path.isfile(model_path):
+        model.load_weights(model_path)
 
-    # model_checkpoint = ModelCheckpoint(model_save_path, monitor='val_acc', save_best_only=True, mode='max')
-    # model_earlystop=EarlyStopping(monitor='val_acc', patience=10, verbose=0, mode='max')
 
     model_checkpoint = ModelCheckpoint(
-        model_save_path,
+        model_path,
         monitor='val_jaccard_coef_int',
         save_best_only=False)
+
+    # model_checkpoint = ModelCheckpoint(
+    #     model_save_path,
+    #     monitor='val_jaccard_coef_int',
+    #     save_best_only=True,
+    #     mode='max')
+
     model_earlystop = EarlyStopping(
         monitor='val_jaccard_coef_int',
-        patience=10,
+        patience=6,
         verbose=0,
         mode='max')
 
@@ -186,7 +189,7 @@ def train(model):
     model_reduceLR=ReduceLROnPlateau(
         monitor='val_jaccard_coef_int',
         factor=0.1,
-        patience=5,
+        patience=3,
         verbose=0,
         mode='max',
         epsilon=0.0001,
@@ -197,6 +200,7 @@ def train(model):
     model_history = History()
 
     callable = [model_checkpoint,model_earlystop, model_reduceLR, model_history]
+    # callable = [model_checkpoint, model_reduceLR, model_history]
     # callable = [model_checkpoint,model_earlystop, model_history]
     train_set, val_set = get_train_val()
     train_numb = len(train_set)
@@ -204,15 +208,15 @@ def train(model):
     print ("the number of train data is", train_numb)
     print ("the number of val data is", valid_numb)
 
-    cw1 = {0: 1, 1: 100}
-    # cw1 = {0: 1, 1: 1}
-    cw2 = {i: n_label / 8 for i in range(n_label)}
-    cw2[n_label] = 1 / 8
-    cw = [cw1, cw2]
+    # cw1 = {0: 1, 1: 100}
+    # # cw1 = {0: 1, 1: 1}
+    # cw2 = {i: n_label / 8 for i in range(n_label)}
+    # cw2[n_label] = 1 / 8
+    # cw = [cw1, cw2]
     H = model.fit_generator(generator=generateData(BS, train_set), steps_per_epoch=train_numb // BS, epochs=EPOCHS,
                             verbose=1,
                             validation_data=generateValidData(BS, val_set), validation_steps=valid_numb // BS,
-                            callbacks=callable, max_q_size=1, class_weight='auto')
+                            callbacks=callable, max_q_size=1)
 
     #plot the training loss and accuracy
     plt.style.use("ggplot")
@@ -261,7 +265,7 @@ def test_predict(image,model):
 
             # pred = model.predict(crop, verbose=2)
             pred = model.predict(crop, verbose=2)
-            pred = np.argmax(pred, axis=2)  #for one hot encoding
+            # pred = np.argmax(pred, axis=2)  # For one hot encoding
 
             pred = pred.reshape(256, 256)
             print(np.unique(pred))
@@ -294,7 +298,7 @@ if __name__ == '__main__':
         model=binary_segnet_jaccard(n_label)
 
     print("Train by : {}".format(dict_network[FLAG_USING_NETWORK]))
-    train(model)
+    train(model, model_save_path)
 
     if FLAG_MAKE_TEST:
         print("test ....................predict by trained model .....\n")

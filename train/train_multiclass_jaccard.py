@@ -44,10 +44,10 @@ FLAG_USING_NETWORK = 0  # 0:unet; 1:fcn; 2:segnet;
 FLAG_MAKE_TEST=True
 
 
-model_save_path = ''.join(['../../data/models/SatRGB/',dict_network[FLAG_USING_NETWORK], '_multiclass_jaccard.h5'])
+model_save_path = ''.join(['../../data/models/sat_urban_rgb/',dict_network[FLAG_USING_NETWORK], '_multiclass_jaccard.h5'])
 print("model save as to: {}".format(model_save_path))
 
-train_data_path = ''.join(['../../data/traindata/SatRGB/multiclass/'])
+train_data_path = ''.join(['../../data/traindata/sat_urban_rgb/multiclass/'])
 print("traindata from: {}".format(train_data_path))
 
 

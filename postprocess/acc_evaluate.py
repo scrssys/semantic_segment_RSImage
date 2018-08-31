@@ -12,13 +12,13 @@ from ulitities.base_functions import load_img
 
 # seed = 1
 # random.seed(seed)
-os.environ["CUDA_VISIBLE_DEVICES"] = "4"
+os.environ["CUDA_VISIBLE_DEVICES"] = "5"
 
 valid_labels=[0,1,2]
 
 ref_file = '../../data/tmp/sample1.png'
-pred_file = '../../data/predict/unet/unet_binary_combined_sample1_multiclass_jaccard.png'
-check_rate=0.5
+pred_file = '../../data/predict/unet/unet_multiclass_combined_sample1.png'
+check_rate=1.0
 
 
 dict_class={0:'background', 1:'roads', 2:'buildings'}

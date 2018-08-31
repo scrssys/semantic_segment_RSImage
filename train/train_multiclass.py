@@ -8,7 +8,7 @@ from keras.models import Sequential,load_model
 from keras.layers import Conv2D, MaxPooling2D, UpSampling2D, BatchNormalization, Reshape, Permute, Activation, Input
 from keras.utils.np_utils import to_categorical
 from keras.preprocessing.image import img_to_array
-from keras.callbacks import ModelCheckpoint, EarlyStopping
+from keras.callbacks import ModelCheckpoint, EarlyStopping,History
 from keras.models import Model
 from keras.layers.merge import concatenate
 from PIL import Image
@@ -160,17 +160,13 @@ class CustomModelCheckpoint(keras.callbacks.Callback):
 
 """Train model ............................................."""
 def train(model):
-    EPOCHS = 10  # should be 10 or bigger number
-    BS = 16
-
-    """test the model fastly but can only train one epoch, AND it does not work finally ^_^"""
-    # model = multi_gpu_model(model, gpus=4)
-    # model.compile(optimizer=Adam(lr=1e-5), loss='binary_crossentropy', metrics=['accuracy'])
-    ##### modelcheck = [CustomModelCheckpoint('./data/models/unet_fff.h5')]
+    EPOCHS = 100  # should be 10 or bigger number
+    BS = 32
 
     modelcheck = ModelCheckpoint(model_save_path, monitor='val_acc', save_best_only=True, mode='max')
-    model_earlystop = EarlyStopping(monitor='val_acc', patience=1, verbose=0, mode='max')
-    callable = [modelcheck, model_earlystop]
+    model_earlystop = EarlyStopping(monitor='val_acc', patience=5, verbose=0, mode='max')
+    model_history = History()
+    callable = [modelcheck, model_earlystop,model_history]
     train_set, val_set = get_train_val()
     train_numb = len(train_set)
     valid_numb = len(val_set)

@@ -27,13 +27,13 @@ from smooth_tiled_predictions import predict_img_with_smooth_windowing_multiclas
 """
    The following global variables should be put into meta data file 
 """
-os.environ["CUDA_VISIBLE_DEVICES"] = "2"
+os.environ["CUDA_VISIBLE_DEVICES"] = "5"
 
 
 target_class =1
 
 window_size = 256
-step = 128
+# step = 128
 
 dict_network={0: 'unet', 1: 'fcnnet', 2: 'segnet'}
 dict_target={0: 'roads', 1: 'buildings'}
@@ -43,10 +43,12 @@ FLAG_TARGET_CLASS = 0  # 0:roads; 1:buildings
 
 FLAG_APPROACH_PREDICT = 0 # 0: original predict, 1: smooth predict
 
-img_file = '../../data/test/sample1.png'
+# img_file = '../../data/test/GF2_yilong11.png'
+# img_file = '../../data/test/sample1.png'
+img_file = '../../data/test/sample1_nrg.png'
 
-# model_file = ''.join(['../../data/models/SatRGB/',dict_network[FLAG_USING_NETWORK], '_', dict_target[FLAG_TARGET_CLASS],'_binary''.h5'])
-model_file = '/home/omnisky/PycharmProjects/data/models/SatRGB/unet_roads_binary_jaccard.h5'
+model_file = ''.join(['../../data/models/sat_urban_nrg/',dict_network[FLAG_USING_NETWORK], '_', dict_target[FLAG_TARGET_CLASS],'_binary2.h5'])
+# model_file = '/home/omnisky/PycharmProjects/data/models/sat_urban_rgb/unet_roads_binary_jaccard_t2.h5'
 print("model: {}".format(model_file))
 
 if __name__ == '__main__':
@@ -54,7 +56,7 @@ if __name__ == '__main__':
     print("[INFO] opening image...")
     ret, input_img = load_img_normalization(img_file)
     if ret !=0:
-        print("Open input file failed: {}".forma(img_file))
+        print("Open input file failed: {}".format(img_file))
         sys.exit(-1)
 
     abs_filename = os.path.split(img_file)[1]

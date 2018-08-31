@@ -17,7 +17,7 @@ BUILDING_VALUE=255
 """for unet"""
 input_path = '../../data/predict/unet/'
 mask_pool = ['mask_multiclass_sample1_roads.png', 'mask_multiclass_sample1_buildings.png']
-output_file = '../../data/predict/unet/unet_binary_combined_sample1_multiclass_jaccard.png'
+output_file = '../../data/predict/unet/unet_multiclass_combined_sample1.png'
 
 # mask_pool = ['mask_multiclass_3_buildings.png','mask_multiclass_3_roads.png']
 # output_file = '../../data/predict/unet/unet_multiclass_combined_3.png'
@@ -68,21 +68,22 @@ def combine_all_mask(height, width,input_path,mask_pool):
         elif 'building' in file:
             label_value=BUILDING_VALUE
         # label_value = idx+1
-        print("buildings prior")
+        # print("buildings prior")
+        print("Roads prior")
         for i in tqdm(range(height)):
             for j in range(width):
                 if img[i,j]>=FOREGROUND:
                     # print ("img[{},{}]:{}".format(i,j,img[i,j]))
-                    # print ("Roads prior")
-                    # if label_value == ROAD_VALUE:
-                    #     final_mask[i, j] = label_value
-                    # elif label_value == BUILDING_VALUE and final_mask[i, j] != ROAD_VALUE:
-                    #     final_mask[i, j] = label_value
 
-                    if label_value == BUILDING_VALUE:
+                    if label_value == ROAD_VALUE:
                         final_mask[i, j] = label_value
-                    elif label_value == ROAD_VALUE and final_mask[i, j] != BUILDING_VALUE:
+                    elif label_value == BUILDING_VALUE and final_mask[i, j] != ROAD_VALUE:
                         final_mask[i, j] = label_value
+
+                    # if label_value == BUILDING_VALUE:
+                    #     final_mask[i, j] = label_value
+                    # elif label_value == ROAD_VALUE and final_mask[i, j] != BUILDING_VALUE:
+                    #     final_mask[i, j] = label_value
 
     final_mask[final_mask==125]=1
     final_mask[final_mask == 255] = 2

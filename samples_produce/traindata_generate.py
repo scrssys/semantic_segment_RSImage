@@ -21,10 +21,10 @@ valid_labels=[0,1,2]
 FLAG_BINARY = True
 
 
-input_path = '../../data/originaldata/SatRGB/'
+input_path = '../../data/originaldata/sat_urban_nrg/'
 
 
-output_path = '../../data/traindata/SatRGB/'
+output_path = '../../data/traindata/sat_urban_nrg/'
 
 
 def gamma_transform(img, gamma):
@@ -164,9 +164,9 @@ def creat_dataset_multiclass(in_path, out_path, image_num=50000, mode='original'
 
             visualize = label_roi * 50
 
-            cv2.imwrite((out_path + 'visualize/%d.png' % g_count), visualize)
-            cv2.imwrite((out_path + 'src/%d.png' % g_count), src_roi)
-            cv2.imwrite((out_path + 'label/%d.png' % g_count), label_roi)
+            cv2.imwrite((out_path + '/visualize/%d.png' % g_count), visualize)
+            cv2.imwrite((out_path + '/src/%d.png' % g_count), src_roi)
+            cv2.imwrite((out_path + '/label/%d.png' % g_count), label_roi)
             count += 1
             g_count += 1
 
@@ -240,9 +240,9 @@ def creat_dataset_binary(in_path, out_path, image_num=50000, mode='original'):
 
             visualize = label_roi * 50
 
-            cv2.imwrite((out_path + 'roads/visualize/%d.png' % g_count), visualize)
-            cv2.imwrite((out_path + 'roads/src/%d.png' % g_count), src_roi)
-            cv2.imwrite((out_path + 'roads/label/%d.png' % g_count), label_roi)
+            cv2.imwrite((out_path + '/roads/visualize/%d.png' % g_count), visualize)
+            cv2.imwrite((out_path + '/roads/src/%d.png' % g_count), src_roi)
+            cv2.imwrite((out_path + '/roads/label/%d.png' % g_count), label_roi)
             count += 1
             g_count += 1
 
@@ -289,9 +289,9 @@ def creat_dataset_binary(in_path, out_path, image_num=50000, mode='original'):
 
             visualize = label_roi * 50
 
-            cv2.imwrite((out_path + 'buildings/visualize/%d.png' % g_count), visualize)
-            cv2.imwrite((out_path + 'buildings/src/%d.png' % g_count), src_roi)
-            cv2.imwrite((out_path + 'buildings/label/%d.png' % g_count), label_roi)
+            cv2.imwrite((out_path + '/buildings/visualize/%d.png' % g_count), visualize)
+            cv2.imwrite((out_path + '/buildings/src/%d.png' % g_count), src_roi)
+            cv2.imwrite((out_path + '/buildings/label/%d.png' % g_count), label_roi)
             count += 1
             g_count += 1
 
@@ -314,7 +314,7 @@ if __name__ == '__main__':
 
     if FLAG_BINARY==True:
         print("Produce labels for binary classification")
-        creat_dataset_binary(input_path, output_path, 50000, mode='augment')
+        creat_dataset_binary(input_path, output_path, 100000, mode='augment')
     else:
         print("produce labels for multiclass")
         creat_dataset_multiclass(input_path, output_path, 100000, mode='augment')

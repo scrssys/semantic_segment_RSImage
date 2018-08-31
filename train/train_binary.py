@@ -42,14 +42,14 @@ dict_network={0: 'unet', 1: 'fcnnet', 2: 'segnet'}
 dict_target={0: 'roads', 1: 'buildings'}
 
 FLAG_USING_NETWORK = 0  # 0:unet; 1:fcn; 2:segnet;
-FLAG_TARGET_CLASS = 1   # 0:roads; 1:buildings
+FLAG_TARGET_CLASS = 0   # 0:roads; 1:buildings
 FLAG_MAKE_TEST=True
 
 
-model_save_path = ''.join(['../../data/models/SatRGB/',dict_network[FLAG_USING_NETWORK], '_', dict_target[FLAG_TARGET_CLASS],'_binary''.h5'])
+model_save_path = ''.join(['../../data/models/sat_urban_nrg/',dict_network[FLAG_USING_NETWORK], '_', dict_target[FLAG_TARGET_CLASS],'_binary2.h5'])
 print("model save as to: {}".format(model_save_path))
 
-train_data_path = ''.join(['../../data/traindata/SatRGB/binary/',dict_target[FLAG_TARGET_CLASS], '/'])
+train_data_path = ''.join(['../../data/traindata/sat_urban_nrg/binary/',dict_target[FLAG_TARGET_CLASS], '/'])
 print("traindata from: {}".format(train_data_path))
 
 
@@ -160,44 +160,37 @@ class CustomModelCheckpoint(keras.callbacks.Callback):
         self.best_loss = val_loss
 
 """Train model ............................................."""
-def train(model):
-    EPOCHS = 40  # should be 10 or bigger number
-    BS = 16
+def train(model, model_path):
+    EPOCHS = 100  # should be 10 or bigger number
+    BS = 32
 
     """test the model fastly but can only train one epoch, AND it does not work finally ^_^"""
     # model = multi_gpu_model(model, gpus=4)
     # model.compile(optimizer=Adam(lr=1e-5), loss='binary_crossentropy', metrics=['accuracy'])
     ##### modelcheck = [CustomModelCheckpoint('./data/models/unet_fff.h5')]
 
-    model_checkpoint = ModelCheckpoint(model_save_path, monitor='val_acc', save_best_only=True, mode='max')
-    model_earlystop=EarlyStopping(monitor='val_acc', patience=10, verbose=0, mode='max')
-    #
-    # model_checkpoint = ModelCheckpoint(
-    #     model_save_path,
-    #     monitor='val_jaccard_coef_int',
-    #     save_best_only=False)
-    # model_earlystop = EarlyStopping(
-    #     monitor='val_jaccard_coef_int',
-    #     patience=5,
-    #     verbose=0,
-    #     mode='max')
+    if os.path.isfile(model_path):
+        model.load_weights(model_path)
+
+    model_checkpoint = ModelCheckpoint(model_path, monitor='val_acc', save_best_only=True, mode='max')
+    model_earlystop=EarlyStopping(monitor='val_acc', patience=5, verbose=0, mode='max')
 
     """自动调整学习率"""
-    # model_reduceLR=ReduceLROnPlateau(
-    #     monitor='val_jaccard_coef_int',
-    #     factor=0.1,
-    #     patience=3,
-    #     verbose=0,
-    #     mode='max',
-    #     epsilon=0.0001,
-    #     cooldown=0,
-    #     min_lr=0
-    # )
+    model_reduceLR=ReduceLROnPlateau(
+        monitor='val_jaccard_coef_int',
+        factor=0.1,
+        patience=3,
+        verbose=0,
+        mode='max',
+        epsilon=0.0001,
+        cooldown=0,
+        min_lr=0
+    )
 
     model_history = History()
 
     # callable = [model_checkpoint,model_earlystop, model_reduceLR, model_history]
-    callable = [model_checkpoint,model_earlystop, model_history]
+    callable = [model_checkpoint,model_earlystop, model_reduceLR, model_history]
     train_set, val_set = get_train_val()
     train_numb = len(train_set)
     valid_numb = len(val_set)
@@ -288,7 +281,7 @@ if __name__ == '__main__':
         model=binary_segnet(n_label)
 
     print("Train by : {}".format(dict_network[FLAG_USING_NETWORK]))
-    train(model)
+    train(model, model_save_path)
 
     if FLAG_MAKE_TEST:
         print("test ....................predict by trained model .....\n")

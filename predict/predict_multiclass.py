@@ -25,7 +25,7 @@ from smooth_tiled_predictions import predict_img_with_smooth_windowing_multiclas
 """
    The following global variables should be put into meta data file 
 """
-os.environ["CUDA_VISIBLE_DEVICES"] = "4"
+os.environ["CUDA_VISIBLE_DEVICES"] = "5"
 
 
 window_size = 256
@@ -37,18 +37,19 @@ target_class=len(dict_target)
 
 FLAG_USING_NETWORK = 0  # 0:unet; 1:fcn; 2:segnet;
 
-FLAG_APPROACH_PREDICT=1 # 0: original predict, 1: smooth predict
+FLAG_APPROACH_PREDICT=1  # 0: original predict, 1: smooth predict
 
 img_file = '../../data/test/sample1.png'
 
-model_file = ''.join(['../../data/models/SatRGB/',dict_network[FLAG_USING_NETWORK], '_multiclass_jaccard''.h5'])
+model_file = ''.join(['../../data/models/sat_urban_rgb/',dict_network[FLAG_USING_NETWORK], '_multiclass.h5'])
+# model_file = '/home/omnisky/PycharmProjects/data/models/sat_urban_rgb/unet_multiclass_jaccard.h5'
 
 if __name__ == '__main__':
 
     print("[INFO] opening image...")
     ret, input_img = load_img_normalization(img_file)
     if ret !=0:
-        print("Open input file failed: {}".forma(img_file))
+        print("Open input file failed: {}".format(img_file))
         sys.exit(-1)
 
     abs_filename = os.path.split(img_file)[1]

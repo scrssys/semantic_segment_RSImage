@@ -15,9 +15,9 @@ ROAD_VALUE=125
 BUILDING_VALUE=255
 
 """for unet"""
-input_path = '../../data/predict/unet/'
-mask_pool = ['mask_multiclass_sample1_roads.png', 'mask_multiclass_sample1_buildings.png']
-output_file = '../../data/predict/unet/unet_multiclass_combined_sample1.png'
+input_path = '../../data/predict/unet/sat_nrg/'
+mask_pool = ['mask_binary_sample1_nrg_buildings_jaccard.png', 'mask_binary_sample1_nrg_roads_jaccard.png']
+output_file = input_path+'unet_binary_jaccard_combined_sample1_nrg.png'
 
 # mask_pool = ['mask_multiclass_3_buildings.png','mask_multiclass_3_roads.png']
 # output_file = '../../data/predict/unet/unet_multiclass_combined_3.png'

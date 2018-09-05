@@ -21,12 +21,13 @@ from tqdm import tqdm
 from keras.models import *
 from keras.layers import *
 from keras.optimizers import *
+import gdal
 
 from keras import backend as K
 K.set_image_dim_ordering('tf')
 
 
-from semantic_segmentation_networks import binary_unet_jaccard, binary_fcnnet_jaccard, binary_segnet_jaccard
+from semantic_segmentation_networks import binary_unet_jaccard_4orMore, binary_fcnnet_jaccard, binary_segnet_jaccard
 from ulitities.base_functions import load_img_normalization
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
@@ -35,6 +36,8 @@ np.random.seed(seed)
 
 img_w = 256
 img_h = 256
+
+input_bands = 4
 
 n_label = 1
 
@@ -46,10 +49,10 @@ FLAG_TARGET_CLASS = 1   # 0:roads; 1:buildings
 FLAG_MAKE_TEST=True
 
 
-model_save_path = ''.join(['../../data/models/sat_urban_nrg/',dict_network[FLAG_USING_NETWORK], '_', dict_target[FLAG_TARGET_CLASS],'_binary_jaccard.h5'])
+model_save_path = ''.join(['../../data/models/sat_urban_4bands/',dict_network[FLAG_USING_NETWORK], '_', dict_target[FLAG_TARGET_CLASS],'_binary_jaccard.h5'])
 print("model save as to: {}".format(model_save_path))
 
-train_data_path = ''.join(['../../data/traindata/sat_urban_nrg/binary/',dict_target[FLAG_TARGET_CLASS], '/'])
+train_data_path = ''.join(['../../data/traindata/sat_urban_4bands/binary/',dict_target[FLAG_TARGET_CLASS], '/'])
 print("traindata from: {}".format(train_data_path))
 
 
@@ -60,6 +63,25 @@ def load_img(path, grayscale=False):
         img = cv2.imread(path)
         img = np.array(img, dtype="float") / 255.0  # MY image preprocessing
     return img
+
+
+def load_img_by_gdal(path,w, h):
+    dataset = gdal.Open(path)
+    if dataset is None:
+        print("Open file failed: {}".format(path))
+        return -1
+    y_height = dataset.RasterYSize
+    x_width = dataset.RasterXSize
+    assert(y_height==h and x_width==w)
+    img = dataset.ReadAsArray(0,0,w,h)
+    img = np.array(img)
+    img = np.transpose(img, (1,2,0))
+    del dataset
+
+    img = img/255.0
+    # img = np.clip(img, 0.0, 1.0)
+    return img
+
 
 
 """get the train file name and divide to train and val parts"""
@@ -90,7 +112,8 @@ def generateData(batch_size, data=[]):
         for i in (range(len(data))):
             url = data[i]
             batch += 1
-            img = load_img(train_data_path + 'src/' + url)
+            # img = load_img(train_data_path + 'src/' + url)
+            img = load_img_by_gdal(train_data_path + 'src/' + url, img_w, img_h)
 
             # Adapt dim_ordering automatically
             img = img_to_array(img)
@@ -120,7 +143,8 @@ def generateValidData(batch_size, data=[]):
         for i in (range(len(data))):
             url = data[i]
             batch += 1
-            img = load_img(train_data_path + 'src/' + url)
+            # img = load_img(train_data_path + 'src/' + url)
+            img = load_img_by_gdal(train_data_path + 'src/' + url, img_w, img_h)
 
             # Adapt dim_ordering automatically
             img = img_to_array(img)
@@ -208,11 +232,6 @@ def train(model,model_path):
     print ("the number of train data is", train_numb)
     print ("the number of val data is", valid_numb)
 
-    # cw1 = {0: 1, 1: 100}
-    # # cw1 = {0: 1, 1: 1}
-    # cw2 = {i: n_label / 8 for i in range(n_label)}
-    # cw2[n_label] = 1 / 8
-    # cw = [cw1, cw2]
     H = model.fit_generator(generator=generateData(BS, train_set), steps_per_epoch=train_numb // BS, epochs=EPOCHS,
                             verbose=1,
                             validation_data=generateValidData(BS, val_set), validation_steps=valid_numb // BS,
@@ -250,7 +269,7 @@ def test_predict(image,model):
     print('h,w:', h, w)
     padding_h = (h // stride + 1) * stride
     padding_w = (w // stride + 1) * stride
-    padding_img = np.zeros((padding_h, padding_w, 3))
+    padding_img = np.zeros((padding_h, padding_w, input_bands))
     padding_img[0:h, 0:w, :] = image[:, :, :]
 
     padding_img = img_to_array(padding_img)
@@ -258,7 +277,7 @@ def test_predict(image,model):
     mask_whole = np.zeros((padding_h, padding_w), dtype=np.float32)
     for i in list(range(padding_h // stride)):
         for j in list(range(padding_w // stride)):
-            crop = padding_img[i * stride:i * stride + window_size, j * stride:j * stride + window_size, :3]
+            crop = padding_img[i * stride:i * stride + window_size, j * stride:j * stride + window_size, :input_bands]
 
             crop = np.expand_dims(crop, axis=0)
             print('crop:{}'.format(crop.shape))
@@ -291,7 +310,7 @@ if __name__ == '__main__':
         print ("train data does not exist in the path:\n {}".format(train_data_path))
 
     if FLAG_USING_NETWORK==0:
-        model = binary_unet_jaccard(n_label)
+        model = binary_unet_jaccard_4orMore(input_bands, n_label)
     elif FLAG_USING_NETWORK==1:
         model = binary_fcnnet_jaccard(n_label)
     elif FLAG_USING_NETWORK==2:

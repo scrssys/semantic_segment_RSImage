@@ -16,9 +16,9 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "5"
 
 valid_labels=[0,1,2]
 
-ref_file = '../../data/tmp/sample1.png'
-pred_file = '../../data/predict/unet/unet_multiclass_combined_sample1.png'
-check_rate=1.0
+ref_file = '../../data/tmp/sample1.png'  # sample1, shuangliu_1test_label, yushui22_test_label
+pred_file = '../../data/predict/unet/sat_nrg/unet_binary_jaccard_combined_sample1_nrg.png'
+check_rate=0.5
 
 
 dict_class={0:'background', 1:'roads', 2:'buildings'}
@@ -62,10 +62,16 @@ if __name__=='__main__':
         ind = list(ind)
         valid_index.extend(ind[0])
 
+    valid_index.sort()
     valid_num_checkpoints=len(valid_index)
-    valid_ref=ref_img[valid_index]
+    # valid_ref=ref_img[valid_index]
+    valid_ref = labels[valid_index]
+    print("valid value in reference image: {}".format(np.unique(valid_ref)))
 
-    valid_pred = pred_img[valid_index]
+    ts = pred_img[pos]
+    valid_pred = ts[valid_index]
+    print("valid value in predicton image: {}".format(np.unique(valid_pred)))
+
     tmp = np.unique(valid_pred)
     for ss in tmp:
         assert(ss in valid_labels)

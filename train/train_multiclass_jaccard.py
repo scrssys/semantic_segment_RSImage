@@ -29,7 +29,7 @@ K.set_image_dim_ordering('tf')
 from semantic_segmentation_networks import multiclass_unet_jaccard, multiclass_fcnnet_jaccard, multiclass_segnet_jaccard
 from ulitities.base_functions import load_img_normalization
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "3"
+os.environ["CUDA_VISIBLE_DEVICES"] = "2"
 seed = 7
 np.random.seed(seed)
 

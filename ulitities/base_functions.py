@@ -3,6 +3,7 @@
 import os
 import cv2
 import numpy as np
+import gdal
 
 
 def load_img(path, grayscale=False):
@@ -31,6 +32,23 @@ def load_img_normalization(path, grayscale=False):
         img = cv2.imread(path)
         img = np.array(img, dtype="float")/255.0
     return 0, img
+
+
+def load_whole_img_by_gdal(path):
+    dataset = gdal.Open(path)
+    if dataset is None:
+        print("Open file failed: {}".format(path))
+        return -1
+    y_height = dataset.RasterYSize
+    x_width = dataset.RasterXSize
+    # assert(y_height==h and x_width==w)
+    img = dataset.ReadAsArray(0,0,x_width,y_height)
+    img = np.array(img)
+    img = np.transpose(img, (1,2,0))
+    del dataset
+    img = img / 255.0
+    # img = np.clip(img, 0.0, 1.0)
+    return img
 
 
 

@@ -29,7 +29,7 @@ K.set_image_dim_ordering('tf')
 from semantic_segmentation_networks import multiclass_unet, multiclass_fcnnet, multiclass_segnet
 from ulitities.base_functions import load_img_normalization
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "3"
+os.environ["CUDA_VISIBLE_DEVICES"] = "2"
 seed = 7
 np.random.seed(seed)
 
@@ -44,10 +44,10 @@ FLAG_USING_NETWORK = 0  # 0:unet; 1:fcn; 2:segnet;
 FLAG_MAKE_TEST=True
 
 
-model_save_path = ''.join(['../../data/models/SatRGB/',dict_network[FLAG_USING_NETWORK], '_multiclass.h5'])
+model_save_path = ''.join(['../../data/models/sat_urban_nrg/',dict_network[FLAG_USING_NETWORK], '_multiclass.h5'])
 print("model save as to: {}".format(model_save_path))
 
-train_data_path = ''.join(['../../data/traindata/SatRGB/multiclass/'])
+train_data_path = ''.join(['../../data/traindata/sat_urban_nrg/multiclass/'])
 print("traindata from: {}".format(train_data_path))
 
 

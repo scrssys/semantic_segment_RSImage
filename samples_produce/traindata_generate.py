@@ -17,8 +17,8 @@ img_h = 256
 
 valid_labels=[0,1,2]
 
-# FLAG_BINARY = False
-FLAG_BINARY = True
+FLAG_BINARY = False
+#FLAG_BINARY = True
 
 
 input_path = '../../data/originaldata/sat_urban_nrg/'
@@ -230,7 +230,7 @@ def creat_dataset_binary(in_path, out_path, image_num=50000, mode='original'):
             #         if np.random.random()< 0.8:
             #             continue
 
-            """ignore whole background area"""
+            """ignore pure background area"""
             if len(np.unique(label_roi)) < 2:
                 if 0 in np.unique(label_roi):
                     continue
@@ -279,7 +279,7 @@ def creat_dataset_binary(in_path, out_path, image_num=50000, mode='original'):
             #         if np.random.random() < 0.8:
             #             continue
 
-            """ignore whole background area"""
+            """ignore pure background area"""
             if len(np.unique(label_roi)) < 2:
                 if 0 in np.unique(label_roi):
                     continue
@@ -317,4 +317,4 @@ if __name__ == '__main__':
         creat_dataset_binary(input_path, output_path, 100000, mode='augment')
     else:
         print("produce labels for multiclass")
-        creat_dataset_multiclass(input_path, output_path, 100000, mode='augment')
+        creat_dataset_multiclass(input_path, output_path, 200000, mode='augment')

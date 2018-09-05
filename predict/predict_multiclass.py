@@ -41,7 +41,7 @@ FLAG_APPROACH_PREDICT=1  # 0: original predict, 1: smooth predict
 
 img_file = '../../data/test/sample1.png'
 
-model_file = ''.join(['../../data/models/sat_urban_rgb/',dict_network[FLAG_USING_NETWORK], '_multiclass.h5'])
+model_file = ''.join(['../../data/models/sat_urban_nrg/',dict_network[FLAG_USING_NETWORK], '_multiclass.h5'])
 # model_file = '/home/omnisky/PycharmProjects/data/models/sat_urban_rgb/unet_multiclass_jaccard.h5'
 
 if __name__ == '__main__':

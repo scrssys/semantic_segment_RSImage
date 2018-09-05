@@ -148,14 +148,14 @@ def smooth_predict_for_multiclass(small_img_patches, model, real_classes):
 
 # window_size=256
 
-def orignal_predict(image,model,window_size):
+def orignal_predict(image,bands, model,window_size):
     stride = window_size
 
     h, w, _ = image.shape
     print('h,w:', h, w)
     padding_h = (h // stride + 1) * stride
     padding_w = (w // stride + 1) * stride
-    padding_img = np.zeros((padding_h, padding_w, 3))
+    padding_img = np.zeros((padding_h, padding_w, bands))
     padding_img[0:h, 0:w, :] = image[:, :, :]
 
     padding_img = img_to_array(padding_img)
@@ -163,14 +163,14 @@ def orignal_predict(image,model,window_size):
     mask_whole = np.zeros((padding_h, padding_w), dtype=np.float32)
     for i in list(range(padding_h // stride)):
         for j in list(range(padding_w // stride)):
-            crop = padding_img[i * stride:i * stride + window_size, j * stride:j * stride + window_size, :3]
+            crop = padding_img[i * stride:i * stride + window_size, j * stride:j * stride + window_size, :bands]
 
             crop = np.expand_dims(crop, axis=0)
             # print('crop:{}'.format(crop.shape))
 
             pred = model.predict(crop, verbose=2)
-            pred = np.argmax(pred, axis=2)  #for one hot encoding
-            # pred = pred[:,:,1]
+            # pred = np.argmax(pred, axis=2)  #for one hot encoding
+            pred = pred[:,:,1]
 
             pred = pred.reshape(256, 256)
             print(np.unique(pred))
@@ -188,14 +188,14 @@ def orignal_predict(image,model,window_size):
     # cv2.imwrite('../../data/predict/test_model.png',outputresult*255)
     return outputresult
 
-def orignal_predict_jaccard(image,model,window_size):
+def orignal_predict_jaccard(image,bands, model,window_size):
     stride = window_size
 
     h, w, _ = image.shape
     print('h,w:', h, w)
     padding_h = (h // stride + 1) * stride
     padding_w = (w // stride + 1) * stride
-    padding_img = np.zeros((padding_h, padding_w, 3))
+    padding_img = np.zeros((padding_h, padding_w, bands))
     padding_img[0:h, 0:w, :] = image[:, :, :]
 
     padding_img = img_to_array(padding_img)
@@ -203,7 +203,7 @@ def orignal_predict_jaccard(image,model,window_size):
     mask_whole = np.zeros((padding_h, padding_w), dtype=np.float32)
     for i in list(range(padding_h // stride)):
         for j in list(range(padding_w // stride)):
-            crop = padding_img[i * stride:i * stride + window_size, j * stride:j * stride + window_size, :3]
+            crop = padding_img[i * stride:i * stride + window_size, j * stride:j * stride + window_size, :bands]
 
             crop = np.expand_dims(crop, axis=0)
             # print('crop:{}'.format(crop.shape))

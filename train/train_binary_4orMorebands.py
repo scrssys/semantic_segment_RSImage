@@ -21,22 +21,25 @@ from tqdm import tqdm
 from keras.models import *
 from keras.layers import *
 from keras.optimizers import *
+import gdal
 
 from keras import backend as K
 K.set_image_dim_ordering('tf')
 
 
-from semantic_segmentation_networks import binary_unet_jaccard, binary_fcnnet_jaccard, binary_segnet_jaccard
-from ulitities.base_functions import load_img_normalization
+from semantic_segmentation_networks import binary_unet_4orMore, binary_fcnnet, binary_segnet
+from ulitities.base_functions import load_img_normalization, load_whole_img_by_gdal
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 seed = 7
 np.random.seed(seed)
 
 img_w = 256
 img_h = 256
 
-n_label = 1
+input_bands = 4
+
+n_label = 1+1
 
 dict_network={0: 'unet', 1: 'fcnnet', 2: 'segnet'}
 dict_target={0: 'roads', 1: 'buildings'}
@@ -46,10 +49,10 @@ FLAG_TARGET_CLASS = 1   # 0:roads; 1:buildings
 FLAG_MAKE_TEST=True
 
 
-model_save_path = ''.join(['../../data/models/sat_urban_nrg/',dict_network[FLAG_USING_NETWORK], '_', dict_target[FLAG_TARGET_CLASS],'_binary_jaccard.h5'])
+model_save_path = ''.join(['../../data/models/sat_urban_4bands/',dict_network[FLAG_USING_NETWORK], '_', dict_target[FLAG_TARGET_CLASS],'_binary_4bands.h5'])
 print("model save as to: {}".format(model_save_path))
 
-train_data_path = ''.join(['../../data/traindata/sat_urban_nrg/binary/',dict_target[FLAG_TARGET_CLASS], '/'])
+train_data_path = ''.join(['../../data/traindata/sat_urban_4bands/binary/',dict_target[FLAG_TARGET_CLASS], '/'])
 print("traindata from: {}".format(train_data_path))
 
 
@@ -59,6 +62,31 @@ def load_img(path, grayscale=False):
     else:
         img = cv2.imread(path)
         img = np.array(img, dtype="float") / 255.0  # MY image preprocessing
+    return img
+
+
+
+
+def load_img_by_gdal(path,w, h):
+    dataset = gdal.Open(path)
+    if dataset is None:
+        print("Open file failed: {}".format(path))
+        return -1
+    y_height = dataset.RasterYSize
+    x_width = dataset.RasterXSize
+    assert(y_height==h and x_width==w)
+    img = dataset.ReadAsArray(0,0,w,h)
+    img = np.array(img)
+    img = np.transpose(img, (1,2,0))
+    del dataset
+
+    # mean= np.mean(img)
+    # m = img.mean()
+    # std = img.std()
+    # img = (img-mean+2*std)/2*std
+
+    img = img/255.0
+    # img = np.clip(img, 0.0, 1.0)
     return img
 
 
@@ -90,7 +118,8 @@ def generateData(batch_size, data=[]):
         for i in (range(len(data))):
             url = data[i]
             batch += 1
-            img = load_img(train_data_path + 'src/' + url)
+            # img = load_img(train_data_path + 'src/' + url)
+            img = load_img_by_gdal(train_data_path + 'src/' + url, img_w, img_h)
 
             # Adapt dim_ordering automatically
             img = img_to_array(img)
@@ -102,7 +131,7 @@ def generateData(batch_size, data=[]):
                 # print 'get enough bacth!\n'
                 train_data = np.array(train_data)
                 train_label = np.array(train_label)
-                # train_label = to_categorical(train_label, num_classes=n_label)  # one_hot coding
+                train_label = to_categorical(train_label, num_classes=n_label)  # one_hot coding
                 train_label = train_label.reshape((batch_size, img_w * img_h, n_label))
                 yield (train_data, train_label)
                 train_data = []
@@ -120,7 +149,8 @@ def generateValidData(batch_size, data=[]):
         for i in (range(len(data))):
             url = data[i]
             batch += 1
-            img = load_img(train_data_path + 'src/' + url)
+            # img = load_img(train_data_path + 'src/' + url)
+            img = load_img_by_gdal(train_data_path + 'src/' + url, img_w, img_h)
 
             # Adapt dim_ordering automatically
             img = img_to_array(img)
@@ -131,7 +161,7 @@ def generateValidData(batch_size, data=[]):
             if batch % batch_size == 0:
                 valid_data = np.array(valid_data)
                 valid_label = np.array(valid_label)
-                # valid_label = to_categorical(valid_label, num_classes=n_label)
+                valid_label = to_categorical(valid_label, num_classes=n_label)
                 valid_label = valid_label.reshape((batch_size, img_w * img_h, n_label))
                 yield (valid_data, valid_label)
                 valid_data = []
@@ -160,34 +190,20 @@ class CustomModelCheckpoint(keras.callbacks.Callback):
         self.best_loss = val_loss
 
 """Train model ............................................."""
-def train(model,model_path):
+def train(model, model_path):
     EPOCHS = 100  # should be 10 or bigger number
     BS = 32
 
-    if os.path.isfile(model_path):
-        model.load_weights(model_path)
+    """load last trained model"""
+    # if os.path.isfile(model_path):
+    #     model.load_weights(model_path)
 
-
-    model_checkpoint = ModelCheckpoint(
-        model_path,
-        monitor='val_jaccard_coef_int',
-        save_best_only=False)
-
-    # model_checkpoint = ModelCheckpoint(
-    #     model_save_path,
-    #     monitor='val_jaccard_coef_int',
-    #     save_best_only=True,
-    #     mode='max')
-
-    model_earlystop = EarlyStopping(
-        monitor='val_jaccard_coef_int',
-        patience=6,
-        verbose=0,
-        mode='max')
+    model_checkpoint = ModelCheckpoint(model_path, monitor='val_acc', save_best_only=True, mode='max')
+    model_earlystop=EarlyStopping(monitor='val_acc', patience=5, verbose=0, mode='max')
 
     """自动调整学习率"""
     model_reduceLR=ReduceLROnPlateau(
-        monitor='val_jaccard_coef_int',
+        monitor='val_acc',
         factor=0.1,
         patience=3,
         verbose=0,
@@ -200,19 +216,11 @@ def train(model,model_path):
     model_history = History()
 
     callable = [model_checkpoint,model_earlystop, model_reduceLR, model_history]
-    # callable = [model_checkpoint, model_reduceLR, model_history]
-    # callable = [model_checkpoint,model_earlystop, model_history]
     train_set, val_set = get_train_val()
     train_numb = len(train_set)
     valid_numb = len(val_set)
     print ("the number of train data is", train_numb)
     print ("the number of val data is", valid_numb)
-
-    # cw1 = {0: 1, 1: 100}
-    # # cw1 = {0: 1, 1: 1}
-    # cw2 = {i: n_label / 8 for i in range(n_label)}
-    # cw2[n_label] = 1 / 8
-    # cw = [cw1, cw2]
     H = model.fit_generator(generator=generateData(BS, train_set), steps_per_epoch=train_numb // BS, epochs=EPOCHS,
                             verbose=1,
                             validation_data=generateValidData(BS, val_set), validation_steps=valid_numb // BS,
@@ -250,22 +258,29 @@ def test_predict(image,model):
     print('h,w:', h, w)
     padding_h = (h // stride + 1) * stride
     padding_w = (w // stride + 1) * stride
-    padding_img = np.zeros((padding_h, padding_w, 3))
-    padding_img[0:h, 0:w, :] = image[:, :, :]
+    padding_img = np.zeros((padding_h, padding_w, input_bands))
+    padding_img[0:h, 0:w, :] = image[:, :, 0:input_bands]
 
     padding_img = img_to_array(padding_img)
 
     mask_whole = np.zeros((padding_h, padding_w), dtype=np.float32)
     for i in list(range(padding_h // stride)):
         for j in list(range(padding_w // stride)):
-            crop = padding_img[i * stride:i * stride + window_size, j * stride:j * stride + window_size, :3]
+            crop = padding_img[i * stride:i * stride + window_size, j * stride:j * stride + window_size, :input_bands]
+
+            # normalization by mean and std
+            mean = crop.mean()
+            std = crop.std()
+            crop = (crop - mean + 2 * std) / 2 * std
+            crop = np.clip(crop, 0.0, 1.0)
 
             crop = np.expand_dims(crop, axis=0)
-            print('crop:{}'.format(crop.shape))
+            # print('crop:{}'.format(crop.shape))
 
             # pred = model.predict(crop, verbose=2)
             pred = model.predict(crop, verbose=2)
-            # pred = np.argmax(pred, axis=2)  # For one hot encoding
+            pred = np.argmax(pred, axis=2)  #for one hot encoding
+            # pred = pred[:,:,1]
 
             pred = pred.reshape(256, 256)
             print(np.unique(pred))
@@ -291,25 +306,26 @@ if __name__ == '__main__':
         print ("train data does not exist in the path:\n {}".format(train_data_path))
 
     if FLAG_USING_NETWORK==0:
-        model = binary_unet_jaccard(n_label)
+        model = binary_unet_4orMore(input_bands, n_label)
     elif FLAG_USING_NETWORK==1:
-        model = binary_fcnnet_jaccard(n_label)
+        model = binary_fcnnet(n_label)
     elif FLAG_USING_NETWORK==2:
-        model=binary_segnet_jaccard(n_label)
+        model=binary_segnet(n_label)
 
     print("Train by : {}".format(dict_network[FLAG_USING_NETWORK]))
     train(model, model_save_path)
 
     if FLAG_MAKE_TEST:
         print("test ....................predict by trained model .....\n")
-        test_img_path = '../../data/test/sample1.png'
+        test_img_path = '../../data/test/lizhou_test_4bands.png'
         import sys
 
         if not os.path.isfile(test_img_path):
-            print("no file: {}".format(test_img_path))
+            print("no file: {}".forma(test_img_path))
             sys.exit(-1)
 
-        ret, input_img = load_img_normalization(test_img_path)
+        # ret, input_img = load_img_normalization(test_img_path)
+        input_img = load_whole_img_by_gdal(test_img_path)
         # model_save_path ='../../data/models/unet_buildings_onehot.h5'
 
         new_model = load_model(model_save_path)

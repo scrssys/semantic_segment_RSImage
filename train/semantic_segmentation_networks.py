@@ -76,6 +76,57 @@ def binary_unet(n_label=2):
     model.summary()
     return model
 
+
+def binary_unet_4orMore(im_bands, n_label=2):
+    inputs = Input((img_w, img_h, im_bands))
+
+    conv1 = Conv2D(32, (3, 3), activation="relu", padding="same")(inputs)
+    conv1 = Conv2D(32, (3, 3), activation="relu", padding="same")(conv1)
+    pool1 = MaxPooling2D(pool_size=(2, 2))(conv1)
+
+    conv2 = Conv2D(64, (3, 3), activation="relu", padding="same")(pool1)
+    conv2 = Conv2D(64, (3, 3), activation="relu", padding="same")(conv2)
+    pool2 = MaxPooling2D(pool_size=(2, 2))(conv2)
+
+    conv3 = Conv2D(128, (3, 3), activation="relu", padding="same")(pool2)
+    conv3 = Conv2D(128, (3, 3), activation="relu", padding="same")(conv3)
+    pool3 = MaxPooling2D(pool_size=(2, 2))(conv3)
+
+    conv4 = Conv2D(256, (3, 3), activation="relu", padding="same")(pool3)
+    conv4 = Conv2D(256, (3, 3), activation="relu", padding="same")(conv4)
+    drop4 = Dropout(0.5)(conv4) # add 20180621
+    pool4 = MaxPooling2D(pool_size=(2, 2))(drop4)
+
+    conv5 = Conv2D(512, (3, 3), activation="relu", padding="same")(pool4)
+    conv5 = Conv2D(512, (3, 3), activation="relu", padding="same")(conv5)
+    drop5 = Dropout(0.5)(conv5)
+
+    up6 = concatenate([UpSampling2D(size=(2, 2))(drop5), conv4], axis=3)
+    conv6 = Conv2D(256, (3, 3), activation="relu", padding="same")(up6)
+    conv6 = Conv2D(256, (3, 3), activation="relu", padding="same")(conv6)
+
+    up7 = concatenate([UpSampling2D(size=(2, 2))(conv6), conv3], axis=3)
+    conv7 = Conv2D(128, (3, 3), activation="relu", padding="same")(up7)
+    conv7 = Conv2D(128, (3, 3), activation="relu", padding="same")(conv7)
+
+    up8 = concatenate([UpSampling2D(size=(2, 2))(conv7), conv2], axis=3)
+    conv8 = Conv2D(64, (3, 3), activation="relu", padding="same")(up8)
+    conv8 = Conv2D(64, (3, 3), activation="relu", padding="same")(conv8)
+
+    up9 = concatenate([UpSampling2D(size=(2, 2))(conv8), conv1], axis=3)
+    conv9 = Conv2D(32, (3, 3), activation="relu", padding="same")(up9)
+    conv9 = Conv2D(32, (3, 3), activation="relu", padding="same")(conv9)
+
+    conv10 = Conv2D(n_label, (1, 1), activation="sigmoid")(conv9)
+    conv10 = Reshape((img_w * img_h, n_label))(conv10)  # 4D(bath_size, img_w*img_h, n_label)
+
+    model = Model(inputs=inputs, outputs=conv10)
+    # model.compile(optimizer='Adam', loss='binary_crossentropy', metrics=['accuracy'])
+    model.compile(optimizer=sgd, loss='binary_crossentropy', metrics=['accuracy'])
+
+    model.summary()
+    return model
+
 def binary_unet_jaccard(n_label=1):
     inputs = Input((img_w, img_h, 3))
 
@@ -130,6 +181,59 @@ def binary_unet_jaccard(n_label=1):
     # model.compile(optimizer='Adam',
     #               loss='binary_crossentropy',
     #               metrics=['accuracy', metrics.jaccard_coef, metrics.jaccard_coef_int])
+    model.summary()
+    return model
+
+
+def binary_unet_jaccard_4orMore(im_bands, n_label=1):
+    inputs = Input((img_w, img_h, im_bands))
+
+    conv1 = Conv2D(32, (3, 3), activation="relu", padding="same")(inputs)
+    conv1 = Conv2D(32, (3, 3), activation="relu", padding="same")(conv1)
+    pool1 = MaxPooling2D(pool_size=(2, 2))(conv1)
+
+    conv2 = Conv2D(64, (3, 3), activation="relu", padding="same")(pool1)
+    conv2 = Conv2D(64, (3, 3), activation="relu", padding="same")(conv2)
+    pool2 = MaxPooling2D(pool_size=(2, 2))(conv2)
+
+    conv3 = Conv2D(128, (3, 3), activation="relu", padding="same")(pool2)
+    conv3 = Conv2D(128, (3, 3), activation="relu", padding="same")(conv3)
+    pool3 = MaxPooling2D(pool_size=(2, 2))(conv3)
+
+    conv4 = Conv2D(256, (3, 3), activation="relu", padding="same")(pool3)
+    conv4 = Conv2D(256, (3, 3), activation="relu", padding="same")(conv4)
+    drop4 = Dropout(0.5)(conv4) # add 20180621
+    pool4 = MaxPooling2D(pool_size=(2, 2))(drop4)
+
+    conv5 = Conv2D(512, (3, 3), activation="relu", padding="same")(pool4)
+    conv5 = Conv2D(512, (3, 3), activation="relu", padding="same")(conv5)
+    drop5 = Dropout(0.5)(conv5)
+
+    up6 = concatenate([UpSampling2D(size=(2, 2))(drop5), conv4], axis=3)
+    conv6 = Conv2D(256, (3, 3), activation="relu", padding="same")(up6)
+    conv6 = Conv2D(256, (3, 3), activation="relu", padding="same")(conv6)
+
+    up7 = concatenate([UpSampling2D(size=(2, 2))(conv6), conv3], axis=3)
+    conv7 = Conv2D(128, (3, 3), activation="relu", padding="same")(up7)
+    conv7 = Conv2D(128, (3, 3), activation="relu", padding="same")(conv7)
+
+    up8 = concatenate([UpSampling2D(size=(2, 2))(conv7), conv2], axis=3)
+    conv8 = Conv2D(64, (3, 3), activation="relu", padding="same")(up8)
+    conv8 = Conv2D(64, (3, 3), activation="relu", padding="same")(conv8)
+
+    up9 = concatenate([UpSampling2D(size=(2, 2))(conv8), conv1], axis=3)
+    conv9 = Conv2D(32, (3, 3), activation="relu", padding="same")(up9)
+    conv9 = Conv2D(32, (3, 3), activation="relu", padding="same")(conv9)
+
+    conv10 = Conv2D(n_label, (1, 1), activation="sigmoid")(conv9)
+    conv10 = Reshape((img_w * img_h, n_label))(conv10)  # 4D(bath_size, img_w*img_h, n_label)
+
+    model = Model(inputs=inputs, outputs=conv10)
+
+    model.compile(optimizer=sgd,
+                  loss=losses.jaccard_coef_binary_crossentropy_loss,
+                  metrics=['accuracy', metrics.jaccard_coef_int])
+
     model.summary()
     return model
 

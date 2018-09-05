@@ -165,18 +165,13 @@ def train(model):
     EPOCHS = 40  # should be 10 or bigger number
     BS = 32
 
-    """test the model fastly but can only train one epoch, AND it does not work finally ^_^"""
-    # model = multi_gpu_model(model, gpus=4)
-    # model.compile(optimizer=Adam(lr=1e-5), loss='binary_crossentropy', metrics=['accuracy'])
-    ##### modelcheck = [CustomModelCheckpoint('./data/models/unet_fff.h5')]
+    model_checkpoint = ModelCheckpoint(model_save_path, monitor='val_acc', save_best_only=True, mode='max')
+    model_earlystop=EarlyStopping(monitor='val_acc', patience=10, verbose=0, mode='max')
 
-    # model_checkpoint = ModelCheckpoint(model_save_path, monitor='val_acc', save_best_only=True, mode='max')
-    # model_earlystop=EarlyStopping(monitor='val_acc', patience=10, verbose=0, mode='max')
-
-    model_checkpoint = ModelCheckpoint(
-        model_save_path,
-        monitor='val_jaccard_coef_int',
-        save_best_only=False)
+    # model_checkpoint = ModelCheckpoint(
+    #     model_save_path,
+    #     monitor='val_jaccard_coef_int',
+    #     save_best_only=False)
 
     # model_checkpoint = ModelCheckpoint(
     #     model_save_path,
@@ -184,15 +179,15 @@ def train(model):
     #     save_best_only=True,
     #     mode='max')
 
-    model_earlystop = EarlyStopping(
-        monitor='val_jaccard_coef_int',
-        patience=6,
-        verbose=0,
-        mode='max')
+    # model_earlystop = EarlyStopping(
+    #     monitor='val_jaccard_coef_int',
+    #     patience=6,
+    #     verbose=0,
+    #     mode='max')
 
     """自动调整学习率"""
     model_reduceLR=ReduceLROnPlateau(
-        monitor='val_jaccard_coef_int',
+        monitor='val_acc',
         factor=0.1,
         patience=3,
         verbose=0,
@@ -270,7 +265,7 @@ def test_predict(image,model):
 
             # pred = model.predict(crop, verbose=2)
             pred = model.predict(crop, verbose=2)
-            pred = np.argmax(pred, axis=2)  #for one hot encoding
+            # pred = np.argmax(pred, axis=2)  #for one hot encoding
 
             pred = pred.reshape(256, 256)
             print(np.unique(pred))

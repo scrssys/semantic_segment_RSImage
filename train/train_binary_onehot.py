@@ -17,6 +17,7 @@ import cv2
 import random
 import sys
 import os
+import time
 from tqdm import tqdm
 from keras.models import *
 from keras.layers import *
@@ -26,40 +27,39 @@ from keras import backend as K
 K.set_image_dim_ordering('tf')
 
 
-from semantic_segmentation_networks import binary_unet_jaccard_notOnehot, binary_fcnnet_jaccard, binary_segnet_jaccard
-from ulitities.base_functions import load_img_normalization
+from semantic_segmentation_networks import binary_unet, binary_fcnnet, binary_segnet
+from ulitities.base_functions import load_img_normalization, load_img_by_gdal, UINT16, UINT8, UINT10
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "4"
+os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 seed = 7
 np.random.seed(seed)
 
 img_w = 256
 img_h = 256
 
-n_label = 1
+im_bands = 3
+im_type = UINT8  # UINT8:0, UINT10:1, UINT16:2
+
+n_label = 1+1
 
 dict_network={0: 'unet', 1: 'fcnnet', 2: 'segnet'}
 dict_target={0: 'roads', 1: 'buildings'}
 
 FLAG_USING_NETWORK = 0  # 0:unet; 1:fcn; 2:segnet;
-FLAG_TARGET_CLASS = 0   # 0:roads; 1:buildings
+FLAG_TARGET_CLASS = 1   # 0:roads; 1:buildings
 FLAG_MAKE_TEST=True
 
+date_time = time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime())
+print("date and time: {}".format(date_time))
 
-model_save_path = ''.join(['../../data/models/sat_urban_rgb/',dict_network[FLAG_USING_NETWORK], '_', dict_target[FLAG_TARGET_CLASS],'_binary_jaccard_notonehot.h5'])
+base_model = ""
+
+model_save_path = ''.join(['../../data/models/sat_urban_rgb/',dict_network[FLAG_USING_NETWORK], '_', dict_target[FLAG_TARGET_CLASS],
+                           '_binary_onehot_', date_time, '.h5'])
 print("model save as to: {}".format(model_save_path))
 
 train_data_path = ''.join(['../../data/traindata/sat_urban_rgb/binary/',dict_target[FLAG_TARGET_CLASS], '/'])
 print("traindata from: {}".format(train_data_path))
-
-
-def load_img(path, grayscale=False):
-    if grayscale:
-        img = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
-    else:
-        img = cv2.imread(path)
-        img = np.array(img, dtype="float") / 255.0  # MY image preprocessing
-    return img
 
 
 """get the train file name and divide to train and val parts"""
@@ -90,20 +90,21 @@ def generateData(batch_size, data=[]):
         for i in (range(len(data))):
             url = data[i]
             batch += 1
-            img = load_img(train_data_path + 'src/' + url)
+            # img = load_img(train_data_path + 'src/' + url)
+            _, img = load_img_normalization(im_bands, (train_data_path + 'src/' + url), data_type=im_type)
 
             # Adapt dim_ordering automatically
             img = img_to_array(img)
             train_data.append(img)
-            label = load_img(train_data_path + 'label/' + url, grayscale=True)
+            # label = load_img(train_data_path + 'label/' + url, grayscale=True)
+            _, label = load_img_normalization(1, (train_data_path + 'label/' + url), data_type=im_type)
             label = img_to_array(label)
             train_label.append(label)
             if batch % batch_size == 0:
                 # print 'get enough bacth!\n'
                 train_data = np.array(train_data)
                 train_label = np.array(train_label)
-                # train_label = np.expand_dims(train_label,1)
-                # train_label = to_categorical(train_label, num_classes=n_label)  # one_hot coding
+                train_label = to_categorical(train_label, num_classes=n_label)  # one_hot coding
                 train_label = train_label.reshape((batch_size, img_w * img_h, n_label))
                 yield (train_data, train_label)
                 train_data = []
@@ -121,18 +122,18 @@ def generateValidData(batch_size, data=[]):
         for i in (range(len(data))):
             url = data[i]
             batch += 1
-            img = load_img(train_data_path + 'src/' + url)
+            _, img = load_img_normalization(im_bands, (train_data_path + 'src/' + url), data_type=im_type)
 
             # Adapt dim_ordering automatically
             img = img_to_array(img)
             valid_data.append(img)
-            label = load_img(train_data_path + 'label/' + url, grayscale=True)
+            _, label = load_img_normalization(1, (train_data_path + 'label/' + url), data_type=im_type)
             label = img_to_array(label)
             valid_label.append(label)
             if batch % batch_size == 0:
                 valid_data = np.array(valid_data)
                 valid_label = np.array(valid_label)
-                # valid_label = to_categorical(valid_label, num_classes=n_label)
+                valid_label = to_categorical(valid_label, num_classes=n_label)
                 valid_label = valid_label.reshape((batch_size, img_w * img_h, n_label))
                 yield (valid_data, valid_label)
                 valid_data = []
@@ -161,29 +162,21 @@ class CustomModelCheckpoint(keras.callbacks.Callback):
         self.best_loss = val_loss
 
 """Train model ............................................."""
-def train(model):
-    EPOCHS = 40  # should be 10 or bigger number
+def train(model, model_path):
+    EPOCHS = 100  # should be 10 or bigger number
     BS = 32
 
-    model_checkpoint = ModelCheckpoint(model_save_path, monitor='val_acc', save_best_only=True, mode='max')
-    model_earlystop=EarlyStopping(monitor='val_acc', patience=10, verbose=0, mode='max')
+    """test the model fastly but can only train one epoch, AND it does not work finally ^_^"""
+    # model = multi_gpu_model(model, gpus=4)
+    # model.compile(optimizer=Adam(lr=1e-5), loss='binary_crossentropy', metrics=['accuracy'])
+    ##### modelcheck = [CustomModelCheckpoint('./data/models/unet_fff.h5')]
 
-    # model_checkpoint = ModelCheckpoint(
-    #     model_save_path,
-    #     monitor='val_jaccard_coef_int',
-    #     save_best_only=False)
+    if os.path.isfile(base_model):
+        print("load last weight from:{}".format(base_model))
+        model.load_weights(base_model)
 
-    # model_checkpoint = ModelCheckpoint(
-    #     model_save_path,
-    #     monitor='val_jaccard_coef_int',
-    #     save_best_only=True,
-    #     mode='max')
-
-    # model_earlystop = EarlyStopping(
-    #     monitor='val_jaccard_coef_int',
-    #     patience=6,
-    #     verbose=0,
-    #     mode='max')
+    model_checkpoint = ModelCheckpoint(model_path, monitor='val_acc', save_best_only=True, mode='max')
+    model_earlystop=EarlyStopping(monitor='val_acc', patience=5, verbose=0, mode='max')
 
     """自动调整学习率"""
     model_reduceLR=ReduceLROnPlateau(
@@ -200,19 +193,11 @@ def train(model):
     model_history = History()
 
     callable = [model_checkpoint,model_earlystop, model_reduceLR, model_history]
-    # callable = [model_checkpoint, model_reduceLR, model_history]
-    # callable = [model_checkpoint,model_earlystop, model_history]
     train_set, val_set = get_train_val()
     train_numb = len(train_set)
     valid_numb = len(val_set)
     print ("the number of train data is", train_numb)
     print ("the number of val data is", valid_numb)
-
-    cw1 = {0: 1, 1: 100}
-    # cw1 = {0: 1, 1: 1}
-    cw2 = {i: n_label / 8 for i in range(n_label)}
-    cw2[n_label] = 1 / 8
-    cw = [cw1, cw2]
     H = model.fit_generator(generator=generateData(BS, train_set), steps_per_epoch=train_numb // BS, epochs=EPOCHS,
                             verbose=1,
                             validation_data=generateValidData(BS, val_set), validation_steps=valid_numb // BS,
@@ -243,14 +228,14 @@ Test the model which has been trained right now
 """
 window_size=256
 
-def test_predict(image,model):
+def test_predict(bands, image,model):
     stride = window_size
 
     h, w, _ = image.shape
     print('h,w:', h, w)
     padding_h = (h // stride + 1) * stride
     padding_w = (w // stride + 1) * stride
-    padding_img = np.zeros((padding_h, padding_w, 3))
+    padding_img = np.zeros((padding_h, padding_w, bands))
     padding_img[0:h, 0:w, :] = image[:, :, :]
 
     padding_img = img_to_array(padding_img)
@@ -258,14 +243,14 @@ def test_predict(image,model):
     mask_whole = np.zeros((padding_h, padding_w), dtype=np.float32)
     for i in list(range(padding_h // stride)):
         for j in list(range(padding_w // stride)):
-            crop = padding_img[i * stride:i * stride + window_size, j * stride:j * stride + window_size, :3]
+            crop = padding_img[i * stride:i * stride + window_size, j * stride:j * stride + window_size, :bands]
 
             crop = np.expand_dims(crop, axis=0)
             print('crop:{}'.format(crop.shape))
 
             # pred = model.predict(crop, verbose=2)
             pred = model.predict(crop, verbose=2)
-            # pred = np.argmax(pred, axis=2)  #for one hot encoding
+            pred = np.argmax(pred, axis=2)  #for one hot encoding
 
             pred = pred.reshape(256, 256)
             print(np.unique(pred))
@@ -291,27 +276,35 @@ if __name__ == '__main__':
         print ("train data does not exist in the path:\n {}".format(train_data_path))
 
     if FLAG_USING_NETWORK==0:
-        model = binary_unet_jaccard_notOnehot(n_label)
+        model = binary_unet(im_bands,n_label)
     elif FLAG_USING_NETWORK==1:
-        model = binary_fcnnet_jaccard(n_label)
+        model = binary_fcnnet(im_bands,n_label)
     elif FLAG_USING_NETWORK==2:
-        model=binary_segnet_jaccard(n_label)
+        model=binary_segnet(im_bands,n_label)
 
     print("Train by : {}".format(dict_network[FLAG_USING_NETWORK]))
-    train(model)
+    train(model, model_save_path)
 
     if FLAG_MAKE_TEST:
         print("test ....................predict by trained model .....\n")
-        test_img_path = '../../data/test/sample1.png'
+        test_img_path = '../../data/test/1.png'
         import sys
 
         if not os.path.isfile(test_img_path):
-            print("no file: {}".format(test_img_path))
+            print("no file: {}".forma(test_img_path))
             sys.exit(-1)
 
-        ret, input_img = load_img_normalization(test_img_path)
+        input_img = load_img_by_gdal(test_img_path)
+        if im_type == UINT8:
+            input_img = input_img/255.0
+        elif im_type==UINT10:
+            input_img = input_img / 1024.0
+        elif im_type==UINT16:
+            input_img = input_img / 65535.0
+        input_img = np.clip(input_img, 0.0, 1.0)
+
         # model_save_path ='../../data/models/unet_buildings_onehot.h5'
 
         new_model = load_model(model_save_path)
 
-        test_predict(input_img, new_model)
+        test_predict(im_bands, input_img, new_model)

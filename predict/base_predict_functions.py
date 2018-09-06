@@ -15,7 +15,7 @@ from keras import backend as K
 K.set_image_dim_ordering('tf')
 
 
-def smooth_predict_for_binary(small_img_patches, model, real_classes):
+def smooth_predict_for_binary_onehot(small_img_patches, model, real_classes):
     """
 
     :param small_img_patches: input image 4D array (patches, row,column, channels)
@@ -54,7 +54,7 @@ def smooth_predict_for_binary(small_img_patches, model, real_classes):
 
     return mask_output
 
-def smooth_predict_for_binary_jaccard(small_img_patches, model, real_classes):
+def smooth_predict_for_binary_notonehot(small_img_patches, model, real_classes):
     """
 
     :param small_img_patches: input image 4D array (patches, row,column, channels)
@@ -148,7 +148,7 @@ def smooth_predict_for_multiclass(small_img_patches, model, real_classes):
 
 # window_size=256
 
-def orignal_predict(image,bands, model,window_size):
+def orignal_predict_onehot(image,bands, model,window_size):
     stride = window_size
 
     h, w, _ = image.shape
@@ -169,8 +169,8 @@ def orignal_predict(image,bands, model,window_size):
             # print('crop:{}'.format(crop.shape))
 
             pred = model.predict(crop, verbose=2)
-            # pred = np.argmax(pred, axis=2)  #for one hot encoding
-            pred = pred[:,:,1]
+            pred = np.argmax(pred, axis=2)  #for one hot encoding
+            # pred = pred[:,:,1]
 
             pred = pred.reshape(256, 256)
             print(np.unique(pred))
@@ -188,7 +188,7 @@ def orignal_predict(image,bands, model,window_size):
     # cv2.imwrite('../../data/predict/test_model.png',outputresult*255)
     return outputresult
 
-def orignal_predict_jaccard(image,bands, model,window_size):
+def orignal_predict_notonehot(image,bands, model,window_size):
     stride = window_size
 
     h, w, _ = image.shape

@@ -3,7 +3,7 @@
 from PIL import Image
 import cv2
 import numpy as np
-from base_functions import load_img
+from base_functions import load_img_by_gdal
 import matplotlib.pyplot as plt
 
 
@@ -14,8 +14,8 @@ clip_src_file = '../../data/test/qingbaijiang_clip_nrg.png'
 window_size = 3000
 
 if __name__=='__main__':
-    ret, img =load_img(input_src_file)
-    assert (ret==0)
+    img = load_img_by_gdal(input_src_file)
+    # assert (ret==0)
 
     height,width,_ = img.shape
 

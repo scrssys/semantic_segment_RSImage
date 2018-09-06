@@ -13,7 +13,7 @@ from ulitities.base_functions import get_file
 
 input_path = '../../data/originaldata/sat_urban_4bands/src_original/'
 
-output_path = '../../data/originaldata/sat_urban_4bands/test/'
+output_path = '../../data/originaldata/sat_urban_4bands/16bits/'
 # output_path = '../../data/originaldata/sat_urban_4bands/16bits/'
 absname = 'lizhou_test_4bands.png'  # fenyi11, qingbaijiang, yujiang4, lizhou_test_4bands
 
@@ -90,7 +90,7 @@ def convert_single_image():
     del outdataset
 
 
-def convert_all_image():
+def convert_all_image_to_8bits():
     src_files, tt = get_file(input_path)
     assert (tt != 0)
 
@@ -207,8 +207,7 @@ def convert_all_image_to_16bits():
             tmean = tmp.mean()
             tstd = tmp.std()
             tt = (data - tmean) / tstd  # first Z-score normalization
-            # tt = (tt + 4) * 200 / 8.0  # second min-max normalization to 255
-            tt = (tt + 4) * 512 / 8.0
+            tt = (tt + 4) * 1024 / 8.0-100
             tind = np.where(data == 0)
 
             tt = np.array(tt)
@@ -219,26 +218,18 @@ def convert_all_image_to_16bits():
             out = tt.reshape((height, width))
             result.append(out)
 
-        # plt.imshow(out)
-        # plt.show()
-        # cv2.imwrite((output_path + '%d.png' % i),out)
-
-        # absname = os.path.split(file)[1]
 
         outputfile = os.path.join(output_path, absname)
         driver = gdal.GetDriverByName("GTiff")
 
-        # outdataset = driver.Create(outputfile, width, height, im_bands, gdal.GDT_Byte)
         outdataset = driver.Create(outputfile, width, height, im_bands, gdal.GDT_UInt16)
-        # if im_bands ==1:
-        #     outdataset.GetRasterBand(1).WriteArray(result[0])
-        # else:
+
         for i in range(im_bands):
             outdataset.GetRasterBand(i + 1).WriteArray(result[i])
 
         del outdataset
 
 if __name__ == '__main__':
-    # convert_all_image()
-    # convert_all_image_to_16bits()
-    convert_single_image()
+    # convert_all_image_to_8bits()
+    convert_all_image_to_16bits()
+    # convert_single_image()

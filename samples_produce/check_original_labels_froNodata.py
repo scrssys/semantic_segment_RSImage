@@ -5,7 +5,7 @@ import sys
 import os
 import cv2
 from tqdm import tqdm
-from ulitities.base_functions import load_img, get_file
+from ulitities.base_functions import load_img_by_cv2, get_file
 
 import matplotlib.pyplot as plt
 
@@ -69,7 +69,7 @@ if __name__ == '__main__':
         # ret,src_img = load_img(src_file)
         # assert(ret==0)
 
-        ret,label_img = load_img(label_file, grayscale=True)
+        ret,label_img = load_img_by_cv2(label_file, grayscale=True)
         assert (ret == 0)
 
         local_labels = np.unique(label_img)

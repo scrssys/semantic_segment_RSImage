@@ -114,16 +114,29 @@ def _rotate_mirror_do(im):
     It is the D_4 (D4) Dihedral group:
     https://en.wikipedia.org/wiki/Dihedral_group
     """
+    # mirrs = []
+    # mirrs.append(np.array(im))
+    # mirrs.append(np.rot90(np.array(im), axes=(0, 1), k=1))
+    # mirrs.append(np.rot90(np.array(im), axes=(0, 1), k=2))
+    # mirrs.append(np.rot90(np.array(im), axes=(0, 1), k=3))
+    # im = np.array(im)[:, ::-1]
+    # mirrs.append(np.array(im))
+    # mirrs.append(np.rot90(np.array(im), axes=(0, 1), k=1))
+    # mirrs.append(np.rot90(np.array(im), axes=(0, 1), k=2))
+    # mirrs.append(np.rot90(np.array(im), axes=(0, 1), k=3))
+
     mirrs = []
     mirrs.append(np.array(im))
-    mirrs.append(np.rot90(np.array(im), axes=(0, 1), k=1))
-    mirrs.append(np.rot90(np.array(im), axes=(0, 1), k=2))
-    mirrs.append(np.rot90(np.array(im), axes=(0, 1), k=3))
+    mirrs.append(np.rot90(np.array(im), k=1))
+    mirrs.append(np.rot90(np.array(im), k=2))
+    mirrs.append(np.rot90(np.array(im), k=3))
     im = np.array(im)[:, ::-1]
     mirrs.append(np.array(im))
-    mirrs.append(np.rot90(np.array(im), axes=(0, 1), k=1))
-    mirrs.append(np.rot90(np.array(im), axes=(0, 1), k=2))
-    mirrs.append(np.rot90(np.array(im), axes=(0, 1), k=3))
+    mirrs.append(np.rot90(np.array(im), k=1))
+    mirrs.append(np.rot90(np.array(im), k=2))
+    mirrs.append(np.rot90(np.array(im), k=3))
+
+
     return mirrs
 
 
@@ -135,15 +148,26 @@ def _rotate_mirror_undo(im_mirrs):
 
     It is the D_4 (D4) Dihedral group:
     """
+    # origs = []
+    # origs.append(np.array(im_mirrs[0]))
+    # origs.append(np.rot90(np.array(im_mirrs[1]), axes=(0, 1), k=3))
+    # origs.append(np.rot90(np.array(im_mirrs[2]), axes=(0, 1), k=2))
+    # origs.append(np.rot90(np.array(im_mirrs[3]), axes=(0, 1), k=1))
+    # origs.append(np.array(im_mirrs[4])[:, ::-1])
+    # origs.append(np.rot90(np.array(im_mirrs[5]), axes=(0, 1), k=3)[:, ::-1])
+    # origs.append(np.rot90(np.array(im_mirrs[6]), axes=(0, 1), k=2)[:, ::-1])
+    # origs.append(np.rot90(np.array(im_mirrs[7]), axes=(0, 1), k=1)[:, ::-1])
+
     origs = []
     origs.append(np.array(im_mirrs[0]))
-    origs.append(np.rot90(np.array(im_mirrs[1]), axes=(0, 1), k=3))
-    origs.append(np.rot90(np.array(im_mirrs[2]), axes=(0, 1), k=2))
-    origs.append(np.rot90(np.array(im_mirrs[3]), axes=(0, 1), k=1))
+    origs.append(np.rot90(np.array(im_mirrs[1]), k=3))
+    origs.append(np.rot90(np.array(im_mirrs[2]), k=2))
+    origs.append(np.rot90(np.array(im_mirrs[3]), k=1))
     origs.append(np.array(im_mirrs[4])[:, ::-1])
-    origs.append(np.rot90(np.array(im_mirrs[5]), axes=(0, 1), k=3)[:, ::-1])
-    origs.append(np.rot90(np.array(im_mirrs[6]), axes=(0, 1), k=2)[:, ::-1])
-    origs.append(np.rot90(np.array(im_mirrs[7]), axes=(0, 1), k=1)[:, ::-1])
+    origs.append(np.rot90(np.array(im_mirrs[5]), k=3)[:, ::-1])
+    origs.append(np.rot90(np.array(im_mirrs[6]), k=2)[:, ::-1])
+    origs.append(np.rot90(np.array(im_mirrs[7]), k=1)[:, ::-1])
+
 
     """test: output each result of mirros"""
     # n = 0

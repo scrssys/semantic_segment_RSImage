@@ -17,6 +17,7 @@ import cv2
 import random
 import sys
 import os
+import time
 from tqdm import tqdm
 from keras.models import *
 from keras.layers import *
@@ -27,7 +28,7 @@ K.set_image_dim_ordering('tf')
 
 
 from semantic_segmentation_networks import binary_unet_jaccard, binary_fcnnet_jaccard, binary_segnet_jaccard
-from ulitities.base_functions import load_img_normalization
+from ulitities.base_functions import load_img_normalization, load_img_by_gdal, UINT16, UINT8, UINT10
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 seed = 7
@@ -38,28 +39,28 @@ img_h = 256
 
 n_label = 1
 
+im_bands =4
+im_type = UINT10  # UINT8:0, UINT10:1, UINT16:2
+
 dict_network={0: 'unet', 1: 'fcnnet', 2: 'segnet'}
 dict_target={0: 'roads', 1: 'buildings'}
 
 FLAG_USING_NETWORK = 0  # 0:unet; 1:fcn; 2:segnet;
-FLAG_TARGET_CLASS = 1   # 0:roads; 1:buildings
+FLAG_TARGET_CLASS = 0   # 0:roads; 1:buildings
 FLAG_MAKE_TEST=True
 
+date_time = time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime())
+print("date and time: {}".format(date_time))
 
-model_save_path = ''.join(['../../data/models/sat_urban_nrg/',dict_network[FLAG_USING_NETWORK], '_', dict_target[FLAG_TARGET_CLASS],'_binary_jaccard.h5'])
+base_model = ""
+
+model_save_path = ''.join(['../../data/models/sat_urban_4bands/',dict_network[FLAG_USING_NETWORK], '_',
+                           dict_target[FLAG_TARGET_CLASS],'_binary_jaccard_', date_time, '.h5'])
 print("model save as to: {}".format(model_save_path))
 
-train_data_path = ''.join(['../../data/traindata/sat_urban_nrg/binary/',dict_target[FLAG_TARGET_CLASS], '/'])
+train_data_path = ''.join(['../../data/traindata/sat_urban_4bands/binary/',dict_target[FLAG_TARGET_CLASS], '/'])
 print("traindata from: {}".format(train_data_path))
 
-
-def load_img(path, grayscale=False):
-    if grayscale:
-        img = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
-    else:
-        img = cv2.imread(path)
-        img = np.array(img, dtype="float") / 255.0  # MY image preprocessing
-    return img
 
 
 """get the train file name and divide to train and val parts"""
@@ -90,12 +91,12 @@ def generateData(batch_size, data=[]):
         for i in (range(len(data))):
             url = data[i]
             batch += 1
-            img = load_img(train_data_path + 'src/' + url)
+            _, img = load_img_normalization(im_bands, (train_data_path + 'src/' + url), data_type=im_type)
 
             # Adapt dim_ordering automatically
             img = img_to_array(img)
             train_data.append(img)
-            label = load_img(train_data_path + 'label/' + url, grayscale=True)
+            _, label = load_img_normalization(1, (train_data_path + 'label/' + url))
             label = img_to_array(label)
             train_label.append(label)
             if batch % batch_size == 0:
@@ -120,12 +121,12 @@ def generateValidData(batch_size, data=[]):
         for i in (range(len(data))):
             url = data[i]
             batch += 1
-            img = load_img(train_data_path + 'src/' + url)
+            _, img = load_img_normalization(im_bands, (train_data_path + 'src/' + url), data_type=im_type)
 
             # Adapt dim_ordering automatically
             img = img_to_array(img)
             valid_data.append(img)
-            label = load_img(train_data_path + 'label/' + url, grayscale=True)
+            _, label = load_img_normalization(1, (train_data_path + 'label/' + url))
             label = img_to_array(label)
             valid_label.append(label)
             if batch % batch_size == 0:
@@ -164,8 +165,9 @@ def train(model,model_path):
     EPOCHS = 100  # should be 10 or bigger number
     BS = 32
 
-    if os.path.isfile(model_path):
-        model.load_weights(model_path)
+    if os.path.isfile(base_model):
+        print("load last weight from:{}".format(base_model))
+        model.load_weights(base_model)
 
 
     model_checkpoint = ModelCheckpoint(
@@ -208,11 +210,7 @@ def train(model,model_path):
     print ("the number of train data is", train_numb)
     print ("the number of val data is", valid_numb)
 
-    # cw1 = {0: 1, 1: 100}
-    # # cw1 = {0: 1, 1: 1}
-    # cw2 = {i: n_label / 8 for i in range(n_label)}
-    # cw2[n_label] = 1 / 8
-    # cw = [cw1, cw2]
+
     H = model.fit_generator(generator=generateData(BS, train_set), steps_per_epoch=train_numb // BS, epochs=EPOCHS,
                             verbose=1,
                             validation_data=generateValidData(BS, val_set), validation_steps=valid_numb // BS,
@@ -233,7 +231,7 @@ def train(model,model_path):
     plt.ylabel("Loss/Accuracy")
     plt.legend(loc="lower left")
     fig_train_acc = ''.join(['../../data/models/train_acc_', dict_network[FLAG_USING_NETWORK], '_',
-                           dict_target[FLAG_TARGET_CLASS], '.png'])
+                           dict_target[FLAG_TARGET_CLASS], '_jaccard.png'])
     plt.savefig(fig_train_acc)
 
 
@@ -291,11 +289,11 @@ if __name__ == '__main__':
         print ("train data does not exist in the path:\n {}".format(train_data_path))
 
     if FLAG_USING_NETWORK==0:
-        model = binary_unet_jaccard(n_label)
+        model = binary_unet_jaccard(im_bands, n_label)
     elif FLAG_USING_NETWORK==1:
-        model = binary_fcnnet_jaccard(n_label)
+        model = binary_fcnnet_jaccard(im_bands,n_label)
     elif FLAG_USING_NETWORK==2:
-        model=binary_segnet_jaccard(n_label)
+        model=binary_segnet_jaccard(im_bands,n_label)
 
     print("Train by : {}".format(dict_network[FLAG_USING_NETWORK]))
     train(model, model_save_path)
@@ -309,7 +307,16 @@ if __name__ == '__main__':
             print("no file: {}".format(test_img_path))
             sys.exit(-1)
 
-        ret, input_img = load_img_normalization(test_img_path)
+        # ret, input_img = load_img_normalization(test_img_path)
+
+        input_img = load_img_by_gdal(test_img_path)
+        if im_type == UINT8:
+            input_img = input_img / 255.0
+        elif im_type == UINT10:
+            input_img = input_img / 1024.0
+        elif im_type == UINT16:
+            input_img = input_img / 65535.0
+        input_img = np.clip(input_img, 0.0, 1.0)
         # model_save_path ='../../data/models/unet_buildings_onehot.h5'
 
         new_model = load_model(model_save_path)

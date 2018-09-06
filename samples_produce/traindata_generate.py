@@ -7,6 +7,7 @@ import numpy as np
 from tqdm import tqdm
 import sys
 
+
 from ulitities.base_functions import get_file
 
 # seed = 1
@@ -245,9 +246,6 @@ def creat_dataset_binary(in_path, out_path, image_num=50000, mode='original'):
             cv2.imwrite((out_path + '/roads/label/%d.png' % g_count), label_roi)
             count += 1
             g_count += 1
-
-
-
 
 
         print("\n2: produce buildings labels---------------------")

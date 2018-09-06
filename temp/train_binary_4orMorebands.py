@@ -28,7 +28,7 @@ K.set_image_dim_ordering('tf')
 
 
 from semantic_segmentation_networks import binary_unet_4orMore, binary_fcnnet, binary_segnet
-from ulitities.base_functions import load_img_normalization, load_whole_img_by_gdal
+from ulitities.base_functions import load_img_normalization, load_img_by_gdal
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 seed = 7
@@ -195,8 +195,8 @@ def train(model, model_path):
     BS = 32
 
     """load last trained model"""
-    # if os.path.isfile(model_path):
-    #     model.load_weights(model_path)
+    if os.path.isfile(model_path):
+        model.load_weights(model_path)
 
     model_checkpoint = ModelCheckpoint(model_path, monitor='val_acc', save_best_only=True, mode='max')
     model_earlystop=EarlyStopping(monitor='val_acc', patience=5, verbose=0, mode='max')

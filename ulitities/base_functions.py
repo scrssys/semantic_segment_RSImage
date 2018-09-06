@@ -1,12 +1,42 @@
 
 #coding:utf-8
 import os
+import sys
 import cv2
 import numpy as np
 import gdal
 
 
-def load_img(path, grayscale=False):
+UINT8=0
+UINT10 =1
+UINT16=2
+
+class Base_ulitities:
+    def __init__(self):
+        return 0
+
+    def load_img_by_cv2(self, path, grayscale=False):
+
+        """
+
+        :param path: input image file path
+        :param grayscale:  bool value
+        :return: flag, image values
+        """
+        if not os.path.isfile(path):
+            print("input path is not a file!")
+            return -1, None
+        if grayscale:
+            img = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
+        else:
+            img = cv2.imread(path)
+        return 0, img
+
+
+
+
+
+def load_img_by_cv2(path, grayscale=False):
     """
 
     :param path: input image file path
@@ -22,7 +52,7 @@ def load_img(path, grayscale=False):
         img = cv2.imread(path)
     return 0, img
 
-def load_img_normalization(path, grayscale=False):
+def load_img_normalization_by_cv2(path, grayscale=False):
     if not os.path.isfile(path):
         print("input path is not a file!")
         return -1, None
@@ -34,22 +64,42 @@ def load_img_normalization(path, grayscale=False):
     return 0, img
 
 
-def load_whole_img_by_gdal(path):
+
+def load_img_by_gdal(path):
     dataset = gdal.Open(path)
-    if dataset is None:
-        print("Open file failed: {}".format(path))
-        return -1
+    assert(dataset is not None)
+
     y_height = dataset.RasterYSize
     x_width = dataset.RasterXSize
-    # assert(y_height==h and x_width==w)
     img = dataset.ReadAsArray(0,0,x_width,y_height)
-    img = np.array(img)
+    img = np.array(img, dtype="float")
     img = np.transpose(img, (1,2,0))
     del dataset
-    img = img / 255.0
-    # img = np.clip(img, 0.0, 1.0)
+
     return img
 
+def load_img_normalization(input_bands, path, data_type=UINT8):
+    if not os.path.isfile(path):
+        print("input path is not a file!")
+        return -1, None
+    if input_bands==1 and data_type==UINT8:
+        img = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
+    elif input_bands ==3 and data_type==UINT8:
+        img = cv2.imread(path)
+        img = np.array(img, dtype="float") / 255.0
+    else:
+        img = load_img_by_gdal(path)
+        if data_type==UINT8:
+            img = img/255.0
+        elif data_type==UINT10:
+            img = img / 1024.0
+        elif data_type == UINT16:
+            img = img / 65535.0
+        else:
+            print("Not recognize this type!")
+            sys.exit(-1)
+        img = np.clip(img, 0.0, 1.0)
+    return 0, img
 
 
 def get_file(file_dir, file_type='.png'):

@@ -21,12 +21,12 @@ img_h = 256
 
 valid_labels=[0,1,2]
 
-# FLAG_BINARY = False
-FLAG_BINARY = True
+FLAG_BINARY = False
+# FLAG_BINARY = True
 
 
-input_path = '../../data/originaldata/sat_urban_4bands/'
-
+# input_path = '../../data/originaldata/sat_urban_4bands/'
+input_path = '/media/omnisky/6b62a451-463c-41e2-b06c-57f95571fdec/Backups/data/originaldata/sat_urban_4bands/'
 
 output_path = '../../data/traindata/sat_urban_4bands/'
 
@@ -126,6 +126,7 @@ def creat_dataset_binary(in_path, out_path, image_num=50000, mode='original'):
         X_width = dataset.RasterXSize
         im_bands = dataset.RasterCount
         data_type = dataset.GetRasterBand(1).DataType
+
 
         src_img = dataset.ReadAsArray(0, 0, X_width, X_height)
         src_img = np.array(src_img)
@@ -321,6 +322,7 @@ def creat_dataset_multiclass(in_path, out_path, image_num=50000, mode='original'
             if len(np.unique(label_roi)) < 2:
                 if 0 in np.unique(label_roi):
                     continue
+            # print(np.unique(label_roi))
 
             if mode == 'augment':
                 src_roi, label_roi = data_augment(src_roi, label_roi, data_type)
@@ -332,7 +334,6 @@ def creat_dataset_multiclass(in_path, out_path, image_num=50000, mode='original'
 
             src_sample_file = out_path + '/src/%d.png' % g_count
             driver = gdal.GetDriverByName("GTiff")
-            # outdataset = driver.Create(src_sample_file, img_w, img_h, im_bands, gdal.GDT_UInt16)
             outdataset = driver.Create(src_sample_file, img_w, img_h, im_bands, data_type)
             if im_bands ==1:
                 outdataset.GetRasterBand(1).WriteArray(src_roi)
@@ -365,10 +366,10 @@ if __name__ == '__main__':
 
     if FLAG_BINARY==True:
         print("Produce labels for binary classification")
-        creat_dataset_binary(input_path, output_path, 3000, mode='augment')
+        creat_dataset_binary(input_path, output_path, 300000, mode='augment')
     else:
         print("produce labels for multiclass")
-        creat_dataset_multiclass(input_path, output_path, 200000, mode='augment')
+        creat_dataset_multiclass(input_path, output_path, 300000, mode='augment')
 
 
 

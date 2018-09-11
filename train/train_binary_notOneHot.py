@@ -30,7 +30,7 @@ K.set_image_dim_ordering('tf')
 from semantic_segmentation_networks import binary_unet, binary_fcnnet, binary_segnet
 from ulitities.base_functions import load_img_normalization,  load_img_by_gdal, UINT16, UINT8, UINT10
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "2"
+os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 seed = 7
 np.random.seed(seed)
 
@@ -41,14 +41,14 @@ img_h = 256
 
 n_label = 1
 
-im_bands =3
-im_type = UINT8  # UINT8:0, UINT10:1, UINT16:2
+im_bands =4
+im_type = UINT10  # UINT8:0, UINT10:1, UINT16:2
 
 dict_network = {0: 'unet', 1: 'fcnnet', 2: 'segnet'}
 dict_target = {0: 'roads', 1: 'buildings'}
 
 FLAG_USING_NETWORK = 0  # 0:unet; 1:fcn; 2:segnet;
-FLAG_TARGET_CLASS = 1   # 0:roads; 1:buildings
+FLAG_TARGET_CLASS = 0   # 0:roads; 1:buildings
 FLAG_MAKE_TEST=True
 
 date_time = time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime())
@@ -56,11 +56,11 @@ print("date and time: {}".format(date_time))
 
 base_model = ""
 
-model_save_path = ''.join(['../../data/models/sat_urban_rgb/',dict_network[FLAG_USING_NETWORK], '_', dict_target[FLAG_TARGET_CLASS],
-                           '_binary_notonehot_', date_time, '.h5'])
+model_save_path = ''.join(['../../data/models/sat_urban_4bands/',dict_network[FLAG_USING_NETWORK], '_',
+                           dict_target[FLAG_TARGET_CLASS], '_binary_notonehot_', date_time, '.h5'])
 print("model save as to: {}".format(model_save_path))
 
-train_data_path = ''.join(['../../data/traindata/sat_urban_rgb/binary/',dict_target[FLAG_TARGET_CLASS], '/'])
+train_data_path = ''.join(['../../data/traindata/sat_urban_4bands/binary/',dict_target[FLAG_TARGET_CLASS], '/'])
 print("traindata from: {}".format(train_data_path))
 
 
@@ -100,7 +100,7 @@ def generateData(batch_size, data=[]):
             img = img_to_array(img)
             train_data.append(img)
             # label = load_img(train_data_path + 'label/' + url, grayscale=True)
-            _, label = load_img_normalization(1, (train_data_path + 'label/' + url), data_type=im_type)
+            _, label = load_img_normalization(1, (train_data_path + 'label/' + url))
             label = img_to_array(label)
             train_label.append(label)
             if batch % batch_size == 0:
@@ -132,7 +132,7 @@ def generateValidData(batch_size, data=[]):
             img = img_to_array(img)
             valid_data.append(img)
             # label = load_img(train_data_path + 'label/' + url, grayscale=True)
-            _, label = load_img_normalization(1, (train_data_path + 'label/' + url), data_type=im_type)
+            _, label = load_img_normalization(1, (train_data_path + 'label/' + url))
             label = img_to_array(label)
             valid_label.append(label)
             if batch % batch_size == 0:

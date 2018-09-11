@@ -8,7 +8,7 @@ import sys
 import random
 import tensorflow as tf
 
-from ulitities.base_functions import load_img
+from ulitities.base_functions import load_img_by_cv2
 
 # seed = 1
 # random.seed(seed)
@@ -16,21 +16,24 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "5"
 
 valid_labels=[0,1,2]
 
-ref_file = '../../data/tmp/sample1.png'  # sample1, shuangliu_1test_label, yushui22_test_label
-pred_file = '../../data/predict/unet/sat_nrg/unet_binary_jaccard_combined_sample1_nrg.png'
-check_rate=0.5
+ref_file = '../../data/test/sat_test/yushui22_test_label.png'
+# sample1_label, shuangliu_1test_label, yushui22_test_label, lizhou_test_label,
+# jian11_test_label, ruoergai_52test_label,
+pred_file = '/home/omnisky/PycharmProjects/data/predict/unet/sat_4bands/' \
+            'unet_binary_jaccard_combined_yushui22_test_4bands1024.png'
+check_rate=1.0
 
 
 dict_class={0:'background', 1:'roads', 2:'buildings'}
 n_class = len(dict_class)
 
 if __name__=='__main__':
-    ret, ref_img = load_img(ref_file, grayscale=True)
+    ret, ref_img = load_img_by_cv2(ref_file, grayscale=True)
     if ret !=0:
         print("Open file failed: {}".format(ref_file))
         sys.exit(-1)
 
-    ret, pred_img = load_img(pred_file, grayscale=True)
+    ret, pred_img = load_img_by_cv2(pred_file, grayscale=True)
     if ret != 0:
         print("Open file failed: {}".format(pred_file))
         sys.exit(-2)
@@ -112,21 +115,21 @@ if __name__=='__main__':
     x_diagonal = np.array(x_diagonal)
     x_total = sum(x_row_plus)
     OA_acc = oa/(sum(x_row_plus))
-    print("OA:{}".format(OA_acc))
+    print("\nOA:{:.3f}".format(OA_acc))
     tmp = x_col_plus*x_row_plus
     kappa = (x_total*sum(x_diagonal)-sum(x_col_plus*x_row_plus))/np.float(x_total*x_total-sum(x_col_plus*x_row_plus))
 
-    print("Kappa:{}".format(kappa))
+    print("Kappa:{:.3f}".format(kappa))
 
     acc_roads = x_diagonal[1]/x_row_plus[1]
-    print("roads_accuracy= {}".format(acc_roads))
-    acc_buildings = x_diagonal[2] / x_row_plus[2]
-    print("buildings_accuracy= {}".format(acc_buildings))
-
+    print("\nroads_accuracy= {:.3f}".format(acc_roads))
     recall_roads = x_diagonal[1] / x_col_plus[1]
-    print("roads_recall= {}".format(recall_roads))
+    print("roads_recall= {:.3f}".format(recall_roads))
+
+    acc_buildings = x_diagonal[2] / x_row_plus[2]
+    print("\nbuildings_accuracy= {:.3f}".format(acc_buildings))
     recall_buildings = x_diagonal[2] / x_col_plus[2]
-    print("buildings_recall= {}".format(recall_buildings))
+    print("buildings_recall= {:.3f}".format(recall_buildings))
     gc.collect()
 
 

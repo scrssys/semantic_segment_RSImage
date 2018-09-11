@@ -7,17 +7,17 @@ import numpy as np
 from tqdm import tqdm
 import matplotlib.pyplot as plt
 
-from ulitities.base_functions import load_img
+from ulitities.base_functions import load_img_by_cv2
 
-FOREGROUND = 125# for segnet:40; for unet=125; define the foreground value
+FOREGROUND = 127# for segnet:40; for unet=127; define the foreground value
 
-ROAD_VALUE=125
+ROAD_VALUE=127
 BUILDING_VALUE=255
 
 """for unet"""
-input_path = '../../data/predict/unet/sat_nrg/'
-mask_pool = ['mask_binary_sample1_nrg_buildings_jaccard.png', 'mask_binary_sample1_nrg_roads_jaccard.png']
-output_file = input_path+'unet_binary_jaccard_combined_sample1_nrg.png'
+input_path = '../../data/predict/unet/sat_4bands/'
+mask_pool = ['mask_binary_yushui22_test_4bands1024_buildings_jaccard.png', 'mask_binary_yushui22_test_4bands1024_roads_jaccard.png']
+output_file = input_path+'unet_binary_jaccard_combined_yushui22_test_4bands1024.png'
 
 # mask_pool = ['mask_multiclass_3_buildings.png','mask_multiclass_3_roads.png']
 # output_file = '../../data/predict/unet/unet_multiclass_combined_3.png'
@@ -32,14 +32,14 @@ output_file = input_path+'unet_binary_jaccard_combined_sample1_nrg.png'
 
 
 def check_input_file(path,masks):
-    ret, img_1 = load_img(path+masks[0], grayscale=True)
+    ret, img_1 = load_img_by_cv2(path+masks[0], grayscale=True)
     assert (ret == 0)
 
     height, width = img_1.shape
     num_img = len(masks)
 
     for next_index in range(1,num_img):
-        next_ret, next_img=load_img(path+masks[next_index],grayscale=True)
+        next_ret, next_img=load_img_by_cv2(path+masks[next_index],grayscale=True)
         assert (next_ret ==0 )
         next_height, next_width = next_img.shape
         assert(height==next_height and width==next_width)
@@ -60,7 +60,7 @@ def combine_all_mask(height, width,input_path,mask_pool):
     """
     final_mask=np.zeros((height,width),np.uint8)
     for idx,file in enumerate(mask_pool):
-        ret,img = load_img(input_path+file,grayscale=True)
+        ret,img = load_img_by_cv2(input_path+file,grayscale=True)
         assert (ret == 0)
         label_value=0
         if 'road' in file:
@@ -85,8 +85,8 @@ def combine_all_mask(height, width,input_path,mask_pool):
                     # elif label_value == ROAD_VALUE and final_mask[i, j] != BUILDING_VALUE:
                     #     final_mask[i, j] = label_value
 
-    final_mask[final_mask==125]=1
-    final_mask[final_mask == 255] = 2
+    final_mask[final_mask==ROAD_VALUE]=1
+    final_mask[final_mask == BUILDING_VALUE] = 2
     return final_mask
 
 

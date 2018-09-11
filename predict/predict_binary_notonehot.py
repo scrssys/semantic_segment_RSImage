@@ -35,24 +35,28 @@ target_class =1
 window_size = 256
 # step = 128
 
-im_bands =3
-im_type = UINT8
+im_bands =4
+im_type = UINT10
 dict_network={0: 'unet', 1: 'fcnnet', 2: 'segnet'}
 dict_target={0: 'roads', 1: 'buildings'}
 FLAG_USING_NETWORK = 0  # 0:unet; 1:fcn; 2:segnet;
 
-FLAG_TARGET_CLASS = 1  # 0:roads; 1:buildings
+FLAG_TARGET_CLASS = 0  # 0:roads; 1:buildings
 
 FLAG_APPROACH_PREDICT = 1 # 0: original predict, 1: smooth predict
 
-img_file = '../../data/test/sample1.png'  # GF2_ruoergai_1, GF2_yilong11, qingbaijiang_clip_nrg, yushui22_test_nrg
+# img_file = '../../data/test/sample1.png'  # GF2_ruoergai_1, GF2_yilong11, qingbaijiang_clip_nrg, yushui22_test_nrg
 # shuangliu_1test_nrg, sample1_nrg, lizhou_test_4bands255
 # img_file = '../../data/test/sample1.png'
-
+img_file ='/home/omnisky/PycharmProjects/data/test/sat_test/shuangliu_1test_4bands1024.png'
+# 1)jian11_test_4bands1024, 2) shuangliu_1test_4bands1024,3) lizhou_test_4bands1024,
+# 4) yushui22_test_4bands1024,5) ruoergai_52test_4bands1024,  6) sample1_4bands1024
 
 # model_file = ''.join(['../../data/models/sat_urban_nrg/',dict_network[FLAG_USING_NETWORK], '_', dict_target[FLAG_TARGET_CLASS],'_binary_jaccard.h5'])
 # model_file = '/home/omnisky/PycharmProjects/data/models/sat_urban_4bands/unet_buildings_binary_jaccard.h5'
-model_file = '/home/omnisky/PycharmProjects/data/models/sat_urban_nrg/unet_buildings_binary_jaccard.h5'
+# model_file = '/home/omnisky/PycharmProjects/data/models/sat_urban_4bands/unet_roads_binary_jaccard_2018-09-07_02-15-43.h5'
+# model_file = '/home/omnisky/PycharmProjects/data/models/sat_urban_4bands/unet_buildings_binary_jaccard_2018-09-09_20-12-16.h5'
+model_file = '/home/omnisky/PycharmProjects/data/models/sat_urban_4bands/unet_roads_binary_notonehot_2018-09-11_10-39-04.h5'
 print("model: {}".format(model_file))
 
 if __name__ == '__main__':
@@ -103,7 +107,7 @@ if __name__ == '__main__':
             real_classes=target_class,  # output channels = 是真的类别，总类别-背景
             pred_func=smooth_predict_for_binary_notonehot
         )
-        output_file = ''.join(['../../data/predict/', dict_network[FLAG_USING_NETWORK],'/sat_nrg/mask_binary_',
+        output_file = ''.join(['../../data/predict/', dict_network[FLAG_USING_NETWORK],'/sat_4bands/mask_binary_',
                                abs_filename, '_', dict_target[FLAG_TARGET_CLASS],'_jaccard.png'])
         print("result save as to: {}".format(output_file))
 

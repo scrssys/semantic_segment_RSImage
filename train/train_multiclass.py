@@ -37,8 +37,8 @@ np.random.seed(seed)
 img_w = 256
 img_h = 256
 
-im_bands = 3
-im_type = UINT8
+im_bands = 4
+im_type = UINT10  # UINT8:0, UINT10:1, UINT16:2
 
 n_label = 1+2
 
@@ -52,11 +52,11 @@ print("date and time: {}".format(date_time))
 
 base_model = ""
 
-model_save_path = ''.join(['../../data/models/sat_urban_nrg/',dict_network[FLAG_USING_NETWORK],
+model_save_path = ''.join(['../../data/models/sat_urban_4bands/',dict_network[FLAG_USING_NETWORK],
                            '_multiclass_', date_time, '.h5'])
 print("model save as to: {}".format(model_save_path))
 
-train_data_path = ''.join(['../../data/traindata/sat_urban_nrg/multiclass/'])
+train_data_path = ''.join(['../../data/traindata/sat_urban_4bands/multiclass/'])
 print("traindata from: {}".format(train_data_path))
 
 
@@ -93,7 +93,7 @@ def generateData(batch_size, data=[]):
             # Adapt dim_ordering automatically
             img = img_to_array(img)
             train_data.append(img)
-            _, label = load_img_normalization(1, (train_data_path + 'label/' + url), data_type=im_type)
+            _, label = load_img_normalization(1, (train_data_path + 'label/' + url))
             label = img_to_array(label)
             train_label.append(label)
             if batch % batch_size == 0:
@@ -123,7 +123,7 @@ def generateValidData(batch_size, data=[]):
             # Adapt dim_ordering automatically
             img = img_to_array(img)
             valid_data.append(img)
-            _, label = load_img_normalization(1, (train_data_path + 'label/' + url), data_type=im_type)
+            _, label = load_img_normalization(1, (train_data_path + 'label/' + url))
             label = img_to_array(label)
             valid_label.append(label)
             if batch % batch_size == 0:

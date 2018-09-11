@@ -11,9 +11,10 @@ from tqdm import tqdm
 from ulitities.base_functions import get_file
 
 
-input_path = '../../data/originaldata/sat_urban_4bands/src_original/'
+input_path = '../../data/originaldata/sat_urban_4bands/test/'
 
-output_path = '../../data/originaldata/sat_urban_4bands/16bits/'
+# output_path = '../../data/originaldata/sat_urban_4bands/1024/'
+output_path = '/media/omnisky/6b62a451-463c-41e2-b06c-57f95571fdec/Backups/data/originaldata/sat_4bands/'
 # output_path = '../../data/originaldata/sat_urban_4bands/16bits/'
 absname = 'lizhou_test_4bands.png'  # fenyi11, qingbaijiang, yujiang4, lizhou_test_4bands
 
@@ -195,10 +196,9 @@ def convert_all_image_to_16bits():
             data = data.reshape(height * width)
             ind = np.where(data > 0)
             ind = np.array(ind)
-            # ind = ind.sort()
-            #         ind = np.sort(ind)
+
             a, b = ind.shape
-            print(b)
+            print("positive value number: {}\n".format(b))
             tmp = np.zeros(b, np.uint16)
             for j in range(b):
                 tmp[j] = data[ind[0, j]]

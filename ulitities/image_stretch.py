@@ -10,11 +10,11 @@ from tqdm import tqdm
 
 from ulitities.base_functions import get_file
 
-
-input_path = '../../data/originaldata/sat_urban_4bands/test/'
+NoData = 65536
+input_path = '/home/omnisky/PycharmProjects/data/originaldata/4bands/src/'
 
 # output_path = '../../data/originaldata/sat_urban_4bands/1024/'
-output_path = '/media/omnisky/6b62a451-463c-41e2-b06c-57f95571fdec/Backups/data/originaldata/sat_4bands/'
+output_path = '/home/omnisky/PycharmProjects/data/originaldata/4bands/test/'
 # output_path = '../../data/originaldata/sat_urban_4bands/16bits/'
 absname = 'lizhou_test_4bands.png'  # fenyi11, qingbaijiang, yujiang4, lizhou_test_4bands
 
@@ -44,7 +44,7 @@ def convert_single_image():
         std = data.std()
 
         data = data.reshape(height*width)
-        ind = np.where(data > 0)
+        ind = np.where((data > 0) & (data <NoData))
         ind = np.array(ind)
         # ind = ind.sort()
         ind = np.sort(ind)
@@ -119,7 +119,7 @@ def convert_all_image_to_8bits():
             mean = data.mean()
             std = data.std()
             data = data.reshape(height * width)
-            ind = np.where(data > 0)
+            ind = np.where((data > 0) & (data <NoData))
             ind = np.array(ind)
             # ind = ind.sort()
             #         ind = np.sort(ind)
@@ -167,12 +167,16 @@ def convert_all_image_to_8bits():
 
 
 def convert_all_image_to_16bits():
+    # src_files, tt = get_file(input_path,file_type='.tif')
     src_files, tt = get_file(input_path)
     assert (tt != 0)
 
     for file in tqdm(src_files):
 
         absname = os.path.split(file)[1]
+        absname = absname.split('.')[0]
+        # absname = 'shuidao.png'
+        absname = ''.join([absname, '.png'])
         print(absname)
         if not os.path.isfile(file):
             print("input file dose not exist:{}\n".format(file))
@@ -180,12 +184,18 @@ def convert_all_image_to_16bits():
             continue
 
         dataset = gdal.Open(file)
+        if dataset == None:
+            print("Open file failed: {}".format(file))
+            continue
+
         height = dataset.RasterYSize
         width = dataset.RasterXSize
         im_bands = dataset.RasterCount
+        im_type = dataset.GetRasterBand(1).DataType
         img = dataset.ReadAsArray(0, 0, width, height)
         del dataset
-        img = np.array(img, np.uint16)
+        # img = np.array(img, np.uint16)
+        img = np.array(img, np.float32)
         result = []
         for i in range(im_bands):
             data = np.array(img[i])
@@ -193,19 +203,22 @@ def convert_all_image_to_16bits():
             minm = data.min()
             mean = data.mean()
             std = data.std()
+            print(maxium, minm, mean, std)
             data = data.reshape(height * width)
-            ind = np.where(data > 0)
+            ind = np.where((data > 0) & (data < NoData))
             ind = np.array(ind)
 
             a, b = ind.shape
-            print("positive value number: {}\n".format(b))
-            tmp = np.zeros(b, np.uint16)
+            print("valid value number: {}\n".format(b))
+            # tmp = np.zeros(b, np.uint16)
+            tmp = np.zeros(b, np.float32)
             for j in range(b):
                 tmp[j] = data[ind[0, j]]
             tmaxium = tmp.max()
             tminm = tmp.min()
             tmean = tmp.mean()
             tstd = tmp.std()
+            print(tmaxium, tminm, tmean, tstd)
             tt = (data - tmean) / tstd  # first Z-score normalization
             tt = (tt + 4) * 1024 / 8.0-100
             tind = np.where(data == 0)
@@ -214,6 +227,12 @@ def convert_all_image_to_16bits():
             # tt = tt.astype(np.uint8)
             tt = tt.astype(np.uint16)
             tt[tind] = 0
+
+            smaxium = tt.max()
+            sminm = tt.min()
+            smean = tt.mean()
+            sstd = tt.std()
+            print(smaxium, sminm, smean, sstd)
 
             out = tt.reshape((height, width))
             result.append(out)

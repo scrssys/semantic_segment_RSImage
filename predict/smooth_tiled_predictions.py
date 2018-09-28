@@ -33,14 +33,22 @@ def _spline_window(window_size, power=2):
     """
     intersection = int(window_size/4)
     wind_outer = (abs(2*(scipy.signal.triang(window_size))) ** power)/2
+    # wind_outer = 2 * (scipy.signal.triang(window_size)) ** power
     wind_outer[intersection:-intersection] = 0
 
     wind_inner = 1 - (abs(2*(scipy.signal.triang(window_size) - 1)) ** power)/2
+    # wind_inner = 1 - 2 * (scipy.signal.triang(window_size) - 1) ** power
     wind_inner[:intersection] = 0
     wind_inner[-intersection:] = 0
 
     wind = wind_inner + wind_outer
     wind = wind / np.average(wind)
+
+    # x = len(wind)
+    # x = list(range(x))
+    # plt.plot(x, wind, 'k')
+    # area = sum(wind)
+    # print("window area = {}".format(area))
     return wind
 
 
@@ -60,11 +68,13 @@ def _window_2D(window_size, power=2):
         wind = _spline_window(window_size, power)
         wind = np.expand_dims(np.expand_dims(wind, 3), 3)
         wind = wind * wind.transpose(1, 0, 2)
+        # PLOT_PROGRESS = True
         if PLOT_PROGRESS:
             # For demo purpose, let's look once at the window:
-            plt.imshow(wind[:, :, 0], cmap="viridis")
-            plt.title("2D Windowing Function for a Smooth Blending of "
-                      "Overlapping Patches")
+            # plt.imshow(wind[:, :, 0], cmap="viridis")
+            plt.imshow(wind[:, :, 0], cmap="gray")
+            # plt.title("2D Windowing Function for a Smooth Blending of "
+            #           "Overlapping Patches")
             plt.show()
         cached_2d_windows[key] = wind
     return wind

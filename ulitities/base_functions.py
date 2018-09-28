@@ -44,7 +44,7 @@ def load_img_by_cv2(path, grayscale=False):
     :return: flag, image values
     """
     if not os.path.isfile(path):
-        print("input path is not a file!")
+        print("input is not a file!")
         return -1, None
     if grayscale:
         img = cv2.imread(path, cv2.IMREAD_GRAYSCALE)

@@ -27,7 +27,7 @@ from smooth_tiled_predictions import predict_img_with_smooth_windowing_multiclas
 """
    The following global variables should be put into meta data file 
 """
-os.environ["CUDA_VISIBLE_DEVICES"] = "5"
+os.environ["CUDA_VISIBLE_DEVICES"] = "4"
 
 
 target_class =1
@@ -36,7 +36,7 @@ window_size = 256
 # step = 128
 
 im_bands =4
-im_type = UINT10
+im_type = UINT10  # UINT10,UINT8,UINT16
 dict_network={0: 'unet', 1: 'fcnnet', 2: 'segnet'}
 dict_target={0: 'roads', 1: 'buildings'}
 FLAG_USING_NETWORK = 0  # 0:unet; 1:fcn; 2:segnet;
@@ -45,27 +45,21 @@ FLAG_TARGET_CLASS = 0  # 0:roads; 1:buildings
 
 FLAG_APPROACH_PREDICT = 1 # 0: original predict, 1: smooth predict
 
-# img_file = '../../data/test/sample1.png'  # GF2_ruoergai_1, GF2_yilong11, qingbaijiang_clip_nrg, yushui22_test_nrg
-# shuangliu_1test_nrg, sample1_nrg, lizhou_test_4bands255
-# img_file = '../../data/test/sample1.png'
-img_file ='/home/omnisky/PycharmProjects/data/test/sat_test/shuangliu_1test_4bands1024.png'
-# 1)jian11_test_4bands1024, 2) shuangliu_1test_4bands1024,3) lizhou_test_4bands1024,
-# 4) yushui22_test_4bands1024,5) ruoergai_52test_4bands1024,  6) sample1_4bands1024
+position = 'tongchuan_test' #  1)jian11_test, , 2)jiangyou, 3)yujiang1_test,
+# 4)cuiping, 5)shuangliu_1test, 6) tongchuan_test
+# 7) lizhou_test, 8) jianyang, 9)yushui22_test, 10) sample1, 11)ruoergai_52test
+# img_file = '../../data/test/sat_test/'+position+'_4bands1024.png'  # _rgb, _nrg, __4bands1024.
+img_file = '/home/omnisky/PycharmProjects/data/test/shuidao/GF2shuitian22_test_4bands10.png'
 
-# model_file = ''.join(['../../data/models/sat_urban_nrg/',dict_network[FLAG_USING_NETWORK], '_', dict_target[FLAG_TARGET_CLASS],'_binary_jaccard.h5'])
-# model_file = '/home/omnisky/PycharmProjects/data/models/sat_urban_4bands/unet_buildings_binary_jaccard.h5'
-# model_file = '/home/omnisky/PycharmProjects/data/models/sat_urban_4bands/unet_roads_binary_jaccard_2018-09-07_02-15-43.h5'
-# model_file = '/home/omnisky/PycharmProjects/data/models/sat_urban_4bands/unet_buildings_binary_jaccard_2018-09-09_20-12-16.h5'
-model_file = '/home/omnisky/PycharmProjects/data/models/sat_urban_4bands/unet_roads_binary_notonehot_2018-09-11_10-39-04.h5'
+# model_file = ''.join(['../../data/models/sat_urban_4bands/',dict_network[FLAG_USING_NETWORK], '_',
+#                       dict_target[FLAG_TARGET_CLASS],'_binary_notonehot_final.h5'])
+
+model_file = '/home/omnisky/PycharmProjects/data/models/ssj/shuidao_jaccard2018-09-25_22-18-49.h5'
 print("model: {}".format(model_file))
 
 if __name__ == '__main__':
 
     print("[INFO] opening image...")
-    # ret, input_img = load_img_normalization_by_cv2(img_file)
-    # if ret !=0:
-    #     print("Open input file failed: {}".format(img_file))
-    # sys.exit(-1)
 
     input_img = load_img_by_gdal(img_file)
     if im_type == UINT8:
@@ -76,6 +70,7 @@ if __name__ == '__main__':
         input_img = input_img / 65535.0
 
     input_img = np.clip(input_img, 0.0, 1.0)
+    input_img = input_img.astype(np.float32)
 
 
     abs_filename = os.path.split(img_file)[1]
@@ -93,9 +88,10 @@ if __name__ == '__main__':
     if FLAG_APPROACH_PREDICT==0:
         print("[INFO] predict image by orignal approach\n")
         result = orignal_predict_notonehot(input_img,im_bands, model, window_size)
-        output_file = ''.join(['../../data/predict/original_predict_',abs_filename, '.png'])
+        output_file = ''.join(['../../data/predict/',dict_network[FLAG_USING_NETWORK],'/sat_4bands/original_pred_',
+                               abs_filename, '_', dict_target[FLAG_TARGET_CLASS],'_notonehot.png'])
         print("result save as to: {}".format(output_file))
-        cv2.imwrite(output_file, result*100)
+        cv2.imwrite(output_file, result*128)
 
     elif FLAG_APPROACH_PREDICT==1:
         print("[INFO] predict image by smooth approach\n")
@@ -107,9 +103,17 @@ if __name__ == '__main__':
             real_classes=target_class,  # output channels = 是真的类别，总类别-背景
             pred_func=smooth_predict_for_binary_notonehot
         )
-        output_file = ''.join(['../../data/predict/', dict_network[FLAG_USING_NETWORK],'/sat_4bands/mask_binary_',
-                               abs_filename, '_', dict_target[FLAG_TARGET_CLASS],'_jaccard.png'])
+        """for shuidao test"""
+        result[result<128]=0
+        result[result>127]=1
+        output_file = '//home/omnisky/PycharmProjects/data/test/shuidao/GF2shuitian22_test_pred.png'
+
+        # output_file = ''.join(['../../data/predict/', dict_network[FLAG_USING_NETWORK],'/sat_4bands/mask_binary_',
+        #                        abs_filename, '_', dict_target[FLAG_TARGET_CLASS],'_notonehot.png'])
+
         print("result save as to: {}".format(output_file))
+
+
 
         cv2.imwrite(output_file, result)
 

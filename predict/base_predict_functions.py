@@ -65,6 +65,7 @@ def smooth_predict_for_binary_notonehot(small_img_patches, model, real_classes):
     """
 
     assert(real_classes ==1)  # only usefully for binary classification
+    # small_img_patches = small_img_patches.astype(np.float32)
 
     small_img_patches = np.array(small_img_patches)
     print (small_img_patches.shape)

@@ -27,7 +27,7 @@ from keras import backend as K
 K.set_image_dim_ordering('tf')
 
 
-from semantic_segmentation_networks import binary_unet, binary_fcnnet, binary_segnet
+from semantic_segmentation_networks import binary_unet, binary_fcnnet, binary_segnet, binary_unet_onlyjaccard, binary_unet_jaccard
 from ulitities.base_functions import load_img_normalization,  load_img_by_gdal, UINT16, UINT8, UINT10
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "1"
@@ -48,7 +48,7 @@ dict_network = {0: 'unet', 1: 'fcnnet', 2: 'segnet'}
 dict_target = {0: 'roads', 1: 'buildings'}
 
 FLAG_USING_NETWORK = 0  # 0:unet; 1:fcn; 2:segnet;
-FLAG_TARGET_CLASS = 0   # 0:roads; 1:buildings
+FLAG_TARGET_CLASS = 1   # 0:roads; 1:buildings
 FLAG_MAKE_TEST=True
 
 date_time = time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime())
@@ -56,13 +56,15 @@ print("date and time: {}".format(date_time))
 
 base_model = ""
 
-model_save_path = ''.join(['../../data/models/sat_urban_4bands/',dict_network[FLAG_USING_NETWORK], '_',
-                           dict_target[FLAG_TARGET_CLASS], '_binary_notonehot_', date_time, '.h5'])
+# model_save_path = ''.join(['../../data/models/sat_urban_4bands/',dict_network[FLAG_USING_NETWORK], '_',
+#                            dict_target[FLAG_TARGET_CLASS], '_binary_notonehot_', date_time, '.h5'])
+model_save_path = ''.join(['/home/omnisky/PycharmProjects/data/models/ssj/shuidao_jaccard', date_time, '.h5'])
 print("model save as to: {}".format(model_save_path))
 
-train_data_path = ''.join(['../../data/traindata/sat_urban_4bands/binary/',dict_target[FLAG_TARGET_CLASS], '/'])
+# train_data_path = ''.join(['../../data/traindata/sat_urban_4bands/binary/',dict_target[FLAG_TARGET_CLASS], '/'])
+#
+train_data_path = '/home/omnisky/PycharmProjects/data/traindata/shuidao/'
 print("traindata from: {}".format(train_data_path))
-
 
 """get the train file name and divide to train and val parts"""
 def get_train_val(val_rate=0.25):
@@ -296,7 +298,8 @@ if __name__ == '__main__':
         print ("train data does not exist in the path:\n {}".format(train_data_path))
 
     if FLAG_USING_NETWORK==0:
-        model = binary_unet(im_bands,n_label)
+        # model = binary_unet(im_bands,n_label)
+        model = binary_unet_jaccard(im_bands, n_label)
     elif FLAG_USING_NETWORK==1:
         model = binary_fcnnet(im_bands, n_label)
     elif FLAG_USING_NETWORK==2:

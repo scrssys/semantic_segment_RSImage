@@ -30,15 +30,15 @@ K.set_image_dim_ordering('tf')
 from semantic_segmentation_networks import multiclass_unet, multiclass_fcnnet, multiclass_segnet
 from ulitities.base_functions import load_img_normalization, load_img_by_gdal, UINT16, UINT8, UINT10
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "2"
+os.environ["CUDA_VISIBLE_DEVICES"] = "3"
 seed = 7
 np.random.seed(seed)
 
 img_w = 256
 img_h = 256
 
-im_bands = 4
-im_type = UINT10  # UINT8:0, UINT10:1, UINT16:2
+im_bands = 3
+im_type = UINT8  # UINT8:0, UINT10:1, UINT16:2
 
 n_label = 1+2
 
@@ -50,13 +50,13 @@ FLAG_MAKE_TEST=True
 date_time = time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime())
 print("date and time: {}".format(date_time))
 
-base_model = ""
+base_model = ''
 
-model_save_path = ''.join(['../../data/models/sat_urban_4bands/',dict_network[FLAG_USING_NETWORK],
+model_save_path = ''.join(['../../data/models/sat_urban_rgb/',dict_network[FLAG_USING_NETWORK],
                            '_multiclass_', date_time, '.h5'])
 print("model save as to: {}".format(model_save_path))
 
-train_data_path = ''.join(['../../data/traindata/sat_urban_4bands/multiclass/'])
+train_data_path = ''.join(['../../data/traindata/sat_urban_rgb/multiclass/'])
 print("traindata from: {}".format(train_data_path))
 
 

@@ -15,17 +15,24 @@ from ulitities.base_functions import load_img_by_cv2
 os.environ["CUDA_VISIBLE_DEVICES"] = "5"
 
 valid_labels=[0,1,2]
-
-ref_file = '../../data/test/sat_test/yushui22_test_label.png'
-# sample1_label, shuangliu_1test_label, yushui22_test_label, lizhou_test_label,
-# jian11_test_label, ruoergai_52test_label,
-pred_file = '/home/omnisky/PycharmProjects/data/predict/unet/sat_4bands/' \
-            'unet_binary_jaccard_combined_yushui22_test_4bands1024.png'
-check_rate=1.0
-
-
+# valid_labels=[0,1]
 dict_class={0:'background', 1:'roads', 2:'buildings'}
+# dict_class={0:'background', 1:'shuidao'}
 n_class = len(dict_class)
+
+ref_file = '../../data/test/sat_test/tongchuan_test_label.png'
+# ref_file = '/home/omnisky/PycharmProjects/data/test/shuidao/GF2shuitian22_test_label2.png'
+# 1) jian11_test_label, 2) jiangyou_label, 3) yujiang_new_label,
+# 4) cuiping_label, 5) shuangliu_1test_label, 6) tongchuan_test_label
+# sample1_label, yushui22_test_label, lizhou_test_label,
+#  ruoergai_52test_label, jianyang_label,
+pred_file = '/home/omnisky/PycharmProjects/data/predict/unet/sat_4bands/' \
+            'unet_notonehot_tongchuan_4bands_combined.png'
+# pred_file = '/home/omnisky/PycharmProjects/data/test/shuidao/GF2shuitian22_test_pred.png'
+check_rate=0.9
+
+
+
 
 if __name__=='__main__':
     ret, ref_img = load_img_by_cv2(ref_file, grayscale=True)
@@ -34,9 +41,12 @@ if __name__=='__main__':
         sys.exit(-1)
 
     ret, pred_img = load_img_by_cv2(pred_file, grayscale=True)
+    print(np.unique(pred_img))
     if ret != 0:
         print("Open file failed: {}".format(pred_file))
         sys.exit(-2)
+
+    print("\nfile: {}".format(os.path.split(pred_file)[1]))
 
 
     print("[INFO] Calculate confusion matrix..\n")
@@ -47,8 +57,9 @@ if __name__=='__main__':
         print("image sizes of reference and predicted are not equal!\n")
 
     img_length = height*width
+    assert(check_rate>0.001 and check_rate<=1.00)
     num_checkpoints = np.int(img_length*check_rate)
-    print("{} points will be used to evaluate accuracy!\n".format(num_checkpoints))
+
     pos = random.sample(range(img_length),num_checkpoints)
 
 
@@ -67,6 +78,7 @@ if __name__=='__main__':
 
     valid_index.sort()
     valid_num_checkpoints=len(valid_index)
+    print("{}points have been selected, but {} points will be used to evaluate accuracy!\n".format(num_checkpoints, valid_num_checkpoints))
     # valid_ref=ref_img[valid_index]
     valid_ref = labels[valid_index]
     print("valid value in reference image: {}".format(np.unique(valid_ref)))
@@ -121,15 +133,29 @@ if __name__=='__main__':
 
     print("Kappa:{:.3f}".format(kappa))
 
-    acc_roads = x_diagonal[1]/x_row_plus[1]
-    print("\nroads_accuracy= {:.3f}".format(acc_roads))
-    recall_roads = x_diagonal[1] / x_col_plus[1]
-    print("roads_recall= {:.3f}".format(recall_roads))
+    for i in range(n_class-1):
+        i = i+1
+        prec = x_diagonal[i] / x_row_plus[i]
+        print("\n{}_accuracy= {:.3f}".format(dict_class[i], prec))
+        recall = x_diagonal[i] / x_col_plus[i]
+        print("{}_recall= {:.3f}".format(dict_class[i], recall))
+        iou = x_diagonal[i] / (x_row_plus[i] + x_col_plus[i] - x_diagonal[i])
+        print("{}_iou {:.3f}".format(dict_class[i], iou))
 
-    acc_buildings = x_diagonal[2] / x_row_plus[2]
-    print("\nbuildings_accuracy= {:.3f}".format(acc_buildings))
-    recall_buildings = x_diagonal[2] / x_col_plus[2]
-    print("buildings_recall= {:.3f}".format(recall_buildings))
+    # acc_roads = x_diagonal[1]/x_row_plus[1]
+    # print("\nroads_accuracy= {:.3f}".format(acc_roads))
+    # recall_roads = x_diagonal[1] / x_col_plus[1]
+    # print("roads_recall= {:.3f}".format(recall_roads))
+    # iou_roads = x_diagonal[1]/(x_row_plus[1]+x_col_plus[1]-x_diagonal[1])
+    # print("roads_iou {:.3f}".format(iou_roads))
+    #
+    # acc_buildings = x_diagonal[2] / x_row_plus[2]
+    # print("\nbuildings_accuracy= {:.3f}".format(acc_buildings))
+    # recall_buildings = x_diagonal[2] / x_col_plus[2]
+    # print("buildings_recall= {:.3f}".format(recall_buildings))
+    # iou_buildings = x_diagonal[2] / (x_row_plus[2] + x_col_plus[2] - x_diagonal[2])
+    # print("buildings_iou {:.3f}".format(iou_buildings))
+
     gc.collect()
 
 

@@ -16,8 +16,8 @@ BUILDING_VALUE=255
 
 """for unet"""
 input_path = '../../data/predict/unet/sat_4bands/'
-mask_pool = ['mask_binary_yushui22_test_4bands1024_buildings_jaccard.png', 'mask_binary_yushui22_test_4bands1024_roads_jaccard.png']
-output_file = input_path+'unet_binary_jaccard_combined_yushui22_test_4bands1024.png'
+mask_pool = ['mask_binary_jian11_test_4bands1024_buildings_notonehot.png', 'mask_binary_jian11_test_4bands1024_roads_notonehot.png']
+output_file = input_path+'unet_notonehot_jian11_4bands_combined.png'
 
 # mask_pool = ['mask_multiclass_3_buildings.png','mask_multiclass_3_roads.png']
 # output_file = '../../data/predict/unet/unet_multiclass_combined_3.png'

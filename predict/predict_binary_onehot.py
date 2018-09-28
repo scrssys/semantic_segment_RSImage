@@ -34,7 +34,7 @@ target_class =1
 
 window_size = 256
 # step = 128
-im_bands = 4
+im_bands = 3
 im_type = UINT8
 dict_network={0: 'unet', 1: 'fcnnet', 2: 'segnet'}
 dict_target={0: 'roads', 1: 'buildings'}

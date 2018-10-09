@@ -15,9 +15,11 @@ ROAD_VALUE=127
 BUILDING_VALUE=255
 
 """for unet"""
-input_path = '../../data/predict/unet/sat_4bands/'
-mask_pool = ['mask_binary_jian11_test_4bands1024_buildings_notonehot.png', 'mask_binary_jian11_test_4bands1024_roads_notonehot.png']
-output_file = input_path+'unet_notonehot_jian11_4bands_combined.png'
+# input_path = '../../data/predict/unet/sat_4bands/'
+input_path = '../../data/test/paper/pred_288/'
+mask_pool = ['mask_binary_jian11_test_4bands1024_buildings_jaccard.png', 'mask_binary_jian11_test_4bands1024_roads_jaccard.png']
+output_file = input_path+'/combined/unet_jaccard_jian11_test_4bands_combined.png'
+print(output_file)
 
 # mask_pool = ['mask_multiclass_3_buildings.png','mask_multiclass_3_roads.png']
 # output_file = '../../data/predict/unet/unet_multiclass_combined_3.png'

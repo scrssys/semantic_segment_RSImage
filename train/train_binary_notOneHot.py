@@ -299,11 +299,11 @@ if __name__ == '__main__':
 
     if FLAG_USING_NETWORK==0:
         # model = binary_unet(im_bands,n_label)
-        model = binary_unet_jaccard(im_bands, n_label)
+        model = binary_unet_jaccard(img_w, img_h, im_bands, n_label)
     elif FLAG_USING_NETWORK==1:
-        model = binary_fcnnet(im_bands, n_label)
+        model = binary_fcnnet(img_w, img_h, im_bands, n_label)
     elif FLAG_USING_NETWORK==2:
-        model=binary_segnet(im_bands, n_label)
+        model=binary_segnet(img_w, img_h, im_bands, n_label)
 
     print("Train by : {}".format(dict_network[FLAG_USING_NETWORK]))
     train(model)

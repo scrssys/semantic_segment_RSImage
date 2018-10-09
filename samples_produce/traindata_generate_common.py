@@ -16,10 +16,10 @@ from ulitities.base_functions import get_file, UINT16,UINT8,UINT10
 # seed = 1
 # np.random.seed(seed)
 
-img_w = 256
-img_h = 256
+img_w = 320
+img_h = 320
 
-valid_labels=[0,1,2]
+valid_labels=[0,1,2] # ignore Nodata
 target_label = 1 # used for binary: 1: roads or shuidao; 2: buildings
 
 # FLAG_BINARY = False
@@ -27,11 +27,14 @@ FLAG_BINARY = True
 
 
 # input_path = '../../data/originaldata/sat_urban_4bands/'
-input_path = '/media/omnisky/6b62a451-463c-41e2-b06c-57f95571fdec/Backups/data/originaldata/ssj/'
+# input_path = '/media/omnisky/6b62a451-463c-41e2-b06c-57f95571fdec/Backups/data/originaldata/ssj/'
+input_path = '/media/omnisky/6b62a451-463c-41e2-b06c-57f95571fdec/Backups/data/originaldata/sat_urban_4bands/'
 
 # output_path = '../../data/traindata/sat_urban_nrg/multiclass/'
 # output_path = '../../data/traindata/sat_urban_nrg/binary/roads/'
-output_path = '../../data/traindata/shuidao/'
+# output_path = '../../data/traindata/shuidao/'
+# output_path = '../../data/traindata/sat_4bands_224/binary/buildings/'
+output_path = '/media/omnisky/6b62a451-463c-41e2-b06c-57f95571fdec/Backups/data/traindata/sat_4bands_320/binary/roads/'
 
 def rotate(xb, yb, angle):
     xb = np.transpose(xb, (1, 2, 0))
@@ -292,7 +295,7 @@ if __name__ == '__main__':
 
     if FLAG_BINARY==True:
         print("Produce labels for binary classification")
-        produce_training_samples_binary(input_path, output_path, 50000, mode='augment')
+        produce_training_samples_binary(input_path, output_path, 300000, mode='augment')
     else:
         print("produce labels for multiclass")
         produce_training_samples_multiclass(input_path, output_path, 300000, mode='augment')

@@ -30,12 +30,12 @@ K.set_image_dim_ordering('tf')
 from semantic_segmentation_networks import binary_unet_jaccard, binary_fcnnet_jaccard, binary_segnet_jaccard
 from ulitities.base_functions import load_img_normalization, load_img_by_gdal, UINT16, UINT8, UINT10
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 seed = 7
 np.random.seed(seed)
 
-img_w = 320
-img_h = 320
+img_w = 224 # 224, 256, 288
+img_h = 224
 
 n_label = 1
 
@@ -46,7 +46,7 @@ dict_network={0: 'unet', 1: 'fcnnet', 2: 'segnet'}
 dict_target={0: 'roads', 1: 'buildings'}
 
 FLAG_USING_NETWORK = 0  # 0:unet; 1:fcn; 2:segnet;
-FLAG_TARGET_CLASS = 0   # 0:roads; 1:buildings
+FLAG_TARGET_CLASS = 1   # 0:roads; 1:buildings
 FLAG_MAKE_TEST=True
 
 date_time = time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime())
@@ -62,10 +62,9 @@ model_save_path = ''.join(['../../data/models/sat_urban_4bands/',dict_network[FL
 # model_save_path = ''.join(['/home/omnisky/PycharmProjects/data/models/ssj/shuidao_jaccard_', date_time, '.h5'])
 print("model save as to: {}".format(model_save_path))
 
-# train_data_path = ''.join(['../../data/traindata/sat_urban_4bands/binary/',dict_target[FLAG_TARGET_CLASS], '/'])
+train_data_path = ''.join(['../../data/traindata/sat_4bands_224/binary/',dict_target[FLAG_TARGET_CLASS], '/'])
 # train_data_path = '/home/omnisky/PycharmProjects/data/traindata/shuidao/'
-# train_data_path = ''.join(['/media/omnisky/6b62a451-463c-41e2-b06c-57f95571fdec/Backups/data/traindata/sat_urban_4bands/binary/',dict_target[FLAG_TARGET_CLASS], '/'])
-train_data_path = '/media/omnisky/6b62a451-463c-41e2-b06c-57f95571fdec/Backups/data/traindata/sat_4bands_320/binary/roads/'
+# train_data_path = '/media/omnisky/6b62a451-463c-41e2-b06c-57f95571fdec/Backups/data/traindata/sat_urban_4bands/binary/buildings/'
 print("traindata from: {}".format(train_data_path))
 
 

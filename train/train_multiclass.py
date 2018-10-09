@@ -261,11 +261,11 @@ if __name__ == '__main__':
         print ("train data does not exist in the path:\n {}".format(train_data_path))
 
     if FLAG_USING_NETWORK==0:
-        model = multiclass_unet(im_bands, n_label)
+        model = multiclass_unet(img_w, img_h, im_bands, n_label)
     elif FLAG_USING_NETWORK==1:
-        model = multiclass_fcnnet(im_bands, n_label)
+        model = multiclass_fcnnet(img_w, img_h, im_bands, n_label)
     elif FLAG_USING_NETWORK==2:
-        model=multiclass_segnet(im_bands, n_label)
+        model=multiclass_segnet(img_w, img_h, im_bands, n_label)
 
     print("Train by : {}".format(dict_network[FLAG_USING_NETWORK]))
     train(model)

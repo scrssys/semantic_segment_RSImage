@@ -19,11 +19,11 @@ from keras import backend as K
 K.set_image_dim_ordering('tf')
 K.clear_session()
 
-from base_predict_functions import orignal_predict_notonehot, smooth_predict_for_binary_notonehot
-from ulitities.base_functions import load_img_normalization_by_cv2, load_img_by_gdal, UINT10,UINT8,UINT16
+from base_predict_functions import orignal_predict_onehot, smooth_predict_for_binary_onehot
+from ulitities.base_functions import load_img_normalization, load_img_by_gdal, UINT10,UINT8,UINT16
 from smooth_tiled_predictions import predict_img_with_smooth_windowing_multiclassbands
 # from semantic_segmentation_networks import jaccard_coef,jaccard_coef_int
-
+from ulitities.base_functions import get_file
 """
    The following global variables should be put into meta data file 
 """
@@ -34,38 +34,27 @@ target_class =1
 
 window_size = 256
 # step = 128
-
-im_bands =4
-im_type = UINT10  # UINT10,UINT8,UINT16
+im_bands = 3
+im_type = UINT8
 dict_network={0: 'unet', 1: 'fcnnet', 2: 'segnet'}
 dict_target={0: 'roads', 1: 'buildings'}
 FLAG_USING_NETWORK = 0  # 0:unet; 1:fcn; 2:segnet;
 
 FLAG_TARGET_CLASS = 1  # 0:roads; 1:buildings
 
-FLAG_APPROACH_PREDICT = 1 # 0: original predict, 1: smooth predict
+FLAG_APPROACH_PREDICT = 0 # 0: original predict, 1: smooth predict
 
-position = 'jiangyou' #  1)jian11_test, , 2)jiangyou, 3)yujiang_test,
-# 4)cuiping, 5)shuangliu_1test, 6) tongchuan_test
-# 7) lizhou_test, 8) jianyang, 9)yushui22_test, 10) sample1, 11)ruoergai_52test
-img_file = '../../data/test/paper/images/'+position+'_4bands1024.png'  # _rgb, _nrg, _4bands1024.
-# img_file = '../../data/test/shuidao.png'
+input_path = '../../data/test/paper/images/'
+output_path = ''.join(['../../data/test/paper/pred_', str(window_size)])
 
-
-model_file = ''.join(['../../data/models/sat_urban_4bands/',dict_network[FLAG_USING_NETWORK], '_',
-                      dict_target[FLAG_TARGET_CLASS],'_binary_onlyjaccard_final.h5'])
-
-# model_file = '/home/omnisky/PycharmProjects/data/models/sat_urban_4bands/unet_buildings_binary_onlyjaccard_2018-09-29_18-55-11.h5'
+# model_file = ''.join(['../../data/models/sat_urban_nrg/',dict_network[FLAG_USING_NETWORK], '_', dict_target[FLAG_TARGET_CLASS],'_binary.h5'])
+# model_file = '/home/omnisky/PycharmProjects/data/models/sat_urban_nrg/unet_buildings_binary2_onehot.h5'
+model_file='/home/omnisky/PycharmProjects/data/models/sat_urban_4bands/unet_buildings_binary_onehot.h5'
 print("model: {}".format(model_file))
 
-if __name__ == '__main__':
+def predict_binary_onehot(img_file, output_file):
 
     print("[INFO] opening image...")
-    # ret, input_img = load_img_normalization_by_cv2(img_file)
-    # if ret !=0:
-    #     print("Open input file failed: {}".format(img_file))
-    # sys.exit(-1)
-
     input_img = load_img_by_gdal(img_file)
     if im_type == UINT8:
         input_img = input_img / 255.0
@@ -73,13 +62,7 @@ if __name__ == '__main__':
         input_img = input_img / 1024.0
     elif im_type == UINT16:
         input_img = input_img / 65535.0
-
     input_img = np.clip(input_img, 0.0, 1.0)
-
-
-    abs_filename = os.path.split(img_file)[1]
-    abs_filename = abs_filename.split(".")[0]
-    print (abs_filename)
 
     """checke model file"""
     print("model file: {}".format(model_file))
@@ -91,11 +74,13 @@ if __name__ == '__main__':
 
     if FLAG_APPROACH_PREDICT==0:
         print("[INFO] predict image by orignal approach\n")
-        result = orignal_predict_notonehot(input_img,im_bands, model, window_size)
-        output_file = ''.join(['../../data/predict/',dict_network[FLAG_USING_NETWORK],'/sat_4bands/original_pred_',
-                               abs_filename, '_', dict_target[FLAG_TARGET_CLASS],'_onlyjaccard.png'])
+        result = orignal_predict_onehot(input_img, im_bands, model, window_size)
+        abs_filename = os.path.split(img_file)[1]
+        abs_filename = abs_filename.split(".")[0]
+        print(abs_filename)
+        output_file = ''.join(['../../data/predict/original_predict_',abs_filename, '_onehot.png'])
         print("result save as to: {}".format(output_file))
-        cv2.imwrite(output_file, result*128)
+        cv2.imwrite(output_file, result*100)
 
     elif FLAG_APPROACH_PREDICT==1:
         print("[INFO] predict image by smooth approach\n")
@@ -105,17 +90,33 @@ if __name__ == '__main__':
             window_size=window_size,
             subdivisions=2,
             real_classes=target_class,  # output channels = 是真的类别，总类别-背景
-            pred_func=smooth_predict_for_binary_notonehot
+            pred_func=smooth_predict_for_binary_onehot,
+            PLOT_PROGRESS=False
         )
-        # output_file = ''.join(['../../data/predict/', dict_network[FLAG_USING_NETWORK],'/sat_4bands/mask_binary_',
-        #                        abs_filename, '_', dict_target[FLAG_TARGET_CLASS],'_onlyjaccard.png'])
-
-        output_file = ''.join(['../../data/test/paper/pred/mask_binary_',
-                               abs_filename, '_', dict_target[FLAG_TARGET_CLASS], '_onlyjaccard.png'])
-        print("result save as to: {}".format(output_file))
 
         cv2.imwrite(output_file, result)
+        print("Saved to: {}".format(output_file))
 
     gc.collect()
 
 
+if __name__ == '__main__':
+
+    all_files, num = get_file(input_path)
+    if num == 0:
+        print("There is no file in path:{}".format(input_path))
+        sys.exit(-1)
+
+    """checke model file"""
+    print("model file: {}".format(model_file))
+    if not os.path.isfile(model_file):
+        print("model does not exist:{}".format(model_file))
+        sys.exit(-2)
+
+    for in_file in all_files:
+        abs_filename = os.path.split(in_file)[1]
+        abs_filename = abs_filename.split(".")[0]
+        print(abs_filename)
+        out_file = ''.join([output_path, '/mask_binary_',
+                            abs_filename, '_', dict_target[FLAG_TARGET_CLASS], '_onehot.png'])
+        predict_binary_onehot(in_file, out_file)

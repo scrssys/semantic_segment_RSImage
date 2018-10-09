@@ -46,7 +46,7 @@ dict_network={0: 'unet', 1: 'fcnnet', 2: 'segnet'}
 dict_target={0: 'roads', 1: 'buildings'}
 
 FLAG_USING_NETWORK = 0  # 0:unet; 1:fcn; 2:segnet;
-FLAG_TARGET_CLASS = 0   # 0:roads; 1:buildings
+FLAG_TARGET_CLASS = 1   # 0:roads; 1:buildings
 FLAG_MAKE_TEST=True
 
 date_time = time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime())
@@ -55,7 +55,7 @@ print("date and time: {}".format(date_time))
 
 # base_model = ''.join(['../../data/models/sat_urban_rgb/',dict_network[FLAG_USING_NETWORK], '_',
 #                       dict_target[FLAG_TARGET_CLASS],'_binary_jaccard_final.h5'])
-base_model = ''
+base_model = '/home/omnisky/PycharmProjects/data/models/sat_urban_4bands/unet_roads_binary_onlyjaccard_2018-09-23_15-53-58.h5'
 
 model_save_path = ''.join(['../../data/models/sat_urban_4bands/',dict_network[FLAG_USING_NETWORK], '_',
                            dict_target[FLAG_TARGET_CLASS],'_binary_onlyjaccard_', date_time, '.h5'])
@@ -294,11 +294,11 @@ if __name__ == '__main__':
         print ("train data does not exist in the path:\n {}".format(train_data_path))
 
     if FLAG_USING_NETWORK==0:
-        model = binary_unet_onlyjaccard(im_bands, n_label)
+        model = binary_unet_onlyjaccard(img_w, img_h, im_bands, n_label)
     elif FLAG_USING_NETWORK==1:
-        model = binary_fcnnet_jaccard(im_bands,n_label)
+        model = binary_fcnnet_jaccard(img_w, img_h, im_bands,n_label)
     elif FLAG_USING_NETWORK==2:
-        model=binary_segnet_jaccard(im_bands,n_label)
+        model=binary_segnet_jaccard(img_w, img_h, im_bands,n_label)
 
     print("Train by : {}".format(dict_network[FLAG_USING_NETWORK]))
     train(model, model_save_path)

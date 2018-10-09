@@ -414,14 +414,14 @@ def predict_img_with_smooth_windowing(input_img, window_size, subdivisions, nb_c
     return prd
 
 
-def predict_img_with_smooth_windowing_multiclassbands(input_img, model, window_size, subdivisions, real_classes, pred_func, PLOT_PROGRESS = True):
+def predict_img_with_smooth_windowing_multiclassbands(input_img, model, window_size, subdivisions, real_classes, pred_func):
     """
     Apply the `pred_func` function to square patches of the image, and overlap
     the predictions to merge them smoothly.
 
     :return :real_class channels, range[0,255] corresponding to [0,1] probabilities
     """
-
+    PLOT_PROGRESS = True
     pad = _pad_img(input_img, window_size, subdivisions)
     pads = _rotate_mirror_do(pad)
 

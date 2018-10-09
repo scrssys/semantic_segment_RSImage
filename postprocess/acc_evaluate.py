@@ -20,16 +20,21 @@ dict_class={0:'background', 1:'roads', 2:'buildings'}
 # dict_class={0:'background', 1:'shuidao'}
 n_class = len(dict_class)
 
-ref_file = '../../data/test/sat_test/tongchuan_test_label.png'
+
 # ref_file = '/home/omnisky/PycharmProjects/data/test/shuidao/GF2shuitian22_test_label2.png'
-# 1) jian11_test_label, 2) jiangyou_label, 3) yujiang_new_label,
+ref_file = '../../data/test/paper/label/yujiang_test_label.png'
+# 1) jian11_test_label, 2) jiangyou_label, 3) yujiang_test_label,
 # 4) cuiping_label, 5) shuangliu_1test_label, 6) tongchuan_test_label
 # sample1_label, yushui22_test_label, lizhou_test_label,
 #  ruoergai_52test_label, jianyang_label,
-pred_file = '/home/omnisky/PycharmProjects/data/predict/unet/sat_4bands/' \
-            'unet_notonehot_tongchuan_4bands_combined.png'
-# pred_file = '/home/omnisky/PycharmProjects/data/test/shuidao/GF2shuitian22_test_pred.png'
-check_rate=0.9
+# pred_file = '/home/omnisky/PycharmProjects/data/predict/unet/sat_4bands/' \
+#             'unet_notonehot_tongchuan_4bands_combined.png'
+# pred_file = '../../data/test/paper/pred_256/combined/' \
+#             'unet_multiclass_jian_4bands_combined.png'
+
+pred_file = '../../data/test/paper/voted/' \
+            'unet_yujiang_4bands_voted2.png'
+check_rate=1.0
 
 
 

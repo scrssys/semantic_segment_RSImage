@@ -27,7 +27,7 @@ from smooth_tiled_predictions import predict_img_with_smooth_windowing_multiclas
 """
    The following global variables should be put into meta data file 
 """
-os.environ["CUDA_VISIBLE_DEVICES"] = "4"
+os.environ["CUDA_VISIBLE_DEVICES"] = "5"
 
 
 target_class =1
@@ -41,21 +41,22 @@ dict_network={0: 'unet', 1: 'fcnnet', 2: 'segnet'}
 dict_target={0: 'roads', 1: 'buildings'}
 FLAG_USING_NETWORK = 0  # 0:unet; 1:fcn; 2:segnet;
 
-FLAG_TARGET_CLASS = 0  # 0:roads; 1:buildings
+FLAG_TARGET_CLASS = 1  # 0:roads; 1:buildings
 
 FLAG_APPROACH_PREDICT = 1 # 0: original predict, 1: smooth predict
 
-position = 'tongchuan_test' #  1)jian11_test, , 2)jiangyou, 3)yujiang1_test,
+position = 'tongchuan_test' #  1)jian11_test, , 2)jiangyou, 3)yujiang_test,
 # 4)cuiping, 5)shuangliu_1test, 6) tongchuan_test
 # 7) lizhou_test, 8) jianyang, 9)yushui22_test, 10) sample1, 11)ruoergai_52test
 # img_file = '../../data/test/sat_test/'+position+'_4bands1024.png'  # _rgb, _nrg, __4bands1024.
-img_file = '/home/omnisky/PycharmProjects/data/test/shuidao/GF2shuitian22_test_4bands10.png'
+img_file = '../../data/test/paper/images/'+position+'_4bands1024.png'  # _rgb, _nrg, _4bands1024.
+# img_file = '/home/omnisky/PycharmProjects/data/test/shuidao/GF2shuitian22_test_4bands10.png'
 
-# model_file = ''.join(['../../data/models/sat_urban_4bands/',dict_network[FLAG_USING_NETWORK], '_',
-#                       dict_target[FLAG_TARGET_CLASS],'_binary_notonehot_final.h5'])
+model_file = ''.join(['../../data/models/sat_urban_4bands/',dict_network[FLAG_USING_NETWORK], '_',
+                      dict_target[FLAG_TARGET_CLASS],'_binary_notonehot_final.h5'])
 
-model_file = '/home/omnisky/PycharmProjects/data/models/ssj/shuidao_jaccard2018-09-25_22-18-49.h5'
-print("model: {}".format(model_file))
+# model_file = '/home/omnisky/PycharmProjects/data/models/ssj/shuidao_jaccard2018-09-25_22-18-49.h5'
+# print("model: {}".format(model_file))
 
 if __name__ == '__main__':
 
@@ -104,12 +105,15 @@ if __name__ == '__main__':
             pred_func=smooth_predict_for_binary_notonehot
         )
         """for shuidao test"""
-        result[result<128]=0
-        result[result>127]=1
-        output_file = '//home/omnisky/PycharmProjects/data/test/shuidao/GF2shuitian22_test_pred.png'
+        # result[result<128]=0
+        # result[result>127]=1
+        # output_file = '//home/omnisky/PycharmProjects/data/test/shuidao/GF2shuitian22_test_pred.png'
 
         # output_file = ''.join(['../../data/predict/', dict_network[FLAG_USING_NETWORK],'/sat_4bands/mask_binary_',
         #                        abs_filename, '_', dict_target[FLAG_TARGET_CLASS],'_notonehot.png'])
+
+        output_file = ''.join(['../../data/test/paper/pred/mask_binary_',
+                               abs_filename, '_', dict_target[FLAG_TARGET_CLASS], '_notonehot.png'])
 
         print("result save as to: {}".format(output_file))
 

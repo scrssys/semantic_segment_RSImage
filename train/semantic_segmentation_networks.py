@@ -13,8 +13,8 @@ from keras import metrics, losses
 from keras.optimizers import Nadam
 from keras import optimizers
 
-img_w=256
-img_h=256
+# img_w=256
+# img_h=256
 
 # K.set_value(sgd.lr, 0.2 * K.get_value(sgd.lr))
 
@@ -22,7 +22,7 @@ sgd = optimizers.SGD(lr=0.001, decay=1e-6, momentum=0.9, nesterov=True)
 # adam = optimizers.Adam(lr=0.01, decay=1e-6)
 # nadam = optimizers.Nadam
 
-def binary_unet(im_bands, n_label=1):
+def binary_unet(img_w, img_h, im_bands, n_label=1):
     inputs = Input((img_w, img_h, im_bands))
 
     conv1 = Conv2D(32, (3, 3), activation="relu", padding="same")(inputs)
@@ -73,7 +73,7 @@ def binary_unet(im_bands, n_label=1):
     model.summary()
     return model
 
-def binary_unet_jaccard(im_bands, n_label=1):
+def binary_unet_jaccard(img_w, img_h, im_bands, n_label=1):
     inputs = Input((img_w, img_h, im_bands))
 
     conv1 = Conv2D(32, (3, 3), activation="relu", padding="same")(inputs)
@@ -131,7 +131,7 @@ def binary_unet_jaccard(im_bands, n_label=1):
     return model
 
 
-def binary_unet_onlyjaccard(im_bands, n_label=1):
+def binary_unet_onlyjaccard(img_w, img_h, im_bands, n_label=1):
     inputs = Input((img_w, img_h, im_bands))
 
     conv1 = Conv2D(32, (3, 3), activation="relu", padding="same")(inputs)
@@ -188,7 +188,7 @@ def binary_unet_onlyjaccard(im_bands, n_label=1):
     model.summary()
     return model
 
-def multiclass_unet(im_bands, n_label=3):
+def multiclass_unet(img_w, img_h, im_bands, n_label=3):
     inputs = Input((img_w, img_h, im_bands))
 
     conv1 = Conv2D(32, (3, 3), activation="relu", padding="same")(inputs)
@@ -240,8 +240,8 @@ def multiclass_unet(im_bands, n_label=3):
     model.summary()
     return model
 
-def multiclass_unet_jaccard(n_label=3):
-    inputs = Input((img_w, img_h, 3))
+def multiclass_unet_jaccard(img_w, img_h,im_bands, n_label=3):
+    inputs = Input((img_w, img_h, im_bands))
 
     conv1 = Conv2D(32, (3, 3), activation="relu", padding="same")(inputs)
     conv1 = Conv2D(32, (3, 3), activation="relu", padding="same")(conv1)
@@ -292,7 +292,7 @@ def multiclass_unet_jaccard(n_label=3):
     model.summary()
     return model
 
-def binary_fcnnet(im_bands, n_label=2):
+def binary_fcnnet(img_w, img_h, im_bands, n_label=2):
 
     inputs = Input((img_w, img_h, im_bands))
 
@@ -352,7 +352,7 @@ def binary_fcnnet(im_bands, n_label=2):
     model.compile(optimizer='Adam', loss='binary_crossentropy', metrics=['accuracy'])
     return model
 
-def binary_fcnnet_jaccard(im_bands, n_label=1):
+def binary_fcnnet_jaccard(img_w, img_h, im_bands, n_label=1):
 
     inputs = Input((img_w, img_h, im_bands))
 
@@ -415,7 +415,7 @@ def binary_fcnnet_jaccard(im_bands, n_label=1):
                   metrics=['accuracy', metrics.jaccard_coef, metrics.jaccard_coef_int])
     return model
 
-def multiclass_fcnnet(im_bands,n_label=3):
+def multiclass_fcnnet(img_w, img_h, im_bands,n_label=3):
 
     inputs = Input((img_w, img_h, im_bands))
 
@@ -475,9 +475,9 @@ def multiclass_fcnnet(im_bands,n_label=3):
     model.compile(optimizer='sgd', loss='categorical_crossentropy', metrics=['accuracy'])
     return model
 
-def multiclass_fcnnet_jaccard(n_label=3):
+def multiclass_fcnnet_jaccard(img_w, img_h, im_bands,n_label=3):
 
-    inputs = Input((img_w, img_h, 3))
+    inputs = Input((img_w, img_h, im_bands))
 
     # Block 1
     block1_conv1 = Conv2D(64,(3, 3),activation='relu',padding='same')(inputs)
@@ -538,8 +538,7 @@ def multiclass_fcnnet_jaccard(n_label=3):
                   metrics=['accuracy', metrics.jaccard_coef, metrics.jaccard_coef_int])
     return model
 
-
-def binary_segnet(im_bands, n_label=2):
+def binary_segnet(img_w, img_h, im_bands, n_label=2):
     model = Sequential()
     #encoder
     model.add(Conv2D(64, (3, 3), strides=(1, 1), input_shape=(img_w, img_h, im_bands), padding='same', activation='relu'))
@@ -633,7 +632,7 @@ def binary_segnet(im_bands, n_label=2):
     model.summary()
     return model
 
-def binary_segnet_jaccard(im_bands,n_label=1):
+def binary_segnet_jaccard(img_w, img_h, im_bands,n_label=1):
     model = Sequential()
     #encoder
     model.add(Conv2D(64, (3, 3), strides=(1, 1), input_shape=(img_w, img_h, im_bands), padding='same', activation='relu'))
@@ -731,7 +730,7 @@ def binary_segnet_jaccard(im_bands,n_label=1):
     return model
 
 
-def multiclass_segnet(im_bands, n_label=3):
+def multiclass_segnet(img_w, img_h, im_bands, n_label=3):
     model = Sequential()
     #encoder
     model.add(Conv2D(64, (3, 3), strides=(1, 1), input_shape=(img_w, img_h, im_bands), padding='same', activation='relu')) # for channels_last
@@ -826,10 +825,10 @@ def multiclass_segnet(im_bands, n_label=3):
     model.summary()
     return model
 
-def multiclass_segnet_jaccard(n_label=3):
+def multiclass_segnet_jaccard(img_w, img_h, im_bands,n_label=3):
     model = Sequential()
     #encoder
-    model.add(Conv2D(64, (3, 3), strides=(1, 1), input_shape=(img_w, img_h, 3), padding='same', activation='relu')) # for channels_last
+    model.add(Conv2D(64, (3, 3), strides=(1, 1), input_shape=(img_w, img_h, im_bands), padding='same', activation='relu')) # for channels_last
     model.add(BatchNormalization())
     model.add(Conv2D(64,(3,3),strides=(1,1),padding='same',activation='relu'))
     model.add(BatchNormalization())
@@ -907,7 +906,7 @@ def multiclass_segnet_jaccard(n_label=3):
     model.add(UpSampling2D(size=(2, 2)))
 
     #(256,256)
-    model.add(Conv2D(64, (3, 3), strides=(1, 1), input_shape=(img_w, img_h, 3), padding='same', activation='relu')) # for channels_last
+    model.add(Conv2D(64, (3, 3), strides=(1, 1), input_shape=(img_w, img_h, im_bands), padding='same', activation='relu')) # for channels_last
     model.add(BatchNormalization())
     model.add(Conv2D(64, (3, 3), strides=(1, 1), padding='same', activation='relu'))
     model.add(BatchNormalization())

@@ -9,9 +9,10 @@ import gdal
 import sys
 
 
-input_src_file = '/home/omnisky/PycharmProjects/data/originaldata/4bands/test/LZ_GF2_Clip10.png'
-
-clip_src_file = '/home/omnisky/PycharmProjects/data/test/shuidao/GF2shuitian22_test_4bands10.png'
+# input_src_file = '/home/omnisky/PycharmProjects/data/test/paper/label/yujiang_test_label.png'
+input_src_file ='/home/omnisky/PycharmProjects/data/test/paper/images/yujiang_test_4bands1024.png'
+# clip_src_file = '/home/omnisky/PycharmProjects/data/test/paper/new/yujiang_test_label.png'
+clip_src_file = '/home/omnisky/PycharmProjects/data/test/paper/new/yujiang_test_4bands1024.png'
 
 window_size = 2048
 
@@ -33,23 +34,25 @@ if __name__=='__main__':
     y = np.random.randint(0, width - window_size - 1)
 
     if im_bands ==1:
-        output_img = img[x:x + window_size, y:y + window_size]
-        # output_img = img[0:24000, 0:12500]
+        # output_img = img[x:x + window_size, y:y + window_size]
+        output_img = img[100:5000+100, 100:5500+100]
         output_img = np.array(output_img, np.uint16)
-        output_img[output_img > 1] = 127
-        print(np.unique(output_img))
+        # output_img[output_img > 2] = 127
+        tp = output_img
+        tp[tp>2]=0
+        print(np.unique(tp))
         output_img = np.array(output_img, np.uint8)
         plt.imshow(output_img)
         plt.show()
         cv2.imwrite(clip_src_file, output_img)  # for label clip
     else:
-        output_img = img[:, x:x + window_size, y:y + window_size]
-        # output_img = img[:, 0:24000, 0:12500]
+        # output_img = img[:, x:x + window_size, y:y + window_size]
+        output_img = img[:, 100:5000+100, 100:5500+100]
         plt.imshow(output_img[0])
         plt.show()
         driver = gdal.GetDriverByName("GTiff")
-        outdataset = driver.Create(clip_src_file, window_size, window_size, im_bands, d_type)
-        # outdataset = driver.Create(clip_src_file, 12500, 24000, im_bands, d_type)
+        # outdataset = driver.Create(clip_src_file, window_size, window_size, im_bands, d_type)
+        outdataset = driver.Create(clip_src_file, 5500, 5000, im_bands, d_type)
         if outdataset == None:
             print("create dataset failed!\n")
             sys.exit(-2)

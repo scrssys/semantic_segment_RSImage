@@ -4,7 +4,6 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/../kaggle_dstl_submission-master/.idea/kaggle_dstl_submission-master.iml" filepath="$PROJECT_DIR$/../kaggle_dstl_submission-master/.idea/kaggle_dstl_submission-master.iml" />
       <module fileurl="file://$PROJECT_DIR$/../selective_search_py/.idea/selective_search_py.iml" filepath="$PROJECT_DIR$/../selective_search_py/.idea/selective_search_py.iml" />
-      <module fileurl="file://$PROJECT_DIR$/../selective_search_py/.idea/selective_search_py.iml" filepath="$PROJECT_DIR$/../selective_search_py/.idea/selective_search_py.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/semantic_segment_RSImage.iml" filepath="$PROJECT_DIR$/.idea/semantic_segment_RSImage.iml" />
       <module fileurl="file://$PROJECT_DIR$/../test_all/.idea/test1.iml" filepath="$PROJECT_DIR$/../test_all/.idea/test1.iml" />
     </modules>

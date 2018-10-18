@@ -266,7 +266,7 @@ def _windowed_subdivs(padded_img, window_size, subdivisions, nb_classes, pred_fu
 
     subdivs = pred_func(subdivs)
     gc.collect()
-    subdivs = subdivs.astype("float")
+    subdivs = subdivs.astype(np.float16)
     subdivs = np.array([patch * WINDOW_SPLINE_2D for patch in subdivs])
     gc.collect()
 
@@ -320,7 +320,7 @@ def _windowed_subdivs_multiclassbands(padded_img, model, window_size, subdivisio
 
     subdivs = pred_func(subdivs, model, real_classes)
     gc.collect()
-    subdivs = subdivs.astype("float")
+    subdivs = subdivs.astype(np.float16)
     subdivs = np.array([patch * WINDOW_SPLINE_2D for patch in subdivs])
     gc.collect()
 
@@ -456,6 +456,8 @@ def predict_img_with_smooth_windowing_multiclassbands(input_img, model, window_s
             padded_out_shape=list(pad.shape[:-1])+[real_classes])
 
         res.append(one_padded_result)
+        del sd, pad
+        gc.collect()
 
 
     # Merge after rotations:

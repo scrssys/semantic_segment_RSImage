@@ -11,7 +11,7 @@ from keras.preprocessing.image import img_to_array
 from scipy.signal import medfilt, medfilt2d
 from skimage import exposure
 
-from ulitities.base_functions import get_file, UINT16,UINT8,UINT10
+from ulitities.base_functions import get_file, UINT16,UINT8,UINT10, load_img_by_gdal
 
 # seed = 1
 # np.random.seed(seed)
@@ -19,7 +19,8 @@ from ulitities.base_functions import get_file, UINT16,UINT8,UINT10
 img_w = 320
 img_h = 320
 
-valid_labels=[0,1,2] # ignore Nodata
+# valid_labels=[0,1,2] # ignore Nodata
+valid_labels=[0,1]
 target_label = 1 # used for binary: 1: roads or shuidao; 2: buildings
 
 # FLAG_BINARY = False
@@ -28,13 +29,13 @@ FLAG_BINARY = True
 
 # input_path = '../../data/originaldata/sat_urban_4bands/'
 # input_path = '/media/omnisky/6b62a451-463c-41e2-b06c-57f95571fdec/Backups/data/originaldata/ssj/'
-input_path = '/media/omnisky/6b62a451-463c-41e2-b06c-57f95571fdec/Backups/data/originaldata/sat_urban_4bands/'
+input_path = '/media/omnisky/6b62a451-463c-41e2-b06c-57f95571fdec/Backups/data/originaldata/zs/'
 
 # output_path = '../../data/traindata/sat_urban_nrg/multiclass/'
 # output_path = '../../data/traindata/sat_urban_nrg/binary/roads/'
-# output_path = '../../data/traindata/shuidao/'
+output_path = '../../data/traindata/huapo/'
 # output_path = '../../data/traindata/sat_4bands_224/binary/buildings/'
-output_path = '/media/omnisky/6b62a451-463c-41e2-b06c-57f95571fdec/Backups/data/traindata/sat_4bands_320/binary/roads/'
+# output_path = '/media/omnisky/6b62a451-463c-41e2-b06c-57f95571fdec/Backups/data/traindata/sat_4bands_320/binary/roads/'
 
 def rotate(xb, yb, angle):
     xb = np.transpose(xb, (1, 2, 0))
@@ -120,35 +121,45 @@ def produce_training_samples_binary(in_path, out_path, image_num=50000, mode='or
 
         print("src file:{}".format(os.path.split(src_file)[1]))
 
-        label_img = cv2.imread(label_file, cv2.IMREAD_GRAYSCALE)
+        # label_img = cv2.imread(label_file, cv2.IMREAD_GRAYSCALE)
+        label_img = load_img_by_gdal(label_file, grayscale=True)
+        # print("label_img: {}".format(np.unique(label_img)))
+        label_img = label_img.astype(np.uint8)
+        y,x = label_img.shape
+        # print("label_img: {}".format(np.unique(label_img)))
 
         dataset = gdal.Open(src_file)
         if dataset == None:
             print("open failed!\n")
             continue
 
-        X_height = dataset.RasterYSize
+        Y_height = dataset.RasterYSize
         X_width = dataset.RasterXSize
+        if(X_width!=x and Y_height!=y):
+            print("label and source image have different size:".format(label_file))
+            continue
+
         im_bands = dataset.RasterCount
         data_type = dataset.GetRasterBand(1).DataType
 
 
-        src_img = dataset.ReadAsArray(0, 0, X_width, X_height)
+        src_img = dataset.ReadAsArray(0, 0, X_width, Y_height)
         src_img = np.array(src_img)
 
         del dataset
 
         index = np.where(label_img == target_label)
-        all_label = np.zeros((X_height, X_width), np.uint8)
+        all_label = np.zeros((Y_height, X_width), np.uint8)
         all_label[index] = 1
 
         print(np.unique(all_label))
         count = 0
         while count < image_each:
             random_width = random.randint(0, X_width - img_w - 1)
-            random_height = random.randint(0, X_height - img_h - 1)
+            random_height = random.randint(0, Y_height - img_h - 1)
             src_roi = src_img[:, random_height: random_height + img_h, random_width: random_width + img_w]
             label_roi = all_label[random_height: random_height + img_h, random_width: random_width + img_w]
+
 
             """ignore nodata area"""
             FLAG_HAS_NODATA = False
@@ -295,7 +306,7 @@ if __name__ == '__main__':
 
     if FLAG_BINARY==True:
         print("Produce labels for binary classification")
-        produce_training_samples_binary(input_path, output_path, 300000, mode='augment')
+        produce_training_samples_binary(input_path, output_path, 50000, mode='augment')
     else:
         print("produce labels for multiclass")
         produce_training_samples_multiclass(input_path, output_path, 300000, mode='augment')

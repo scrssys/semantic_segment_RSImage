@@ -65,15 +65,16 @@ def load_img_normalization_by_cv2(path, grayscale=False):
 
 
 
-def load_img_by_gdal(path):
+def load_img_by_gdal(path, grayscale=False):
     dataset = gdal.Open(path)
     assert(dataset is not None)
 
     y_height = dataset.RasterYSize
     x_width = dataset.RasterXSize
     img = dataset.ReadAsArray(0,0,x_width,y_height)
-    img = np.array(img, dtype="float")
-    img = np.transpose(img, (1,2,0))
+    if grayscale == False:
+        img = np.array(img, dtype="float")
+        img = np.transpose(img, (1,2,0))
     del dataset
 
     return img

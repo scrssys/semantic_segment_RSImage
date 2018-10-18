@@ -15,10 +15,10 @@ ROAD_VALUE=127
 BUILDING_VALUE=255
 
 """for unet"""
-# input_path = '../../data/predict/unet/sat_4bands/'
-input_path = '../../data/test/paper/pred_288/'
-mask_pool = ['mask_binary_jian11_test_4bands1024_buildings_jaccard.png', 'mask_binary_jian11_test_4bands1024_roads_jaccard.png']
-output_file = input_path+'/combined/unet_jaccard_jian11_test_4bands_combined.png'
+input_path = '/media/omnisky/e0331d4a-a3ea-4c31-90ab-41f5b0ee2663/Tianfuxinqu/pred/pred_256/'
+# input_path = '../../data/test/paper/pred_288/'
+mask_pool = ['mask_binary_2018_GF2_buildings_jaccard.png', 'mask_binary_2018_GF2_roads_jaccard.png']
+output_file = input_path+'/combined/mask_2018_GF2_combined.png'
 print(output_file)
 
 # mask_pool = ['mask_multiclass_3_buildings.png','mask_multiclass_3_roads.png']
@@ -104,3 +104,4 @@ if __name__=='__main__':
     plt.show()
 
     cv2.imwrite(output_file,result_mask)
+    print("Saved to : {}".format(output_file))

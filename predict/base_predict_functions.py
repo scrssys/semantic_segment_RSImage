@@ -6,6 +6,7 @@ import numpy as np
 import os
 import sys
 import argparse
+import gc
 from keras.preprocessing.image import img_to_array
 
 import matplotlib.pyplot as plt
@@ -49,7 +50,7 @@ def smooth_predict_for_binary_onehot(small_img_patches, model, real_classes):
 
         mask_output.append(res_pred)
 
-    mask_output = np.array(mask_output)
+    mask_output = np.array(mask_output,np.float16)
     print ("Shape of mask_output:{}".format(mask_output.shape))
 
     return mask_output
@@ -91,10 +92,13 @@ def smooth_predict_for_binary_notonehot(small_img_patches, model, real_classes):
 
         mask_output.append(res_pred)
 
-    mask_output = np.array(mask_output)
-    print ("Shape of mask_output:{}".format(mask_output.shape))
+    mask_result = np.array(mask_output, np.float16)
+    del mask_output
+    gc.collect()
 
-    return mask_output
+    print ("Shape of mask_output:{}".format(mask_result.shape))
+
+    return mask_result
 
 def smooth_predict_for_multiclass(small_img_patches, model, real_classes):
     """
@@ -141,7 +145,8 @@ def smooth_predict_for_multiclass(small_img_patches, model, real_classes):
 
         mask_output.append(res_pred)
 
-    mask_output = np.array(mask_output)
+    mask_output = np.array(mask_output, np.float16)
+
     print ("Shape of mask_output:{}".format(mask_output.shape))
 
     return mask_output

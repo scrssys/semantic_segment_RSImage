@@ -32,7 +32,7 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "4"
 
 target_class =1
 
-window_size = 288 # 224, 256, 288, 320
+window_size = 256 # 224, 256, 288, 320
 # step = 128
 
 im_bands =4
@@ -45,8 +45,8 @@ FLAG_TARGET_CLASS = 1  # 0:roads; 1:buildings
 
 FLAG_APPROACH_PREDICT = 1 # 0: original predict, 1: smooth predict
 
-input_path = '../../data/test/paper/images/'
-output_path = ''.join(['../../data/test/paper/pred_', str(window_size)])
+input_path = '/media/omnisky/e0331d4a-a3ea-4c31-90ab-41f5b0ee2663/Tianfuxinqu/images/'
+output_path = ''.join(['/media/omnisky/e0331d4a-a3ea-4c31-90ab-41f5b0ee2663/Tianfuxinqu/pred/pred_', str(window_size)])
 
 
 model_file = ''.join(['../../data/models/sat_urban_4bands/',dict_network[FLAG_USING_NETWORK], '_',
@@ -68,6 +68,7 @@ def predict_binary_jaccard(img_file, output_file):
         input_img = input_img / 65535.0
 
     input_img = np.clip(input_img, 0.0, 1.0)
+    input_img = input_img.astype(np.float16)
 
     model = load_model(model_file)
 

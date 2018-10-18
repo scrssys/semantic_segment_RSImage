@@ -10,12 +10,13 @@ from tqdm import tqdm
 
 from ulitities.base_functions import get_file
 
-NoData = 65536
-input_path = '/home/omnisky/PycharmProjects/data/originaldata/4bands/src/'
+NoData = 65535
+input_path = '../../data/originaldata/4bands/ori/'
+# input_path = '/media/omnisky/6b62a451-463c-41e2-b06c-57f95571fdec/Backups/data/originaldata/zs/original/'
 
-# output_path = '../../data/originaldata/sat_urban_4bands/1024/'
-output_path = '/home/omnisky/PycharmProjects/data/originaldata/4bands/test/'
-# output_path = '../../data/originaldata/sat_urban_4bands/16bits/'
+# output_path = '/home/omnisky/PycharmProjects/data/originaldata/4bands/test/'
+output_path = '../../data/originaldata/4bands/test/'
+# output_path = './media/omnisky/6b62a451-463c-41e2-b06c-57f95571fdec/Backups/data/originaldata/zs/testout/'
 absname = 'lizhou_test_4bands.png'  # fenyi11, qingbaijiang, yujiang4, lizhou_test_4bands
 
 

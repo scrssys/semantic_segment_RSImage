@@ -49,7 +49,7 @@ def smooth_predict_for_binary_onehot(small_img_patches, model, real_classes):
 
         mask_output.append(res_pred)
 
-    mask_output = np.array(mask_output)
+    mask_output = np.array(mask_output, np.float16)
     print ("Shape of mask_output:{}".format(mask_output.shape))
 
     return mask_output
@@ -91,7 +91,7 @@ def smooth_predict_for_binary_notonehot(small_img_patches, model, real_classes):
 
         mask_output.append(res_pred)
 
-    mask_output = np.array(mask_output)
+    mask_output = np.array(mask_output, np.float16)
     print ("Shape of mask_output:{}".format(mask_output.shape))
 
     return mask_output
@@ -141,7 +141,7 @@ def smooth_predict_for_multiclass(small_img_patches, model, real_classes):
 
         mask_output.append(res_pred)
 
-    mask_output = np.array(mask_output)
+    mask_output = np.array(mask_output,np.float16)
     print ("Shape of mask_output:{}".format(mask_output.shape))
 
     return mask_output

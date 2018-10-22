@@ -40,7 +40,7 @@ dict_network={0: 'unet', 1: 'fcnnet', 2: 'segnet'}
 dict_target={0: 'roads', 1: 'buildings'}
 FLAG_USING_NETWORK = 0  # 0:unet; 1:fcn; 2:segnet;
 
-FLAG_TARGET_CLASS = 1  # 0:roads; 1:buildings
+FLAG_TARGET_CLASS = 0  # 0:roads; 1:buildings
 
 FLAG_APPROACH_PREDICT = 0 # 0: original predict, 1: smooth predict
 

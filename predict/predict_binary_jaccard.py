@@ -27,7 +27,7 @@ from smooth_tiled_predictions import predict_img_with_smooth_windowing_multiclas
 """
    The following global variables should be put into meta data file 
 """
-os.environ["CUDA_VISIBLE_DEVICES"] = "5"
+os.environ["CUDA_VISIBLE_DEVICES"] = "4"
 
 
 target_class =1
@@ -35,24 +35,25 @@ target_class =1
 window_size = 256  #224, 256, 288. 320
 # step = 128
 
-im_bands =4
-im_type = UINT10  # UINT10,UINT8,UINT16
+im_bands =3
+im_type = UINT8  # UINT10,UINT8,UINT16
 dict_network={0: 'unet', 1: 'fcnnet', 2: 'segnet'}
 dict_target={0: 'roads', 1: 'buildings'}
 FLAG_USING_NETWORK = 0  # 0:unet; 1:fcn; 2:segnet;
 
-FLAG_TARGET_CLASS = 1  # 0:roads; 1:buildings
+FLAG_TARGET_CLASS = 0  # 0:roads; 1:buildings
 
 FLAG_APPROACH_PREDICT = 1 # 0: original predict, 1: smooth predict
 
-position = 'shuangliu_1test' #  1)jian11_test, , 2)jiangyou, 3)yujiang_test,
+# position = 'shuangliu_1test' #  1)jian11_test, , 2)jiangyou, 3)yujiang_test,
 # 4)cuiping, 5)shuangliu_1test, 6) tongchuan_test
 # 7) lizhou_test, 8) jianyang, 9)yushui22_test, 10) sample1, 11)ruoergai_52test
 # img_file = '../../data/test/paper/images/'+position+'_4bands1024.png'  # _rgb, _nrg, _4bands1024.
-img_file = '/home/omnisky/PycharmProjects/data/originaldata/4bands/test/BJ200132D04320180302F_Clip1.png'
+img_file = '/home/omnisky/PycharmProjects/data/test/tianfuxinqu/images/fw0.tiff'
+# img_file='/home/omnisky/PycharmProjects/data/test/sample1_12.png'
 
 
-model_file = ''.join(['../../data/models/sat_urban_4bands/',dict_network[FLAG_USING_NETWORK], '_',
+model_file = ''.join(['../../data/models/sat_urban_rgb/',dict_network[FLAG_USING_NETWORK], '_',
                       dict_target[FLAG_TARGET_CLASS],'_binary_jaccard_', str(window_size), '_final.h5'])
 # model_file ='/home/omnisky/PycharmProjects/data/models/huapo/unet_jaccardCrossentropy_320_2018-10-12_08-45-22.h5'
 
@@ -93,8 +94,10 @@ if __name__ == '__main__':
     if FLAG_APPROACH_PREDICT==0:
         print("[INFO] predict image by orignal approach\n")
         result = orignal_predict_notonehot(input_img,im_bands, model, window_size)
-        output_file = ''.join(['../../data/predict/',dict_network[FLAG_USING_NETWORK],'/sat_4bands/original_pred_',
-                               abs_filename, '_', dict_target[FLAG_TARGET_CLASS],'_jaccard.png'])
+        # output_file = ''.join(['../../data/predict/',dict_network[FLAG_USING_NETWORK],'/sat_4bands/original_pred_',
+        #                        abs_filename, '_', dict_target[FLAG_TARGET_CLASS],'_jaccard.png'])
+        output_file = ''.join(['../../data/test/tianfuxinqu/pred/pred_', str(window_size), '/mask_binary_',
+                               abs_filename, '_', dict_target[FLAG_TARGET_CLASS], '_jaccard_original.png'])
         print("result save as to: {}".format(output_file))
         cv2.imwrite(output_file, result*128)
 
@@ -108,16 +111,15 @@ if __name__ == '__main__':
             real_classes=target_class,  # output channels = 是真的类别，总类别-背景
             pred_func=smooth_predict_for_binary_notonehot
         )
-        output_file = ''.join(['../../data/predict/', dict_network[FLAG_USING_NETWORK],'/sat_4bands/mask_binary_',
-                               abs_filename, '_', dict_target[FLAG_TARGET_CLASS],'_jaccard.png'])
-        # output_file = ''.join(['../../data/test/paper/pred288/mask_binary_',
-        #                        abs_filename, '_', dict_target[FLAG_TARGET_CLASS], '_jaccard.png'])
-
-        # output_file = '/home/omnisky/PycharmProjects/data/models/huapo/pred.png'
+        # output_file = ''.join(['../../data/predict/', dict_network[FLAG_USING_NETWORK],'/sat_rgb/mask_binary_',str(window_size),
+        #                        '_', abs_filename, '_', dict_target[FLAG_TARGET_CLASS],'_jaccard.png'])
+        output_file = ''.join(['../../data/test/tianfuxinqu/pred/pred_', str(window_size), '/mask_binary_',
+                               abs_filename, '_', dict_target[FLAG_TARGET_CLASS], '_jaccard_smooth.png'])
 
         print("result save as to: {}".format(output_file))
 
         cv2.imwrite(output_file, result)
+        print("Saved to {}".format(output_file))
 
     gc.collect()
 

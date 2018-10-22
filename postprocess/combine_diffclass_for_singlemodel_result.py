@@ -15,10 +15,10 @@ ROAD_VALUE=127
 BUILDING_VALUE=255
 
 """for unet"""
-input_path = '/media/omnisky/e0331d4a-a3ea-4c31-90ab-41f5b0ee2663/Tianfuxinqu/pred/pred_256/'
-# input_path = '../../data/test/paper/pred_288/'
-mask_pool = ['mask_binary_2018_GF2_buildings_jaccard.png', 'mask_binary_2018_GF2_roads_jaccard.png']
-output_file = input_path+'/combined/mask_2018_GF2_combined.png'
+# input_path = '/media/omnisky/e0331d4a-a3ea-4c31-90ab-41f5b0ee2663/Tianfuxinqu/pred/pred_256/'
+input_path = '../../data/test/tianfuxinqu/pred/pred_256/'
+mask_pool = ['mask_binary_fw01_buildings_jaccard.png', 'mask_binary_fw01_roads_jaccard.png']
+output_file = input_path+'/combined/mask_2018_256_fw0_smooth_combined.png'
 print(output_file)
 
 # mask_pool = ['mask_multiclass_3_buildings.png','mask_multiclass_3_roads.png']

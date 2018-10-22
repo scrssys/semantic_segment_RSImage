@@ -10,12 +10,12 @@ import sys
 
 
 # input_src_file = '/home/omnisky/PycharmProjects/data/test/paper/label/yujiang_test_label.png'
-input_src_file ='/home/omnisky/PycharmProjects/data/originaldata/4bands/test/BJ200132D04320180302F_Clip1.png'
+input_src_file ='/home/omnisky/PycharmProjects/data/test/tianfuxinqu/tianfu2017_2.png'
 # clip_src_file = '/home/omnisky/PycharmProjects/data/test/paper/new/yujiang_test_label.png'
-clip_src_file = '/home/omnisky/PycharmProjects/data/originaldata/4bands/test/BJ200132D04320180302F_17000l.png'
+clip_src_file = '/home/omnisky/PycharmProjects/data/test/tianfuxinqu/tianfu2017_21.png'
 
 window_size = 10000
-h_clip = 17000
+h_clip = 10000
 
 if __name__=='__main__':
     # img = load_img_by_gdal(input_src_file)
@@ -35,6 +35,8 @@ if __name__=='__main__':
     # y = np.random.randint(0, width - window_size - 1)
     x =0
     y=0
+    h_clip = int(0.5*width+0.5)
+    print("cliped pixels:{}".format(h_clip))
 
     if im_bands ==1:
         output_img = img[x:x + window_size, y:y + window_size]
@@ -51,6 +53,7 @@ if __name__=='__main__':
     else:
         # output_img = img[:, x:x + window_size, y:y + window_size]
         output_img = img[:, :, :h_clip]
+        # output_img = img[:, :, h_clip:]
         plt.imshow(output_img[0])
         plt.show()
         driver = gdal.GetDriverByName("GTiff")

@@ -93,7 +93,7 @@ def smooth_predict_for_binary_notonehot(small_img_patches, model, real_classes):
         mask_output.append(res_pred)
 
     mask_result = np.array(mask_output, np.float16)
-    del mask_output
+    del mask_output, small_img_patches
     gc.collect()
 
     print ("Shape of mask_output:{}".format(mask_result.shape))

@@ -168,16 +168,25 @@ def _rotate_mirror_undo(im_mirrs):
     # origs.append(np.rot90(np.array(im_mirrs[6]), axes=(0, 1), k=2)[:, ::-1])
     # origs.append(np.rot90(np.array(im_mirrs[7]), axes=(0, 1), k=1)[:, ::-1])
 
-    origs = []
-    origs.append(np.array(im_mirrs[0]))
-    origs.append(np.rot90(np.array(im_mirrs[1]), k=3))
-    origs.append(np.rot90(np.array(im_mirrs[2]), k=2))
-    origs.append(np.rot90(np.array(im_mirrs[3]), k=1))
-    origs.append(np.array(im_mirrs[4])[:, ::-1])
-    origs.append(np.rot90(np.array(im_mirrs[5]), k=3)[:, ::-1])
-    origs.append(np.rot90(np.array(im_mirrs[6]), k=2)[:, ::-1])
-    origs.append(np.rot90(np.array(im_mirrs[7]), k=1)[:, ::-1])
+    # origs = []
+    # origs.append(np.array(im_mirrs[0]))
+    # origs.append(np.rot90(np.array(im_mirrs[1]), k=3))
+    # origs.append(np.rot90(np.array(im_mirrs[2]), k=2))
+    # origs.append(np.rot90(np.array(im_mirrs[3]), k=1))
+    # origs.append(np.array(im_mirrs[4])[:, ::-1])
+    # origs.append(np.rot90(np.array(im_mirrs[5]), k=3)[:, ::-1])
+    # origs.append(np.rot90(np.array(im_mirrs[6]), k=2)[:, ::-1])
+    # origs.append(np.rot90(np.array(im_mirrs[7]), k=1)[:, ::-1])
 
+    sum = np.array(im_mirrs[0])
+    sum += np.rot90(np.array(im_mirrs[1]), k=3)
+    sum += np.rot90(np.array(im_mirrs[2]), k=2)
+    sum += np.rot90(np.array(im_mirrs[3]), k=1)
+    sum += np.rot90(np.array(im_mirrs[1]), k=3)
+    sum += np.array(im_mirrs[4])[:, ::-1]
+    sum += np.rot90(np.array(im_mirrs[5]), k=3)[:, ::-1]
+    sum += np.rot90(np.array(im_mirrs[6]), k=2)[:, ::-1]
+    sum += np.rot90(np.array(im_mirrs[7]), k=1)[:, ::-1]
 
     """test: output each result of mirros"""
     # n = 0
@@ -185,7 +194,9 @@ def _rotate_mirror_undo(im_mirrs):
     #     cv2.imwrite('./data/predict/pre_smooth_unrotate' + str(n + 1) + '.png', one_img[128:-128, 128:-128])
     #     n +=1
 
-    return np.mean(origs, axis=0)
+    # return np.mean(origs, axis=0)
+    out_back = sum/8.0
+    return out_back
 
 def _rotate_mirror_undo_by_vote(im_mirrs, nb_classes):
     """
@@ -456,11 +467,13 @@ def predict_img_with_smooth_windowing_multiclassbands(input_img, model, window_s
             padded_out_shape=list(pad.shape[:-1])+[real_classes])
 
         res.append(one_padded_result)
-        del sd, pad
+        del sd, pad,one_padded_result
         gc.collect()
 
 
     # Merge after rotations:
+    del pads
+    gc.collect()
 
     padded_results = _rotate_mirror_undo(res)
 

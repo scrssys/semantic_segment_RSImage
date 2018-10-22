@@ -20,7 +20,7 @@
      <x>0</x>
      <y>0</y>
      <width>515</width>
-     <height>25</height>
+     <height>19</height>
     </rect>
    </property>
    <property name="defaultUp">
@@ -39,6 +39,7 @@
      <string>Prepocess</string>
     </property>
     <addaction name="actionLabel_check"/>
+    <addaction name="actionImage_strech"/>
    </widget>
    <widget class="QMenu" name="menuTrain">
     <property name="title">
@@ -55,8 +56,14 @@
      <string>Help</string>
     </property>
    </widget>
+   <widget class="QMenu" name="menuSampleProduce">
+    <property name="title">
+     <string>SampleProduce</string>
+    </property>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuPrepocess"/>
+   <addaction name="menuSampleProduce"/>
    <addaction name="menuTrain"/>
    <addaction name="menuClassify"/>
    <addaction name="menuHelp"/>
@@ -65,6 +72,11 @@
   <action name="actionLabel_check">
    <property name="text">
     <string>Label_check</string>
+   </property>
+  </action>
+  <action name="actionImage_strech">
+   <property name="text">
+    <string>Image stretch</string>
    </property>
   </action>
  </widget>
@@ -86,8 +98,25 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionImage_strech</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>for_action_image_stretch()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>257</x>
+     <y>202</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>for_action_label_check()</slot>
+  <slot>for_action_image_stretch()</slot>
  </slots>
 </ui>

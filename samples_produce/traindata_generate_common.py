@@ -11,17 +11,17 @@ from keras.preprocessing.image import img_to_array
 from scipy.signal import medfilt, medfilt2d
 from skimage import exposure
 
-from ulitities.base_functions import get_file, UINT16,UINT8,UINT10, load_img_by_gdal
+from ulitities.base_functions import get_file, load_img_by_gdal
 
 # seed = 1
 # np.random.seed(seed)
 
-img_w = 320
-img_h = 320
+img_w = 256
+img_h = 256
 
-# valid_labels=[0,1,2] # ignore Nodata
-valid_labels=[0,1]
-target_label = 1 # used for binary: 1: roads or shuidao; 2: buildings
+valid_labels=[0,1,2] # ignore Nodata
+# valid_labels=[0,1]
+target_label = 2 # used for binary: 1: roads or shuidao; 2: buildings
 
 # FLAG_BINARY = False
 FLAG_BINARY = True
@@ -29,11 +29,11 @@ FLAG_BINARY = True
 
 # input_path = '../../data/originaldata/sat_urban_4bands/'
 # input_path = '/media/omnisky/6b62a451-463c-41e2-b06c-57f95571fdec/Backups/data/originaldata/ssj/'
-input_path = '/media/omnisky/6b62a451-463c-41e2-b06c-57f95571fdec/Backups/data/originaldata/zs/'
+input_path = '/media/omnisky/6b62a451-463c-41e2-b06c-57f95571fdec/Backups/data/originaldata/sat_urban_rgb/'
 
 # output_path = '../../data/traindata/sat_urban_nrg/multiclass/'
-# output_path = '../../data/traindata/sat_urban_nrg/binary/roads/'
-output_path = '../../data/traindata/huapo/'
+output_path = '../../data/traindata/sat_rgb/binary/buildings/'
+# output_path = '../../data/traindata/huapo/'
 # output_path = '../../data/traindata/sat_4bands_224/binary/buildings/'
 # output_path = '/media/omnisky/6b62a451-463c-41e2-b06c-57f95571fdec/Backups/data/traindata/sat_4bands_320/binary/roads/'
 
@@ -306,7 +306,7 @@ if __name__ == '__main__':
 
     if FLAG_BINARY==True:
         print("Produce labels for binary classification")
-        produce_training_samples_binary(input_path, output_path, 50000, mode='augment')
+        produce_training_samples_binary(input_path, output_path, 500000, mode='augment')
     else:
         print("produce labels for multiclass")
         produce_training_samples_multiclass(input_path, output_path, 300000, mode='augment')

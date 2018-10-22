@@ -27,7 +27,7 @@ from ulitities.base_functions import get_file
 """
    The following global variables should be put into meta data file 
 """
-os.environ["CUDA_VISIBLE_DEVICES"] = "4"
+os.environ["CUDA_VISIBLE_DEVICES"] = "5"
 
 
 target_class =1
@@ -35,21 +35,21 @@ target_class =1
 window_size = 256 # 224, 256, 288, 320
 # step = 128
 
-im_bands =4
-im_type = UINT10  # UINT10,UINT8,UINT16
+im_bands =3
+im_type = UINT8  # UINT10,UINT8,UINT16
 dict_network={0: 'unet', 1: 'fcnnet', 2: 'segnet'}
 dict_target={0: 'roads', 1: 'buildings'}
 FLAG_USING_NETWORK = 0  # 0:unet; 1:fcn; 2:segnet;
 
-FLAG_TARGET_CLASS = 1  # 0:roads; 1:buildings
+FLAG_TARGET_CLASS = 0  # 0:roads; 1:buildings
 
 FLAG_APPROACH_PREDICT = 1 # 0: original predict, 1: smooth predict
 
-input_path = '/media/omnisky/e0331d4a-a3ea-4c31-90ab-41f5b0ee2663/Tianfuxinqu/images/'
-output_path = ''.join(['/media/omnisky/e0331d4a-a3ea-4c31-90ab-41f5b0ee2663/Tianfuxinqu/pred/pred_', str(window_size)])
+input_path = '/home/omnisky/PycharmProjects/data/test/tianfuxinqu/images/'
+output_path = ''.join(['/home/omnisky/PycharmProjects/data/test/tianfuxinqu/pred/pred_', str(window_size)])
 
 
-model_file = ''.join(['../../data/models/sat_urban_4bands/',dict_network[FLAG_USING_NETWORK], '_',
+model_file = ''.join(['../../data/models/sat_urban_rgb/',dict_network[FLAG_USING_NETWORK], '_',
                       dict_target[FLAG_TARGET_CLASS],'_binary_jaccard_', str(window_size), '_final.h5'])
 # model_file ='/home/omnisky/PycharmProjects/data/models/sat_urban_4bands/unet_roads_binary_jaccard_288_2018-09-29_14-13-58.h5'
 
@@ -77,8 +77,10 @@ def predict_binary_jaccard(img_file, output_file):
         result = orignal_predict_notonehot(input_img,im_bands, model, window_size)
         abs_filename = os.path.split(img_file)[1]
         abs_filename = abs_filename.split(".")[0]
-        output_file = ''.join([output_path, '/original_pred_',
-                               abs_filename, '_', dict_target[FLAG_TARGET_CLASS],'_jaccard.png'])
+        # output_file = ''.join([output_path, '/original_pred_',
+        #                        abs_filename, '_', dict_target[FLAG_TARGET_CLASS],'_jaccard.png'])
+        output_file = ''.join([output_path, '/mask_binary_',
+                            abs_filename, '_', dict_target[FLAG_TARGET_CLASS], '_jaccard_original.png'])
         print("result save as to: {}".format(output_file))
         cv2.imwrite(output_file, result*128)
 

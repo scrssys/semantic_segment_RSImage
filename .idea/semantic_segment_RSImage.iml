@@ -8,6 +8,10 @@
       <sourceFolder url="file://$MODULE_DIR$/ulitities" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/ui" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/batch_predict" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/ui/preProcess" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/ui/sampleProduce" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/ui/train" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/ui/trainUi" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/venv" />
     </content>
     <orderEntry type="jdk" jdkName="Python 3.5 (venv)" jdkType="Python SDK" />

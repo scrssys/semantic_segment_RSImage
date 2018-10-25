@@ -37,10 +37,10 @@ np.random.seed(seed)
 img_w = 256
 img_h = 256
 
-n_label = 1
+# n_label = 1
 
-im_bands =3
-im_type = UINT8  # UINT8:0, UINT10:1, UINT16:2
+# im_bands =3
+# im_type = UINT8  # UINT8:0, UINT10:1, UINT16:2
 
 dict_network={0: 'unet', 1: 'fcnnet', 2: 'segnet'}
 dict_target={0: 'roads', 1: 'buildings'}
@@ -69,6 +69,84 @@ train_data_path = ''.join(['../../data/traindata/sat_rgb/binary/',dict_target[FL
 print("traindata from: {}".format(train_data_path))
 
 
+"""get the train file name and divide to train and val parts"""
+def get_train_val(train_data_path, val_rate=0.25):
+    train_url = []
+    train_set = []
+    val_set = []
+    for pic in os.listdir(train_data_path + '/src'):
+        train_url.append(pic)
+    random.shuffle(train_url)
+    total_num = len(train_url)
+    val_num = int(val_rate * total_num)
+    for i in range(len(train_url)):
+        if i < val_num:
+            val_set.append(train_url[i])
+        else:
+            train_set.append(train_url[i])
+    return train_set, val_set
+
+'''
+# data for training
+def generateData(batch_size, im_bands, im_type, train_data_path, img_w, img_h, n_label, data=[]):
+    # print 'generateData...'
+    while True:
+        train_data = []
+        train_label = []
+        batch = 0
+        for i in (range(len(data))):
+            url = data[i]
+            batch += 1
+            _, img = load_img_normalization(im_bands, (train_data_path + '/src/' + url), data_type=im_type)
+
+            # Adapt dim_ordering automatically
+            img = img_to_array(img)
+            train_data.append(img)
+            _, label = load_img_normalization(1, (train_data_path + '/label/' + url))
+            label = img_to_array(label)
+            train_label.append(label)
+            if batch % batch_size == 0:
+                # print 'get enough bacth!\n'
+                train_data = np.array(train_data)
+                train_label = np.array(train_label)
+                # train_label = to_categorical(train_label, num_classes=n_label)  # one_hot coding
+                train_label = train_label.reshape((batch_size, img_w * img_h, n_label))
+                yield (train_data, train_label)
+                train_data = []
+                train_label = []
+                batch = 0
+
+
+# data for validation
+def generateValidData(batch_size,im_bands,im_type,  train_data_path, img_w, img_h, n_label,data=[]):
+    # print 'generateValidData...'
+    while True:
+        valid_data = []
+        valid_label = []
+        batch = 0
+        for i in (range(len(data))):
+            url = data[i]
+            batch += 1
+            _, img = load_img_normalization(im_bands, (train_data_path + '/src/' + url), data_type=im_type)
+
+            # Adapt dim_ordering automatically
+            img = img_to_array(img)
+            valid_data.append(img)
+            _, label = load_img_normalization(1, (train_data_path + '/label/' + url))
+            label = img_to_array(label)
+            valid_label.append(label)
+            if batch % batch_size == 0:
+                valid_data = np.array(valid_data)
+                valid_label = np.array(valid_label)
+                # valid_label = to_categorical(valid_label, num_classes=n_label)
+                valid_label = valid_label.reshape((batch_size, img_w * img_h, n_label))
+                yield (valid_data, valid_label)
+                valid_data = []
+                valid_label = []
+                batch = 0
+
+
+
 
 """get the train file name and divide to train and val parts"""
 def get_train_val(val_rate=0.25):
@@ -87,10 +165,13 @@ def get_train_val(val_rate=0.25):
             train_set.append(train_url[i])
     return train_set, val_set
 
-
+'''
 # data for training
-def generateData(batch_size, data=[]):
+def generateData(batch_size,  im_bands, im_type, train_data_path, img_w, img_h,data=[]):
     # print 'generateData...'
+    # im_bands = 3
+    # im_type = UINT8
+    n_label =1
     while True:
         train_data = []
         train_label = []
@@ -98,12 +179,12 @@ def generateData(batch_size, data=[]):
         for i in (range(len(data))):
             url = data[i]
             batch += 1
-            _, img = load_img_normalization(im_bands, (train_data_path + 'src/' + url), data_type=im_type)
+            _, img = load_img_normalization(im_bands, (train_data_path + '/src/' + url), data_type=im_type)
 
             # Adapt dim_ordering automatically
             img = img_to_array(img)
             train_data.append(img)
-            _, label = load_img_normalization(1, (train_data_path + 'label/' + url))
+            _, label = load_img_normalization(1, (train_data_path + '/label/' + url))
             label = img_to_array(label)
             train_label.append(label)
             if batch % batch_size == 0:
@@ -121,6 +202,9 @@ def generateData(batch_size, data=[]):
 # data for validation
 def generateValidData(batch_size, data=[]):
     # print 'generateValidData...'
+    im_bands = 3
+    im_type = UINT8
+    n_label = 1
     while True:
         valid_data = []
         valid_label = []
@@ -128,12 +212,12 @@ def generateValidData(batch_size, data=[]):
         for i in (range(len(data))):
             url = data[i]
             batch += 1
-            _, img = load_img_normalization(im_bands, (train_data_path + 'src/' + url), data_type=im_type)
+            _, img = load_img_normalization(im_bands, (train_data_path + '/src/' + url), data_type=im_type)
 
             # Adapt dim_ordering automatically
             img = img_to_array(img)
             valid_data.append(img)
-            _, label = load_img_normalization(1, (train_data_path + 'label/' + url))
+            _, label = load_img_normalization(1, (train_data_path + '/label/' + url))
             label = img_to_array(label)
             valid_label.append(label)
             if batch % batch_size == 0:
@@ -148,33 +232,81 @@ def generateValidData(batch_size, data=[]):
 
 
 
-""" For tes multiGPU model"""
-import keras
-from keras.utils import multi_gpu_model
-class CustomModelCheckpoint(keras.callbacks.Callback):
-
-    def __init__(self,  path):
-        # self.model = model
-        self.path = path
-        self.best_loss = np.inf
-
-    def on_epoch_end(self, epoch, logs=None):
-        val_loss = logs['val_loss']
-        if val_loss < self.best_loss:
-            print("\nValidation loss decreased from {} to {}, saving model".format(self.best_loss, val_loss))
-
-        self.model.save_weights(self.path, overwrite=True)
-
-        self.best_loss = val_loss
-
 """Train model ............................................."""
-def train(model,model_path):
-    EPOCHS = 100  # should be 10 or bigger number
-    BS = 32
+def train(input_dict={}):
+    if os.path.isdir(input_dict['trainData_path']):
+        train_data_path = input_dict['trainData_path']
+    else:
+        sys.exit(-2)
+
+    date_time = time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime())
+    print("date and time: {}".format(date_time))
+    if os.path.isdir(input_dict['saveModel_path']):
+        model_path = ''.join([input_dict['saveModel_path'], '/', input_dict['network'], '_',
+                                   input_dict['target_class'], '_binary_jaccard_', str(input_dict['windsize']), '_',
+                                   date_time, '.h5'])
+        saveModel_path = input_dict['saveModel_path']
+    else:
+        sys.exit(-3)
+
+    base_model = input_dict['baseModel']
+    network = input_dict['network']
+    if 'unet' in base_model:
+        assert ('unet' in network)
+    elif 'fcnnet' in base_model:
+        assert ('fcnnet' in network)
+    elif 'segnet' in base_model:
+        assert ('segnet' in network)
+
+    network = input_dict['network']
+
+
+    im_bands = input_dict['im_bands']
+
+    im_type = 'UINT8'
+
+    if '8' in input_dict['dtype']:
+        im_type = 0
+    elif '10' in input_dict['dtype']:
+        im_type = 2
+    elif '16' in input_dict['dtype']:
+        im_type = 3
+    else:
+        im_type = 4
+
+    img_w = input_dict['windsize']
+    img_h = input_dict['windsize']
+
+    BS = input_dict['BS']
+
+    EPOCHS = input_dict['EPOCHS']
+    target_class = input_dict['target_class']
+    if target_class not in train_data_path:
+        print("target class and train data path is not consistent!")
+        sys.exit(-5)
+
+    gup_id = input_dict['GPUID']
+    os.environ["CUDA_VISIBLE_DEVICES"] = gup_id
+    n_label = 1
+
+    if 'unet' in network:
+        model = binary_unet_jaccard(img_w, img_h, im_bands, n_label)
+    elif 'fcnnet' in network:
+        model = binary_fcnnet_jaccard(img_w, img_h, im_bands, n_label)
+    elif 'segnet' in network:
+        model = binary_segnet_jaccard(img_w, img_h, im_bands, n_label)
 
     if os.path.isfile(base_model):
         print("load last weight from:{}".format(base_model))
         model.load_weights(base_model)
+
+
+    # EPOCHS = 100  # should be 10 or bigger number
+    # BS = 32
+
+    # if os.path.isfile(base_model):
+    #     print("load last weight from:{}".format(base_model))
+    #     model.load_weights(base_model)
 
 
     model_checkpoint = ModelCheckpoint(
@@ -211,17 +343,26 @@ def train(model,model_path):
     callable = [model_checkpoint,model_earlystop, model_reduceLR, model_history]
     # callable = [model_checkpoint, model_reduceLR, model_history]
     # callable = [model_checkpoint,model_earlystop, model_history]
-    train_set, val_set = get_train_val()
+    train_set, val_set = get_train_val(train_data_path)
+    # train_set, val_set = get_train_val()
     train_numb = len(train_set)
     valid_numb = len(val_set)
     print ("the number of train data is", train_numb)
     print ("the number of val data is", valid_numb)
 
-
-    H = model.fit_generator(generator=generateData(BS, train_set), steps_per_epoch=train_numb // BS, epochs=EPOCHS,
+    H = model.fit_generator(generator=generateData(BS, im_bands, im_type, train_data_path, img_w, img_h, train_set),
+                            steps_per_epoch=train_numb // BS, epochs=EPOCHS,
                             verbose=1,
                             validation_data=generateValidData(BS, val_set), validation_steps=valid_numb // BS,
                             callbacks=callable, max_q_size=1)
+
+    #
+    # H = model.fit_generator(generator=generateData(BS,im_bands,im_type, train_data_path, img_w, img_h, n_label, train_set),
+    #                         steps_per_epoch=train_numb // BS, epochs=EPOCHS,
+    #                         verbose=1,
+    #                         validation_data=generateValidData(BS,im_bands,im_type, train_data_path, img_w, img_h, n_label, val_set),
+    #                         validation_steps=valid_numb // BS,
+    #                         callbacks=callable, max_q_size=1)
 
     #plot the training loss and accuracy
     plt.style.use("ggplot")

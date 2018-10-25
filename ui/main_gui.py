@@ -1,15 +1,18 @@
 
 
-from PyQt5.QtWidgets import QApplication, QDialog, QMainWindow
+from PyQt5.QtWidgets import QApplication, QMainWindow
 from MainWin import Ui_MainWindow
-from label_check import Ui_Dialog_label_check
 from PyQt5.QtGui import QIcon
-from ImageStretch_implements import child_image_stretch
+from preProcess.preprocess_implements import child_image_stretch, child_label, child_ImageClip
+from sampleProduce.sampleProcess_implements import child_sampleGenCommon
+from trainUi.trainModels_implements import child_trainBinaryJaccardCross
+
 
 
 class mywindow(QMainWindow, Ui_MainWindow):
     def __init__(self):
         super(mywindow,self).__init__()
+        self.move(600,300)
         self.setWindowTitle('Image Interpretation based-on Deep Learning')
         self.setWindowIcon(QIcon('scrslogo.png'))
         self.setupUi(self)
@@ -24,28 +27,20 @@ class mywindow(QMainWindow, Ui_MainWindow):
         child.show()
         child.exec_()
 
+    def slot_actiong_image_clip(self):
+        child = child_ImageClip()
+        child.show()
+        child.exec_()
 
-class child_label(QDialog, Ui_Dialog_label_check):
-    def __init__(self):
-        super(child_label, self).__init__()
-        self.setupUi(self)
+    def slot_action_sampleGenCommon(self):
+        child = child_sampleGenCommon()
+        child.show()
+        child.exec_()
 
-# class child_image_stretch(QDialog, Ui_Dialog_image_stretch):
-#     def __init__(self):
-#         super(child_image_stretch,self).__init__()
-#         self.setupUi(self)
-#
-#     def slot_select_input_dir(self):
-#         dir_tmp = QFileDialog.getExistingDirectory(self, "select a existing directory", '../../data/')
-#         self.lineEdit_input.setText(dir_tmp)
-#
-#     def slot_select_output_dir(self):
-#         dir_tmp = QFileDialog.getExistingDirectory(self, "select a existing directory", '../../data/')
-#         self.lineEdit_output.setText(dir_tmp)
-#
-#     def slot_ok(self):
-#         input_dir = self.lineEdit_input.text()
-#         output_dir = self.lineEdit_output.text()
+    def slot_action_trainBinaryJaccCross(self):
+        child = child_trainBinaryJaccardCross()
+        child.show()
+        child.exec_()
 
 
 

@@ -33,50 +33,176 @@
     <property name="title">
      <string>File</string>
     </property>
+    <addaction name="actionOpen"/>
+    <addaction name="actionExit"/>
    </widget>
    <widget class="QMenu" name="menuPrepocess">
     <property name="title">
-     <string>Prepocess</string>
+     <string>Preproc</string>
     </property>
     <addaction name="actionLabel_check"/>
     <addaction name="actionImage_strech"/>
+    <addaction name="actionImage_Clip"/>
    </widget>
    <widget class="QMenu" name="menuTrain">
     <property name="title">
      <string>Train</string>
     </property>
+    <addaction name="actionTrain_Binary_Jaccard"/>
+    <addaction name="actionTrain_Binary_JaccCross"/>
+    <addaction name="actionTrain_Binary_Cross_entropy"/>
+    <addaction name="actionTrain_Binary_Onehot_Cross"/>
+    <addaction name="actionTrain_Multiclass"/>
    </widget>
    <widget class="QMenu" name="menuClassify">
     <property name="title">
      <string>Classify</string>
     </property>
+    <addaction name="actionPredict_Binary_Jaccard"/>
+    <addaction name="actionPredict_Binary_JaccCross"/>
+    <addaction name="actionTrain_Binary_Cross_entropy_2"/>
+    <addaction name="actionTrain_Binary_Onehot_Cross_2"/>
+    <addaction name="actionPredict_Multiclass"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
      <string>Help</string>
     </property>
+    <addaction name="actionAbout"/>
    </widget>
    <widget class="QMenu" name="menuSampleProduce">
     <property name="title">
      <string>SampleProduce</string>
     </property>
+    <addaction name="actionSampleGenCommon"/>
+    <addaction name="actionSampleGenByCV2"/>
+   </widget>
+   <widget class="QMenu" name="menuPostproc">
+    <property name="title">
+     <string>Postproc</string>
+    </property>
+    <addaction name="actionCombineSingleModelReults"/>
+    <addaction name="actionVoteMultiModelResults"/>
+    <addaction name="actionAccuracyEvaluation"/>
+    <addaction name="actionMismatch_Analyze"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuPrepocess"/>
    <addaction name="menuSampleProduce"/>
    <addaction name="menuTrain"/>
    <addaction name="menuClassify"/>
+   <addaction name="menuPostproc"/>
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionLabel_check">
    <property name="text">
-    <string>Label_check</string>
+    <string>Label Check</string>
    </property>
   </action>
   <action name="actionImage_strech">
    <property name="text">
-    <string>Image stretch</string>
+    <string>Image Stretch</string>
+   </property>
+  </action>
+  <action name="actionSampleGenCommon">
+   <property name="text">
+    <string>Sample Generate</string>
+   </property>
+  </action>
+  <action name="actionCombineSingleModelReults">
+   <property name="text">
+    <string>Combine SingleModelReults</string>
+   </property>
+  </action>
+  <action name="actionVoteMultiModelResults">
+   <property name="text">
+    <string>Vote MultiModelResults</string>
+   </property>
+  </action>
+  <action name="actionAccuracyEvaluation">
+   <property name="text">
+    <string>Accuracy Evaluate</string>
+   </property>
+  </action>
+  <action name="actionSampleGenByCV2">
+   <property name="text">
+    <string>SampleGenByCV2</string>
+   </property>
+  </action>
+  <action name="actionImage_Clip">
+   <property name="text">
+    <string>Image Clip</string>
+   </property>
+  </action>
+  <action name="actionMismatch_Analyze">
+   <property name="text">
+    <string>Mismatch Analyze</string>
+   </property>
+  </action>
+  <action name="actionTrain_Binary_Jaccard">
+   <property name="text">
+    <string>Train Binary Jaccard</string>
+   </property>
+  </action>
+  <action name="actionTrain_Binary_JaccCross">
+   <property name="text">
+    <string>Train Binary JaccCross</string>
+   </property>
+  </action>
+  <action name="actionTrain_Binary_Cross_entropy">
+   <property name="text">
+    <string>Train Binary Cross-entropy</string>
+   </property>
+  </action>
+  <action name="actionTrain_Multiclass">
+   <property name="text">
+    <string>Train Multiclass</string>
+   </property>
+  </action>
+  <action name="actionTrain_Binary_Onehot_Cross">
+   <property name="text">
+    <string>Train Binary Onehot Cross</string>
+   </property>
+  </action>
+  <action name="actionPredict_Binary_Jaccard">
+   <property name="text">
+    <string>Predict Binary Jaccard</string>
+   </property>
+  </action>
+  <action name="actionPredict_Binary_JaccCross">
+   <property name="text">
+    <string>Predict Binary JaccCross</string>
+   </property>
+  </action>
+  <action name="actionTrain_Binary_Cross_entropy_2">
+   <property name="text">
+    <string>Predict Binary Cross-entropy</string>
+   </property>
+  </action>
+  <action name="actionTrain_Binary_Onehot_Cross_2">
+   <property name="text">
+    <string>Predict Binary Onehot Cross</string>
+   </property>
+  </action>
+  <action name="actionPredict_Multiclass">
+   <property name="text">
+    <string>Predict Multiclass</string>
+   </property>
+  </action>
+  <action name="actionAbout">
+   <property name="text">
+    <string>About</string>
+   </property>
+  </action>
+  <action name="actionOpen">
+   <property name="text">
+    <string>Open Raster</string>
+   </property>
+  </action>
+  <action name="actionExit">
+   <property name="text">
+    <string>Exit</string>
    </property>
   </action>
  </widget>
@@ -114,9 +240,60 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionImage_Clip</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>slot_actiong_image_clip()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>257</x>
+     <y>202</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionSampleGenCommon</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>slot_action_sampleGenCommon()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>257</x>
+     <y>202</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionTrain_Binary_JaccCross</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>slot_action_trainBinaryJaccCross()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>257</x>
+     <y>202</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>for_action_label_check()</slot>
   <slot>for_action_image_stretch()</slot>
+  <slot>slot_actiong_image_clip()</slot>
+  <slot>slot_action_sampleGenCommon()</slot>
+  <slot>slot_action_trainBinaryJaccCross()</slot>
  </slots>
 </ui>

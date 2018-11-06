@@ -1,24 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Dialog_train_binary_jaccCross</class>
- <widget class="QDialog" name="Dialog_train_binary_jaccCross">
+ <class>Dialog_train_multiclass</class>
+ <widget class="QDialog" name="Dialog_train_multiclass">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
     <width>430</width>
-    <height>344</height>
+    <height>384</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Train model for binary jaccard_cross-entropy</string>
+   <string>Train model for multiclass</string>
   </property>
   <widget class="QDialogButtonBox" name="buttonBox">
    <property name="geometry">
     <rect>
-     <x>90</x>
-     <y>300</y>
-     <width>341</width>
+     <x>220</x>
+     <y>350</y>
+     <width>201</width>
      <height>32</height>
     </rect>
    </property>
@@ -29,18 +29,27 @@
     <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
    </property>
   </widget>
-  <widget class="QWidget" name="">
+  <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
      <x>0</x>
-     <y>10</y>
+     <y>0</y>
      <width>431</width>
-     <height>281</height>
+     <height>341</height>
     </rect>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout">
+    <property name="leftMargin">
+     <number>5</number>
+    </property>
+    <property name="rightMargin">
+     <number>5</number>
+    </property>
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout">
+      <property name="leftMargin">
+       <number>10</number>
+      </property>
       <item>
        <widget class="QLabel" name="label">
         <property name="minimumSize">
@@ -229,7 +238,144 @@
      </layout>
     </item>
     <item>
+     <layout class="QHBoxLayout" name="horizontalLayout_3">
+      <property name="spacing">
+       <number>0</number>
+      </property>
+      <property name="sizeConstraint">
+       <enum>QLayout::SetFixedSize</enum>
+      </property>
+      <property name="leftMargin">
+       <number>10</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>10</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+      <item>
+       <widget class="QGroupBox" name="groupBox_network">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>63</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>66</height>
+         </size>
+        </property>
+        <property name="title">
+         <string>Network</string>
+        </property>
+        <layout class="QHBoxLayout" name="horizontalLayout_10">
+         <item>
+          <widget class="QRadioButton" name="radioButton_unet">
+           <property name="text">
+            <string>Unet</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="radioButton_fcnnet">
+           <property name="text">
+            <string>Fcnnet</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="radioButton_segnet">
+           <property name="text">
+            <string>Segnet</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QGroupBox" name="groupBox_5">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>63</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>66</height>
+         </size>
+        </property>
+        <property name="title">
+         <string>Class</string>
+        </property>
+        <layout class="QHBoxLayout" name="horizontalLayout_11">
+         <item>
+          <widget class="QLabel" name="label_2">
+           <property name="text">
+            <string>Classes:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_2">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QSpinBox" name="spinBox_classes">
+           <property name="minimum">
+            <number>2</number>
+           </property>
+           <property name="maximum">
+            <number>99</number>
+           </property>
+           <property name="value">
+            <number>3</number>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
      <layout class="QHBoxLayout" name="horizontalLayout_6">
+      <property name="leftMargin">
+       <number>10</number>
+      </property>
       <item>
        <widget class="QLabel" name="label_4">
         <property name="minimumSize">
@@ -270,6 +416,9 @@
     </item>
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout_5">
+      <property name="spacing">
+       <number>5</number>
+      </property>
       <property name="leftMargin">
        <number>10</number>
       </property>
@@ -285,6 +434,12 @@
       </item>
       <item>
        <widget class="QComboBox" name="comboBox_gupid">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>22</height>
+         </size>
+        </property>
         <item>
          <property name="text">
           <string>0</string>
@@ -422,139 +577,10 @@
      </layout>
     </item>
     <item>
-     <layout class="QHBoxLayout" name="horizontalLayout_3">
-      <item>
-       <widget class="QGroupBox" name="groupBox_network">
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>63</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>16777215</width>
-          <height>66</height>
-         </size>
-        </property>
-        <property name="title">
-         <string>Network</string>
-        </property>
-        <layout class="QHBoxLayout" name="horizontalLayout_10">
-         <item>
-          <widget class="QRadioButton" name="radioButton_unet">
-           <property name="text">
-            <string>Unet</string>
-           </property>
-           <property name="checked">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QRadioButton" name="radioButton_fcnnet">
-           <property name="text">
-            <string>Fcnnet</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QRadioButton" name="radioButton_segnet">
-           <property name="text">
-            <string>Segnet</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-      </item>
-      <item>
-       <spacer name="horizontalSpacer">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item>
-       <widget class="QGroupBox" name="groupBox_5">
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>63</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>16777215</width>
-          <height>66</height>
-         </size>
-        </property>
-        <property name="title">
-         <string>Class</string>
-        </property>
-        <layout class="QHBoxLayout" name="horizontalLayout_11">
-         <item>
-          <widget class="QLabel" name="label_2">
-           <property name="text">
-            <string>Target:</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <spacer name="horizontalSpacer_2">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item>
-          <widget class="QComboBox" name="comboBox_target_class">
-           <item>
-            <property name="text">
-             <string>roads</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>buildings</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>vegetation</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>water</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>else</string>
-            </property>
-           </item>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-      </item>
-     </layout>
-    </item>
-    <item>
      <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <property name="leftMargin">
+       <number>10</number>
+      </property>
       <item>
        <widget class="QLabel" name="label_6">
         <property name="minimumSize">
@@ -595,100 +621,94 @@
     </item>
    </layout>
   </widget>
-  <zorder>layoutWidget</zorder>
-  <zorder>layoutWidget</zorder>
-  <zorder>layoutWidget</zorder>
-  <zorder>buttonBox</zorder>
-  <zorder>layoutWidget</zorder>
-  <zorder>layoutWidget</zorder>
  </widget>
  <resources/>
  <connections>
   <connection>
-   <sender>buttonBox</sender>
-   <signal>accepted()</signal>
-   <receiver>Dialog_train_binary_jaccCross</receiver>
-   <slot>slot_ok()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>308</x>
-     <y>394</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>157</x>
-     <y>274</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>buttonBox</sender>
-   <signal>rejected()</signal>
-   <receiver>Dialog_train_binary_jaccCross</receiver>
-   <slot>reject()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>376</x>
-     <y>400</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>286</x>
-     <y>274</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>pushButton_trainpath</sender>
    <signal>clicked()</signal>
-   <receiver>Dialog_train_binary_jaccCross</receiver>
+   <receiver>Dialog_train_multiclass</receiver>
    <slot>slot_traindatapath()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>469</x>
-     <y>55</y>
+     <x>453</x>
+     <y>54</y>
     </hint>
     <hint type="destinationlabel">
-     <x>277</x>
-     <y>208</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pushButton_savemodel</sender>
-   <signal>clicked()</signal>
-   <receiver>Dialog_train_binary_jaccCross</receiver>
-   <slot>slot_savemodelpath()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>459</x>
-     <y>332</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>277</x>
-     <y>208</y>
+     <x>425</x>
+     <y>120</y>
     </hint>
    </hints>
   </connection>
   <connection>
    <sender>pushButton_basemodel</sender>
    <signal>clicked()</signal>
-   <receiver>Dialog_train_binary_jaccCross</receiver>
+   <receiver>Dialog_train_multiclass</receiver>
    <slot>slot_basemodel()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>462</x>
-     <y>151</y>
+     <x>456</x>
+     <y>145</y>
     </hint>
     <hint type="destinationlabel">
-     <x>277</x>
-     <y>208</y>
+     <x>481</x>
+     <y>214</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButton_savemodel</sender>
+   <signal>clicked()</signal>
+   <receiver>Dialog_train_multiclass</receiver>
+   <slot>slot_savemodelpath()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>461</x>
+     <y>339</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>449</x>
+     <y>385</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>Dialog_train_multiclass</receiver>
+   <slot>slot_ok()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>268</x>
+     <y>405</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>130</x>
+     <y>357</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>Dialog_train_multiclass</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>295</x>
+     <y>393</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>311</x>
+     <y>349</y>
     </hint>
    </hints>
   </connection>
  </connections>
  <slots>
   <slot>slot_traindatapath()</slot>
+  <slot>slot_basemodel()</slot>
   <slot>slot_savemodelpath()</slot>
   <slot>slot_ok()</slot>
-  <slot>slot_basemodel()</slot>
  </slots>
 </ui>

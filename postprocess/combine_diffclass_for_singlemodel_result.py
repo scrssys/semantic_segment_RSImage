@@ -87,7 +87,7 @@ def combine_all_mask(height, width,input_path,mask_pool):
                     # elif label_value == ROAD_VALUE and final_mask[i, j] != BUILDING_VALUE:
                     #     final_mask[i, j] = label_value
 
-    final_mask[final_mask==ROAD_VALUE]=1
+    final_mask[final_mask == ROAD_VALUE] = 1
     final_mask[final_mask == BUILDING_VALUE] = 2
     return final_mask
 

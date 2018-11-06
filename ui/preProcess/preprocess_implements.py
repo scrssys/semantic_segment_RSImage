@@ -362,7 +362,7 @@ class child_ImageClip(QDialog, Ui_Dialog_image_clip):
         dir_tmp, _ = QFileDialog.getOpenFileName(self, "Open image", '../../data/', self.tr("Images(*.png *.jpg *.tif)"))
         self.lineEdit_input.setText(dir_tmp)
         tp = QFileInfo(dir_tmp).path()
-        QDir.setCurrent(QFileInfo(dir_tmp).path)
+        QDir.setCurrent(tp)
 
     def slot_output(self):
         # dir_tmp = QFileDialog.getOpenFileName(self, "Open image", '../../data/')

@@ -1,24 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Dialog_train_binary_jaccCross</class>
- <widget class="QDialog" name="Dialog_train_binary_jaccCross">
+ <class>Dialog_train_binary_crossentropy</class>
+ <widget class="QDialog" name="Dialog_train_binary_crossentropy">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
     <width>430</width>
-    <height>344</height>
+    <height>373</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Train model for binary jaccard_cross-entropy</string>
+   <string>Train model for binary cross-entropy</string>
   </property>
   <widget class="QDialogButtonBox" name="buttonBox">
    <property name="geometry">
     <rect>
-     <x>90</x>
-     <y>300</y>
-     <width>341</width>
+     <x>160</x>
+     <y>330</y>
+     <width>261</width>
      <height>32</height>
     </rect>
    </property>
@@ -35,7 +35,7 @@
      <x>0</x>
      <y>10</y>
      <width>431</width>
-     <height>281</height>
+     <height>311</height>
     </rect>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout">
@@ -285,6 +285,12 @@
       </item>
       <item>
        <widget class="QComboBox" name="comboBox_gupid">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>22</height>
+         </size>
+        </property>
         <item>
          <property name="text">
           <string>0</string>
@@ -595,100 +601,78 @@
     </item>
    </layout>
   </widget>
-  <zorder>layoutWidget</zorder>
-  <zorder>layoutWidget</zorder>
-  <zorder>layoutWidget</zorder>
-  <zorder>buttonBox</zorder>
-  <zorder>layoutWidget</zorder>
-  <zorder>layoutWidget</zorder>
  </widget>
  <resources/>
  <connections>
   <connection>
-   <sender>buttonBox</sender>
-   <signal>accepted()</signal>
-   <receiver>Dialog_train_binary_jaccCross</receiver>
-   <slot>slot_ok()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>308</x>
-     <y>394</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>157</x>
-     <y>274</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>buttonBox</sender>
-   <signal>rejected()</signal>
-   <receiver>Dialog_train_binary_jaccCross</receiver>
-   <slot>reject()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>376</x>
-     <y>400</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>286</x>
-     <y>274</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>pushButton_trainpath</sender>
    <signal>clicked()</signal>
-   <receiver>Dialog_train_binary_jaccCross</receiver>
+   <receiver>Dialog_train_binary_crossentropy</receiver>
    <slot>slot_traindatapath()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>469</x>
-     <y>55</y>
+     <x>452</x>
+     <y>53</y>
     </hint>
     <hint type="destinationlabel">
-     <x>277</x>
-     <y>208</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pushButton_savemodel</sender>
-   <signal>clicked()</signal>
-   <receiver>Dialog_train_binary_jaccCross</receiver>
-   <slot>slot_savemodelpath()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>459</x>
-     <y>332</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>277</x>
-     <y>208</y>
+     <x>337</x>
+     <y>131</y>
     </hint>
    </hints>
   </connection>
   <connection>
    <sender>pushButton_basemodel</sender>
    <signal>clicked()</signal>
-   <receiver>Dialog_train_binary_jaccCross</receiver>
+   <receiver>Dialog_train_binary_crossentropy</receiver>
    <slot>slot_basemodel()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>462</x>
+     <x>467</x>
      <y>151</y>
     </hint>
     <hint type="destinationlabel">
-     <x>277</x>
-     <y>208</y>
+     <x>485</x>
+     <y>205</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButton_savemodel</sender>
+   <signal>clicked()</signal>
+   <receiver>Dialog_train_binary_crossentropy</receiver>
+   <slot>slot_savemodelpath()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>457</x>
+     <y>336</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>454</x>
+     <y>374</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>Dialog_train_binary_crossentropy</receiver>
+   <slot>slot_ok()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>296</x>
+     <y>400</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>50</x>
+     <y>364</y>
     </hint>
    </hints>
   </connection>
  </connections>
  <slots>
   <slot>slot_traindatapath()</slot>
-  <slot>slot_savemodelpath()</slot>
   <slot>slot_ok()</slot>
   <slot>slot_basemodel()</slot>
+  <slot>slot_savemodelpath()</slot>
  </slots>
 </ui>

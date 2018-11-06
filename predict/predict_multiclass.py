@@ -51,8 +51,8 @@ img_file = '../../data/test/paper/images/'+position+'_4bands1024.png'  # _rgb, _
 
 # img_file = '../../data/test/sat_test/cuiping_4bands1024.png'  # jian11_test_nrg, sample1_nrg
 
-model_file = ''.join(['../../data/models/sat_urban_4bands/',dict_network[FLAG_USING_NETWORK], '_multiclass_final.h5'])
-# model_file = '/home/omnisky/PycharmProjects/data/models/sat_urban_4bands/unet_multiclass_2018-09-11_14-05-31.h5'
+# model_file = ''.join(['../../data/models/sat_urban_4bands/',dict_network[FLAG_USING_NETWORK], '_multiclass_final.h5'])
+model_file = '/home/omnisky/PycharmProjects/data/models/sat_urban_4bands/unet_multiclass_final.h5'
 # model_file = '/home/omnisky/PycharmProjects/data/models/sat_urban_nrg/unet_multiclass.h5'
 
 if __name__ == '__main__':

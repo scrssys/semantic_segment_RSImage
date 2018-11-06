@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Dialog_train_binary_jaccCross</class>
- <widget class="QDialog" name="Dialog_train_binary_jaccCross">
+ <class>Dialog_train_binary_jaccard</class>
+ <widget class="QDialog" name="Dialog_train_binary_jaccard">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
     <width>430</width>
-    <height>344</height>
+    <height>372</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Train model for binary jaccard_cross-entropy</string>
+   <string>Train model for binary jaccard</string>
   </property>
   <widget class="QDialogButtonBox" name="buttonBox">
    <property name="geometry">
     <rect>
-     <x>90</x>
-     <y>300</y>
+     <x>80</x>
+     <y>340</y>
      <width>341</width>
      <height>32</height>
     </rect>
@@ -35,7 +35,7 @@
      <x>0</x>
      <y>10</y>
      <width>431</width>
-     <height>281</height>
+     <height>321</height>
     </rect>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout">
@@ -285,6 +285,12 @@
       </item>
       <item>
        <widget class="QComboBox" name="comboBox_gupid">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>22</height>
+         </size>
+        </property>
         <item>
          <property name="text">
           <string>0</string>
@@ -595,100 +601,78 @@
     </item>
    </layout>
   </widget>
-  <zorder>layoutWidget</zorder>
-  <zorder>layoutWidget</zorder>
-  <zorder>layoutWidget</zorder>
-  <zorder>buttonBox</zorder>
-  <zorder>layoutWidget</zorder>
-  <zorder>layoutWidget</zorder>
  </widget>
  <resources/>
  <connections>
   <connection>
-   <sender>buttonBox</sender>
-   <signal>accepted()</signal>
-   <receiver>Dialog_train_binary_jaccCross</receiver>
-   <slot>slot_ok()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>308</x>
-     <y>394</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>157</x>
-     <y>274</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>buttonBox</sender>
-   <signal>rejected()</signal>
-   <receiver>Dialog_train_binary_jaccCross</receiver>
-   <slot>reject()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>376</x>
-     <y>400</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>286</x>
-     <y>274</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>pushButton_trainpath</sender>
    <signal>clicked()</signal>
-   <receiver>Dialog_train_binary_jaccCross</receiver>
+   <receiver>Dialog_train_binary_jaccard</receiver>
    <slot>slot_traindatapath()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>469</x>
-     <y>55</y>
+     <x>445</x>
+     <y>61</y>
     </hint>
     <hint type="destinationlabel">
-     <x>277</x>
-     <y>208</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pushButton_savemodel</sender>
-   <signal>clicked()</signal>
-   <receiver>Dialog_train_binary_jaccCross</receiver>
-   <slot>slot_savemodelpath()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>459</x>
-     <y>332</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>277</x>
-     <y>208</y>
+     <x>328</x>
+     <y>119</y>
     </hint>
    </hints>
   </connection>
   <connection>
    <sender>pushButton_basemodel</sender>
    <signal>clicked()</signal>
-   <receiver>Dialog_train_binary_jaccCross</receiver>
+   <receiver>Dialog_train_binary_jaccard</receiver>
    <slot>slot_basemodel()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>462</x>
-     <y>151</y>
+     <x>448</x>
+     <y>158</y>
     </hint>
     <hint type="destinationlabel">
-     <x>277</x>
-     <y>208</y>
+     <x>339</x>
+     <y>183</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButton_savemodel</sender>
+   <signal>clicked()</signal>
+   <receiver>Dialog_train_binary_jaccard</receiver>
+   <slot>slot_savemodelpath()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>452</x>
+     <y>333</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>169</x>
+     <y>369</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>Dialog_train_binary_jaccard</receiver>
+   <slot>slot_ok()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>294</x>
+     <y>399</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>455</x>
+     <y>384</y>
     </hint>
    </hints>
   </connection>
  </connections>
  <slots>
+  <slot>slot_ok()</slot>
   <slot>slot_traindatapath()</slot>
   <slot>slot_savemodelpath()</slot>
-  <slot>slot_ok()</slot>
   <slot>slot_basemodel()</slot>
  </slots>
 </ui>

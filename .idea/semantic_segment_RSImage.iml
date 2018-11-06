@@ -12,6 +12,8 @@
       <sourceFolder url="file://$MODULE_DIR$/ui/sampleProduce" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/ui/train" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/ui/trainUi" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/ui/classifyUi" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/ui/postProcess" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/venv" />
     </content>
     <orderEntry type="jdk" jdkName="Python 3.5 (venv)" jdkType="Python SDK" />

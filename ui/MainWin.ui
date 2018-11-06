@@ -7,11 +7,11 @@
     <x>0</x>
     <y>0</y>
     <width>515</width>
-    <height>406</height>
+    <height>233</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>RS Imagery Deep Learning Process System</string>
   </property>
   <widget class="QWidget" name="centralwidget"/>
   <widget class="QMenuBar" name="menubar">
@@ -38,7 +38,7 @@
    </widget>
    <widget class="QMenu" name="menuPrepocess">
     <property name="title">
-     <string>Preproc</string>
+     <string>PreProcess</string>
     </property>
     <addaction name="actionLabel_check"/>
     <addaction name="actionImage_strech"/>
@@ -58,11 +58,10 @@
     <property name="title">
      <string>Classify</string>
     </property>
-    <addaction name="actionPredict_Binary_Jaccard"/>
-    <addaction name="actionPredict_Binary_JaccCross"/>
-    <addaction name="actionTrain_Binary_Cross_entropy_2"/>
-    <addaction name="actionTrain_Binary_Onehot_Cross_2"/>
-    <addaction name="actionPredict_Multiclass"/>
+    <addaction name="actionPredict_Binary_Single"/>
+    <addaction name="actionPredict_Multiclass_Single"/>
+    <addaction name="actionPredict_Binary_Batch"/>
+    <addaction name="actionPredict_Multiclass_Batch"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -72,19 +71,17 @@
    </widget>
    <widget class="QMenu" name="menuSampleProduce">
     <property name="title">
-     <string>SampleProduce</string>
+     <string>Sample</string>
     </property>
     <addaction name="actionSampleGenCommon"/>
-    <addaction name="actionSampleGenByCV2"/>
    </widget>
    <widget class="QMenu" name="menuPostproc">
     <property name="title">
-     <string>Postproc</string>
+     <string>Postprocess</string>
     </property>
     <addaction name="actionCombineSingleModelReults"/>
-    <addaction name="actionVoteMultiModelResults"/>
+    <addaction name="action_VoteMultiModelResults"/>
     <addaction name="actionAccuracyEvaluation"/>
-    <addaction name="actionMismatch_Analyze"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuPrepocess"/>
@@ -112,12 +109,12 @@
   </action>
   <action name="actionCombineSingleModelReults">
    <property name="text">
-    <string>Combine SingleModelReults</string>
+    <string>Combine multiclass</string>
    </property>
   </action>
-  <action name="actionVoteMultiModelResults">
+  <action name="action_VoteMultiModelResults">
    <property name="text">
-    <string>Vote MultiModelResults</string>
+    <string>Vote Results</string>
    </property>
   </action>
   <action name="actionAccuracyEvaluation">
@@ -165,24 +162,24 @@
     <string>Train Binary Onehot Cross</string>
    </property>
   </action>
-  <action name="actionPredict_Binary_Jaccard">
+  <action name="actionPredict_Binary_Single">
    <property name="text">
-    <string>Predict Binary Jaccard</string>
+    <string>Predict Binary Single</string>
    </property>
   </action>
-  <action name="actionPredict_Binary_JaccCross">
+  <action name="actionPredict_Multiclass_Single">
    <property name="text">
-    <string>Predict Binary JaccCross</string>
+    <string>Predict Multiclass Single</string>
    </property>
   </action>
-  <action name="actionTrain_Binary_Cross_entropy_2">
+  <action name="actionPredict_Binary_Batch">
    <property name="text">
-    <string>Predict Binary Cross-entropy</string>
+    <string>Predict Binary Batch</string>
    </property>
   </action>
-  <action name="actionTrain_Binary_Onehot_Cross_2">
+  <action name="actionPredict_Multiclass_Batch">
    <property name="text">
-    <string>Predict Binary Onehot Cross</string>
+    <string>Predict Multiclass Batch</string>
    </property>
   </action>
   <action name="actionPredict_Multiclass">
@@ -288,6 +285,214 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionTrain_Binary_Cross_entropy</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>slot_action_trainBinaryCrossentropy()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>257</x>
+     <y>202</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionTrain_Binary_Jaccard</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>slot_action_trainBinaryJaccard()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>257</x>
+     <y>202</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionTrain_Binary_Onehot_Cross</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>slot_action_trainBinaryOnehot()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>257</x>
+     <y>202</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionTrain_Multiclass</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>slot_action_trainMulticlass()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>257</x>
+     <y>202</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionPredict_Binary_Single</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>slot_action_predictBinarySingleImg()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>257</x>
+     <y>202</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionPredict_Multiclass_Single</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>slot_action_predictMulticlassSingleImg()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>257</x>
+     <y>202</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionPredict_Binary_Batch</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>slot_action_predictBinaryBatch()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>257</x>
+     <y>202</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionPredict_Multiclass_Batch</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>slot_action_predictMulticlassBatch()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>257</x>
+     <y>202</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionCombineSingleModelReults</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>slot_action_combineMulticlassFromSingleModel()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>257</x>
+     <y>116</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>action_VoteMultiModelResults</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>slot_action_VoteMultimodleResults()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>257</x>
+     <y>116</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionAccuracyEvaluation</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>slot_action_accuracyEvaluate()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>257</x>
+     <y>116</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionOpen</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>slot_open_show()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>257</x>
+     <y>116</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionAbout</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>slot_action_about()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>257</x>
+     <y>116</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>for_action_label_check()</slot>
@@ -295,5 +500,18 @@
   <slot>slot_actiong_image_clip()</slot>
   <slot>slot_action_sampleGenCommon()</slot>
   <slot>slot_action_trainBinaryJaccCross()</slot>
+  <slot>slot_action_trainBinaryJaccard()</slot>
+  <slot>slot_action_trainBinaryCrossentropy()</slot>
+  <slot>slot_action_trainMulticlass()</slot>
+  <slot>slot_action_trainBinaryOnehot()</slot>
+  <slot>slot_action_predictBinarySingleImg()</slot>
+  <slot>slot_action_predictMulticlassSingleImg()</slot>
+  <slot>slot_action_predictBinaryBatch()</slot>
+  <slot>slot_action_predictMulticlassBatch()</slot>
+  <slot>slot_action_combineMulticlassFromSingleModel()</slot>
+  <slot>slot_action_VoteMultimodleResults()</slot>
+  <slot>slot_action_accuracyEvaluate()</slot>
+  <slot>slot_open_show()</slot>
+  <slot>slot_action_about()</slot>
  </slots>
 </ui>

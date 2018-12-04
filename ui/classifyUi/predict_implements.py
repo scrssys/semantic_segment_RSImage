@@ -53,7 +53,7 @@ class child_predictBinaryForSingleImage(QDialog, Ui_Dialog_predict_binary_single
         self.lineEdit_model.setText(str)
 
     def slot_save_mask_path(self):
-        str, _ = QFileDialog.getSaveFileName(self, "Open image", '../../data/',
+        str, _ = QFileDialog.getSaveFileName(self, "Input mask saving path", '../../data/',
                                                  self.tr("mask(*.png *.jpg)"))
         self.lineEdit_mask.setText(str)
 
@@ -64,6 +64,9 @@ class child_predictBinaryForSingleImage(QDialog, Ui_Dialog_predict_binary_single
         input_dict['image_file'] = self.lineEdit_image.text()
         input_dict['model_file'] = self.lineEdit_model.text()
         input_dict['mask_path'] = self.lineEdit_mask.text()
+        if not '.' in input_dict['mask_path']:
+            input_dict['mask_path'] = ''.join([input_dict['mask_path'], '.png'])
+
         input_dict['im_bands'] = self.spinBox_bands.value()
         input_dict['dtype'] = self.comboBox_dtype.currentIndex()
         input_dict['windsize'] = self.spinBox_windsize.value()
@@ -77,7 +80,7 @@ class child_predictBinaryForSingleImage(QDialog, Ui_Dialog_predict_binary_single
         ret = -1
         ret = predict_binary_for_single_image(input_dict)
         if ret == 0:
-            QMessageBox.information(self, "Prompt", self.tr("Model Traind successfully!"))
+            QMessageBox.information(self, "Prompt", self.tr("Classify successfully!"))
 
         self.setWindowModality(Qt.NonModal)
 
@@ -98,7 +101,7 @@ class child_predictMulticlassForSingleImage(QDialog, Ui_Dialog_predict_multiclas
         self.lineEdit_model.setText(str)
 
     def slot_save_mask_dir(self):
-        str= QFileDialog.getExistingDirectory(self, "Open image", '../../data/')
+        str= QFileDialog.getExistingDirectory(self, "Select mask saving dir", '../../data/')
         self.lineEdit_mask_dir.setText(str)
 
     def slot_ok(self):
@@ -120,7 +123,7 @@ class child_predictMulticlassForSingleImage(QDialog, Ui_Dialog_predict_multiclas
         ret = -1
         ret = predict_multiclass_for_single_image(input_dict)
         if ret == 0:
-            QMessageBox.information(self, "Prompt", self.tr("Model Traind successfully!"))
+            QMessageBox.information(self, "Prompt", self.tr("Classify successfully!"))
 
         self.setWindowModality(Qt.NonModal)
 
@@ -141,7 +144,7 @@ class child_predictBinaryBatch(QDialog, Ui_Dialog_predict_binary_batch):
         self.lineEdit_model.setText(str)
 
     def slot_save_mask_dir(self):
-        str = QFileDialog.getExistingDirectory(self, "Open image", '../../data/')
+        str = QFileDialog.getExistingDirectory(self, "Select mask saving dir", '../../data/')
         self.lineEdit_mask_dir.setText(str)
 
     def slot_ok(self):
@@ -164,7 +167,7 @@ class child_predictBinaryBatch(QDialog, Ui_Dialog_predict_binary_batch):
         ret = -1
         ret = predict_binary_for_batch_image(input_dict)
         if ret == 0:
-            QMessageBox.information(self, "Prompt", self.tr("Model Traind successfully!"))
+            QMessageBox.information(self, "Prompt", self.tr("Classify successfully!"))
 
         self.setWindowModality(Qt.NonModal)
 
@@ -184,7 +187,7 @@ class child_predictMulticlassBatch(QDialog, Ui_Dialog_predict_multiclass_batch):
         self.lineEdit_model.setText(str)
 
     def slot_save_mask_dir(self):
-        str = QFileDialog.getExistingDirectory(self, "Open image", '../../data/')
+        str = QFileDialog.getExistingDirectory(self, "Select mask saving dir", '../../data/')
         self.lineEdit_mask_dir.setText(str)
 
     def slot_ok(self):
@@ -206,7 +209,7 @@ class child_predictMulticlassBatch(QDialog, Ui_Dialog_predict_multiclass_batch):
         ret = -1
         ret = predict_multiclass_for_batch_image(input_dict)
         if ret == 0:
-            QMessageBox.information(self, "Prompt", self.tr("Model Traind successfully!"))
+            QMessageBox.information(self, "Prompt", self.tr("Classify successfully!"))
 
         self.setWindowModality(Qt.NonModal)
 

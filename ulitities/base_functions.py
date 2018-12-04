@@ -71,10 +71,15 @@ def load_img_by_gdal(path, grayscale=False):
 
     y_height = dataset.RasterYSize
     x_width = dataset.RasterXSize
+    im_bands = dataset.RasterCount
     img = dataset.ReadAsArray(0,0,x_width,y_height)
     if grayscale == False:
         img = np.array(img, dtype="float")
-        img = np.transpose(img, (1,2,0))
+        if im_bands>1:
+            img = np.transpose(img, (1,2,0))
+    else:
+        if im_bands > 1:
+            img = np.transpose(img, (1, 2, 0))
     del dataset
 
     return img

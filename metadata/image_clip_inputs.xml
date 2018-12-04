@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+    <instance>
+        <column>5000</column>
+        <input_file>/home/omnisky/PycharmProjects/data/test/tianfuxinqu/images/2015_GF2.png</input_file>
+        <output_file>/home/omnisky/PycharmProjects/data/test/tianfuxinqu/images/2015_GF2_lake.png</output_file>
+        <row>5000</row>
+        <x>3500</x>
+        <y>5400</y>
+    </instance>
+</root>

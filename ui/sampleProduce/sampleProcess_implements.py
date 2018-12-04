@@ -91,20 +91,23 @@ class SampleGenerate():
 
         return xb, yb
 
-    def add_noise(self, xb, dtype=1):
+    def add_noise(self, xb, width, height, dtype=1):
         if dtype == 1:
             noise_value = 255
         elif dtype == 2:
             noise_value = 1024
         else:
             noise_value = 65535
-        for i in range(200):
+
+        tmp = np.random.random() / 20.0  # max = 0.05
+        noise_num = int(tmp * width * height)
+        for i in range(noise_num):
             temp_x = np.random.randint(0, xb.shape[1])
             temp_y = np.random.randint(0, xb.shape[2])
             xb[:, temp_x, temp_y] = noise_value
         return xb
 
-    def data_augment(self, xb, yb, d_type=1):
+    def data_augment(self, xb, yb, w, h, d_type=1):
         if np.random.random() < 0.25:
             assert (yb.shape[0] == yb.shape[1])
             assert (xb.shape[1] == xb.shape[2])
@@ -127,7 +130,8 @@ class SampleGenerate():
             yb = np.flipud(yb)
 
         if np.random.random() < 0.25:  # gamma adjust
-            xb = exposure.adjust_gamma(xb, 2.0)
+            tmp = np.random.random() * 3
+            xb = exposure.adjust_gamma(xb, tmp)
 
         if np.random.random() < 0.25:  # medium filtering
             xb = xb.astype(np.float32)
@@ -139,7 +143,7 @@ class SampleGenerate():
             xb = xb.astype(np.uint16)
 
         if np.random.random() < 0.2:
-            xb = self.add_noise(xb, d_type)
+            xb = self.add_noise(xb, w, h, d_type)
 
         return xb, yb
 
@@ -223,7 +227,7 @@ class SampleGenerate():
                         continue
 
                 if 'augment' in self.input_dict['mode']:
-                    src_roi, label_roi = self.data_augment(src_roi, label_roi, data_type)
+                    src_roi, label_roi = self.data_augment(src_roi, label_roi, img_w, img_h, data_type)
 
                 visualize = label_roi * 50
 

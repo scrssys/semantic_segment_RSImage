@@ -6,18 +6,18 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>470</width>
-    <height>393</height>
+    <width>431</width>
+    <height>337</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>Generate samples</string>
   </property>
   <widget class="QDialogButtonBox" name="buttonBox">
    <property name="geometry">
     <rect>
-     <x>250</x>
-     <y>350</y>
+     <x>240</x>
+     <y>290</y>
      <width>181</width>
      <height>32</height>
     </rect>
@@ -29,13 +29,13 @@
     <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
    </property>
   </widget>
-  <widget class="QWidget" name="">
+  <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
-     <x>12</x>
-     <y>11</y>
-     <width>441</width>
-     <height>331</height>
+     <x>10</x>
+     <y>10</y>
+     <width>411</width>
+     <height>261</height>
     </rect>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout">
@@ -264,7 +264,7 @@
            </size>
           </property>
           <property name="text">
-           <string>singal target :</string>
+           <string>target label :</string>
           </property>
          </widget>
         </item>
@@ -289,14 +289,13 @@
      </layout>
     </item>
     <item>
-     <widget class="Line" name="line">
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
-      </property>
-     </widget>
-    </item>
-    <item>
      <layout class="QHBoxLayout" name="horizontalLayout_14">
+      <property name="leftMargin">
+       <number>10</number>
+      </property>
+      <property name="rightMargin">
+       <number>10</number>
+      </property>
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_12">
         <item>
@@ -308,7 +307,7 @@
            </size>
           </property>
           <property name="text">
-           <string> sample num:</string>
+           <string> sample scale:</string>
           </property>
          </widget>
         </item>
@@ -377,13 +376,6 @@
        </layout>
       </item>
      </layout>
-    </item>
-    <item>
-     <widget class="Line" name="line_2">
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
-      </property>
-     </widget>
     </item>
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout_15">

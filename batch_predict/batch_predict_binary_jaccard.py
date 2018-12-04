@@ -27,7 +27,7 @@ from ulitities.base_functions import get_file
 """
    The following global variables should be put into meta data file 
 """
-os.environ["CUDA_VISIBLE_DEVICES"] = "5"
+os.environ["CUDA_VISIBLE_DEVICES"] = "3"
 
 
 target_class =1
@@ -41,17 +41,17 @@ dict_network={0: 'unet', 1: 'fcnnet', 2: 'segnet'}
 dict_target={0: 'roads', 1: 'buildings'}
 FLAG_USING_NETWORK = 0  # 0:unet; 1:fcn; 2:segnet;
 
-FLAG_TARGET_CLASS = 0  # 0:roads; 1:buildings
+FLAG_TARGET_CLASS = 1  # 0:roads; 1:buildings
 
 FLAG_APPROACH_PREDICT = 1 # 0: original predict, 1: smooth predict
 
-input_path = '/home/omnisky/PycharmProjects/data/test/tianfuxinqu/images/'
-output_path = ''.join(['/home/omnisky/PycharmProjects/data/test/tianfuxinqu/pred/pred_', str(window_size)])
+input_path = '/home/omnisky/PycharmProjects/data/test/APtest/images/'
+output_path = ''.join(['/home/omnisky/PycharmProjects/data/test/APtest/pred_', str(window_size)])
 
 
-model_file = ''.join(['../../data/models/sat_urban_rgb/',dict_network[FLAG_USING_NETWORK], '_',
-                      dict_target[FLAG_TARGET_CLASS],'_binary_jaccard_', str(window_size), '_final.h5'])
-# model_file ='/home/omnisky/PycharmProjects/data/models/sat_urban_4bands/unet_roads_binary_jaccard_288_2018-09-29_14-13-58.h5'
+# model_file = ''.join(['../../data/models/sat_urban_rgb/',dict_network[FLAG_USING_NETWORK], '_',
+#                       dict_target[FLAG_TARGET_CLASS],'_binary_jaccard_', str(window_size), '_final.h5'])
+model_file ='/home/omnisky/PycharmProjects/data/models/APsamples/unet_buildings_binary_jaccard_256_final.h5'
 
 
 print("model: {}".format(model_file))

@@ -29,7 +29,7 @@
     <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
    </property>
   </widget>
-  <widget class="QWidget" name="">
+  <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
      <x>0</x>
@@ -390,7 +390,7 @@
       <item>
        <widget class="QLabel" name="label_7">
         <property name="text">
-         <string>ecpoch:</string>
+         <string>epoch:</string>
         </property>
        </widget>
       </item>

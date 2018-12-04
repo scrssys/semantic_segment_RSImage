@@ -119,6 +119,9 @@ def vote_masks(input_dict):
     # vote_mask[vote_mask == 255] = 2
     print(np.unique(vote_mask))
 
+    cv2.imwrite(output_file, vote_mask)
+    return 0
+
 
 
 
@@ -128,6 +131,8 @@ def accuracy_evalute(input_dict):
     valid_labels = input_dict['valid_values']
     n_class = len(valid_labels)
     check_rate = input_dict['check_rate']
+    gup_id = input_dict['GPUID']
+    os.environ["CUDA_VISIBLE_DEVICES"] = gup_id
 
     ret, ref_img = load_img_by_cv2(ref_file, grayscale=True)
     if ret != 0:

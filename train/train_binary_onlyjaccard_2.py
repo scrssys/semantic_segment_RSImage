@@ -30,7 +30,7 @@ K.set_image_dim_ordering('tf')
 from semantic_segmentation_networks import binary_unet_onlyjaccard, binary_fcnnet_jaccard, binary_segnet_jaccard
 from ulitities.base_functions import load_img_normalization, load_img_by_gdal, UINT16, UINT8, UINT10
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "3"
+os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 seed = 7
 np.random.seed(seed)
 
@@ -39,8 +39,8 @@ img_h = 256
 
 n_label = 1
 
-im_bands =4
-im_type = UINT10  # UINT8:0, UINT10:1, UINT16:2
+im_bands =3
+im_type = UINT8  # UINT8:0, UINT10:1, UINT16:2
 
 dict_network={0: 'unet', 1: 'fcnnet', 2: 'segnet'}
 dict_target={0: 'roads', 1: 'buildings'}
@@ -57,12 +57,12 @@ print("date and time: {}".format(date_time))
 #                       dict_target[FLAG_TARGET_CLASS],'_binary_jaccard_final.h5'])
 base_model = ''
 
-model_save_path = ''.join(['../../data/models/sat_urban_4bands/',dict_network[FLAG_USING_NETWORK], '_',
+model_save_path = ''.join(['../../data/models/APsamples/',dict_network[FLAG_USING_NETWORK], '_',
                            dict_target[FLAG_TARGET_CLASS],'_binary_onlyjaccard_', date_time, '.h5'])
 # model_save_path = ''.join(['/home/omnisky/PycharmProjects/data/models/ssj/shuidao_jaccard_', date_time, '.h5'])
 print("model save as to: {}".format(model_save_path))
 
-train_data_path = ''.join(['../../data/traindata/sat_urban_4bands/binary/',dict_target[FLAG_TARGET_CLASS], '/'])
+train_data_path = ''.join(['../../data/traindata/APsamples/binary/',dict_target[FLAG_TARGET_CLASS], '/'])
 # train_data_path = '/home/omnisky/PycharmProjects/data/traindata/shuidao/'
 print("traindata from: {}".format(train_data_path))
 
@@ -168,7 +168,7 @@ class CustomModelCheckpoint(keras.callbacks.Callback):
 """Train model ............................................."""
 def train(model,model_path):
     EPOCHS = 100  # should be 10 or bigger number
-    BS = 32
+    BS = 48
 
     if os.path.isfile(base_model):
         print("load last weight from:{}".format(base_model))
@@ -294,11 +294,11 @@ if __name__ == '__main__':
         print ("train data does not exist in the path:\n {}".format(train_data_path))
 
     if FLAG_USING_NETWORK==0:
-        model = binary_unet_onlyjaccard(im_bands, n_label)
+        model = binary_unet_onlyjaccard(img_w, img_h, im_bands, n_label)
     elif FLAG_USING_NETWORK==1:
-        model = binary_fcnnet_jaccard(im_bands,n_label)
+        model = binary_fcnnet_jaccard(img_w, img_h, im_bands,n_label)
     elif FLAG_USING_NETWORK==2:
-        model=binary_segnet_jaccard(im_bands,n_label)
+        model=binary_segnet_jaccard(img_w, img_h, im_bands,n_label)
 
     print("Train by : {}".format(dict_network[FLAG_USING_NETWORK]))
     train(model, model_save_path)

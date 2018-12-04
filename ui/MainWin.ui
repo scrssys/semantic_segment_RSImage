@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>515</width>
-    <height>233</height>
+    <width>519</width>
+    <height>218</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,8 +19,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>515</width>
-     <height>19</height>
+     <width>519</width>
+     <height>18</height>
     </rect>
    </property>
    <property name="defaultUp">
@@ -53,14 +53,15 @@
     <addaction name="actionTrain_Binary_Cross_entropy"/>
     <addaction name="actionTrain_Binary_Onehot_Cross"/>
     <addaction name="actionTrain_Multiclass"/>
+    <addaction name="actionTrain_Binary_new"/>
    </widget>
    <widget class="QMenu" name="menuClassify">
     <property name="title">
      <string>Classify</string>
     </property>
     <addaction name="actionPredict_Binary_Single"/>
-    <addaction name="actionPredict_Multiclass_Single"/>
     <addaction name="actionPredict_Binary_Batch"/>
+    <addaction name="actionPredict_Multiclass_Single"/>
     <addaction name="actionPredict_Multiclass_Batch"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
@@ -109,17 +110,17 @@
   </action>
   <action name="actionCombineSingleModelReults">
    <property name="text">
-    <string>Combine multiclass</string>
+    <string notr="true">Combine multiclass</string>
    </property>
   </action>
   <action name="action_VoteMultiModelResults">
    <property name="text">
-    <string>Vote Results</string>
+    <string notr="true">Vote Results</string>
    </property>
   </action>
   <action name="actionAccuracyEvaluation">
    <property name="text">
-    <string>Accuracy Evaluate</string>
+    <string notr="true">Accuracy Evaluate</string>
    </property>
   </action>
   <action name="actionSampleGenByCV2">
@@ -200,6 +201,11 @@
   <action name="actionExit">
    <property name="text">
     <string>Exit</string>
+   </property>
+  </action>
+  <action name="actionTrain_Binary_new">
+   <property name="text">
+    <string>Train Binary new</string>
    </property>
   </action>
  </widget>
@@ -493,6 +499,38 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionExit</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>257</x>
+     <y>116</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionTrain_Binary_new</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>slot_action_trainBinaryNew()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>242</x>
+     <y>11</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>289</x>
+     <y>73</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>for_action_label_check()</slot>
@@ -513,5 +551,6 @@
   <slot>slot_action_accuracyEvaluate()</slot>
   <slot>slot_open_show()</slot>
   <slot>slot_action_about()</slot>
+  <slot>slot_action_trainBinaryNew()</slot>
  </slots>
 </ui>

@@ -14,6 +14,7 @@ from trainUi.trainModels_implements import child_trainBinaryJaccardCross, child_
 from classifyUi.predict_implements import child_predictBinaryForSingleImage, child_predictMulticlassForSingleImage, child_predictBinaryBatch, child_predictMulticlassBatch
 from postProcess.postProcess_implements import child_CombineMulticlassFromSingleModelResults, child_VoteMultimodleResults, child_AccuacyEvaluate
 from about import Ui_Dialog_about
+from new_train_implements import child_trainBinaryCommon
 
 
 class mywindow(QMainWindow, Ui_MainWindow):
@@ -21,14 +22,42 @@ class mywindow(QMainWindow, Ui_MainWindow):
         super(mywindow,self).__init__()
         self.move(300,300)
         self.setWindowTitle(self.tr('Image'))
-        self.setWindowIcon(QIcon('scrslogo.png'))
+        self.setWindowIcon(QIcon('else/scrslogo.png'))
         self.setupUi(self)
-        # self.new_translate()
+        self.new_translate()
 
 
-    # def new_translate(self, ):
-    #     _translate = QtCore.QCoreApplication.translate
-    #     self.setWindowTitle(_translate(self, "image"))
+    def new_translate(self ):
+        _translate = QtCore.QCoreApplication.translate
+        self.setWindowTitle(_translate("MainWindow", "遥感影像人工地物深度学习识别系统"))
+        self.menuFile.setTitle(_translate("MainWindow", "文件"))
+        self.menuPrepocess.setTitle(_translate("MainWindow", "预处理"))
+        self.menuTrain.setTitle(_translate("MainWindow", "模型训练"))
+        self.menuClassify.setTitle(_translate("MainWindow", "分类识别"))
+        self.menuHelp.setTitle(_translate("MainWindow", "帮助"))
+        self.menuSampleProduce.setTitle(_translate("MainWindow", "数据集"))
+        self.menuPostproc.setTitle(_translate("MainWindow", "后处理"))
+        self.actionLabel_check.setText(_translate("MainWindow", "标注检查"))
+        self.actionImage_strech.setText(_translate("MainWindow", "图像标准化"))
+        self.actionSampleGenCommon.setText(_translate("MainWindow", "样本制作"))
+        self.actionSampleGenByCV2.setText(_translate("MainWindow", "SampleGenByCV2"))
+        self.actionImage_Clip.setText(_translate("MainWindow", "图像裁剪"))
+        self.actionMismatch_Analyze.setText(_translate("MainWindow", "Mismatch Analyze"))
+        self.actionTrain_Binary_Jaccard.setText(_translate("MainWindow", "二分类模型（Jaccard相似度）"))
+        self.actionTrain_Binary_JaccCross.setText(_translate("MainWindow", "二分类模型（相似度&交叉熵）"))
+        self.actionTrain_Binary_Cross_entropy.setText(_translate("MainWindow", "二分类模型（交叉熵）"))
+        self.actionTrain_Multiclass.setText(_translate("MainWindow", "多分类模型"))
+        self.actionTrain_Binary_Onehot_Cross.setText(_translate("MainWindow", "二分类模型（Onehot编码）"))
+        self.actionPredict_Binary_Single.setText(_translate("MainWindow", "二分类预测"))
+        self.actionPredict_Multiclass_Single.setText(_translate("MainWindow", "多分类预测"))
+        self.actionPredict_Binary_Batch.setText(_translate("MainWindow", "二分类批处理"))
+        self.actionPredict_Multiclass_Batch.setText(_translate("MainWindow", "多分类批处理"))
+        self.actionAbout.setText(_translate("MainWindow", "关于"))
+        self.actionOpen.setText(_translate("MainWindow", "影像打开"))
+        self.actionExit.setText(_translate("MainWindow", "退出"))
+        self.actionCombineSingleModelReults.setText(_translate("MainWindow", "多类别合成"))
+        self.action_VoteMultiModelResults.setText(_translate("MainWindow", "多模型集成"))
+        self.actionAccuracyEvaluation.setText(_translate("MainWindow", "精度评估"))
 
     def for_action_label_check(self):
         child = child_label()
@@ -67,6 +96,11 @@ class mywindow(QMainWindow, Ui_MainWindow):
 
     def slot_action_trainBinaryCrossentropy(self):
         child = child_trainBinaryCrossentropy()
+        child.show()
+        child.exec_()
+
+    def slot_action_trainBinaryNew(self):
+        child = child_trainBinaryCommon()
         child.show()
         child.exec_()
 

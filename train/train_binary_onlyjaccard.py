@@ -39,14 +39,14 @@ img_h = 256
 
 n_label = 1
 
-im_bands =4
-im_type = UINT10  # UINT8:0, UINT10:1, UINT16:2
+im_bands =3
+im_type = UINT8  # UINT8:0, UINT10:1, UINT16:2
 
 dict_network={0: 'unet', 1: 'fcnnet', 2: 'segnet'}
 dict_target={0: 'roads', 1: 'buildings'}
 
 FLAG_USING_NETWORK = 0  # 0:unet; 1:fcn; 2:segnet;
-FLAG_TARGET_CLASS = 1   # 0:roads; 1:buildings
+FLAG_TARGET_CLASS = 0   # 0:roads; 1:buildings
 FLAG_MAKE_TEST=True
 
 date_time = time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime())
@@ -55,14 +55,16 @@ print("date and time: {}".format(date_time))
 
 # base_model = ''.join(['../../data/models/sat_urban_rgb/',dict_network[FLAG_USING_NETWORK], '_',
 #                       dict_target[FLAG_TARGET_CLASS],'_binary_jaccard_final.h5'])
-base_model = '/home/omnisky/PycharmProjects/data/models/sat_urban_4bands/unet_roads_binary_onlyjaccard_2018-09-23_15-53-58.h5'
+# base_model = '/home/omnisky/PycharmProjects/data/models/sat_urban_4bands/unet_roads_binary_onlyjaccard_2018-09-23_15-53-58.h5'
 
-model_save_path = ''.join(['../../data/models/sat_urban_4bands/',dict_network[FLAG_USING_NETWORK], '_',
+base_model = ''
+
+model_save_path = ''.join(['../../data/models/APsamples/',dict_network[FLAG_USING_NETWORK], '_',
                            dict_target[FLAG_TARGET_CLASS],'_binary_onlyjaccard_', date_time, '.h5'])
 # model_save_path = ''.join(['/home/omnisky/PycharmProjects/data/models/ssj/shuidao_jaccard_', date_time, '.h5'])
 print("model save as to: {}".format(model_save_path))
 
-train_data_path = ''.join(['../../data/traindata/sat_urban_4bands/binary/',dict_target[FLAG_TARGET_CLASS], '/'])
+train_data_path = ''.join(['../../data/traindata/APsamples/binary/',dict_target[FLAG_TARGET_CLASS], '/'])
 # train_data_path = '/home/omnisky/PycharmProjects/data/traindata/shuidao/'
 print("traindata from: {}".format(train_data_path))
 
@@ -168,7 +170,7 @@ class CustomModelCheckpoint(keras.callbacks.Callback):
 """Train model ............................................."""
 def train(model,model_path):
     EPOCHS = 100  # should be 10 or bigger number
-    BS = 32
+    BS = 40
 
     if os.path.isfile(base_model):
         print("load last weight from:{}".format(base_model))

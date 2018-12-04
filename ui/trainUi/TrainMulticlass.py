@@ -256,7 +256,7 @@ class Ui_Dialog_train_multiclass(object):
         self.comboBox_gupid.setItemText(4, _translate("Dialog_train_multiclass", "4"))
         self.comboBox_gupid.setItemText(5, _translate("Dialog_train_multiclass", "5"))
         self.label_5.setText(_translate("Dialog_train_multiclass", "batch size:"))
-        self.label_7.setText(_translate("Dialog_train_multiclass", "ecpoch:"))
+        self.label_7.setText(_translate("Dialog_train_multiclass", "epoch:"))
         self.label_6.setText(_translate("Dialog_train_multiclass", "model save path:"))
         self.pushButton_savemodel.setText(_translate("Dialog_train_multiclass", "Open"))
 

@@ -11,11 +11,11 @@ from tqdm import tqdm
 from ulitities.base_functions import get_file
 
 NoData = 65535
-input_path = '../../data/originaldata/4bands/ori/'
+input_path = '../../data/originaldata/zs/test/original/'
 # input_path = '/media/omnisky/6b62a451-463c-41e2-b06c-57f95571fdec/Backups/data/originaldata/zs/original/'
 
 # output_path = '/home/omnisky/PycharmProjects/data/originaldata/4bands/test/'
-output_path = '../../data/originaldata/4bands/test/'
+output_path = '../../data/originaldata/zs/test/stretched/'
 # output_path = './media/omnisky/6b62a451-463c-41e2-b06c-57f95571fdec/Backups/data/originaldata/zs/testout/'
 absname = 'lizhou_test_4bands.png'  # fenyi11, qingbaijiang, yujiang4, lizhou_test_4bands
 
@@ -168,8 +168,8 @@ def convert_all_image_to_8bits():
 
 
 def convert_all_image_to_16bits():
-    # src_files, tt = get_file(input_path,file_type='.tif')
-    src_files, tt = get_file(input_path)
+    src_files, tt = get_file(input_path,file_type='.tif')
+    # src_files, tt = get_file(input_path)
     assert (tt != 0)
 
     for file in tqdm(src_files):
@@ -199,7 +199,10 @@ def convert_all_image_to_16bits():
         img = np.array(img, np.float32)
         result = []
         for i in range(im_bands):
-            data = np.array(img[i])
+            if im_bands==1:
+                data = img
+            else:
+                data = np.array(img[i])
             maxium = data.max()
             minm = data.min()
             mean = data.mean()

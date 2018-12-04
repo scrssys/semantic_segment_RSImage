@@ -12,7 +12,7 @@ from ulitities.base_functions import load_img_by_cv2
 
 # seed = 1
 # random.seed(seed)
-os.environ["CUDA_VISIBLE_DEVICES"] = "5"
+os.environ["CUDA_VISIBLE_DEVICES"] = "4"
 
 valid_labels=[0,1,2]
 # valid_labels=[0,1]
@@ -22,7 +22,7 @@ n_class = len(dict_class)
 
 
 # ref_file = '/home/omnisky/PycharmProjects/data/test/shuidao/GF2shuitian22_test_label2.png'
-ref_file = '../../data/test/paper/label/yujiang_test_label.png'
+ref_file = '../../data/test/paper/label/tongchuan_test_label.png'
 # 1) jian11_test_label, 2) jiangyou_label, 3) yujiang_test_label,
 # 4) cuiping_label, 5) shuangliu_1test_label, 6) tongchuan_test_label
 # sample1_label, yushui22_test_label, lizhou_test_label,
@@ -32,8 +32,10 @@ ref_file = '../../data/test/paper/label/yujiang_test_label.png'
 # pred_file = '../../data/test/paper/pred_256/combined/' \
 #             'unet_multiclass_jian_4bands_combined.png'
 
-pred_file = '../../data/test/paper/voted/' \
-            'unet_yujiang_4bands_voted2.png'
+# pred_file = '../../data/test/paper/voted/' \
+#             'unet_yujiang_4bands_voted2.png'
+pred_file = '/home/omnisky/PycharmProjects/data/test/paper/' \
+            'ecognition/pred/tongchuan.png'
 check_rate=1.0
 
 

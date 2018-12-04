@@ -19,12 +19,12 @@ from TrainBinaryJaccard import Ui_Dialog_train_binary_jaccard
 from TrainBinaryOnehot import Ui_Dialog_train_binary_onehot
 from TrainBinaryCrossentropy import Ui_Dialog_train_binary_crossentropy
 from TrainMulticlass import Ui_Dialog_train_multiclass
+# from TrainBinaryCommon import Ui_Dialog_train_binary_common
 
 from ulitities.base_functions import load_img_normalization
 from train.semantic_segmentation_networks import binary_unet_jaccard, binary_fcnnet_jaccard, binary_segnet_jaccard
 from modelTrainBackend import test_train, train_binary_jaccCross, train_binary_jaccard, train_binary_onehot, train_binary_crossentropy, train_multiclass
 
-# from train.train_binary_jaccard import train
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 seed = 7
@@ -326,6 +326,8 @@ class child_trainMulticlass(QDialog, Ui_Dialog_train_multiclass):
 
 
         self.setWindowModality(Qt.NonModal)
+
+
 
 
 

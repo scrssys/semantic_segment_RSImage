@@ -539,7 +539,7 @@
       <item>
        <widget class="QLabel" name="label_7">
         <property name="text">
-         <string>ecpoch:</string>
+         <string>epoch:</string>
         </property>
        </widget>
       </item>

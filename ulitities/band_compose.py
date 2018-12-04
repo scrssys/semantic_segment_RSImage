@@ -7,11 +7,11 @@ import numpy as np
 
 
 
-root = '../../data/originaldata/4bands/src/'
-files = ['GJ_Clip1.tif','dem_r05.tif', 'Int_slope100_Resample05.tif']
+root = '../../data/originaldata/zs/test/stretched/'
+files = ['extract_bottom_16bit.png','dem_r05_b.png', 'Int_slope100_Resample05_b.png']
 
 
-output_file =root+'composed.tif'
+output_file =root+'composed.png'
 
 if __name__=='__main__':
     all_data=[]

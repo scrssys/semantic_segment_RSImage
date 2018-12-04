@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'image_stretch.ui'
+# Form implementation generated from reading ui file 'ImageStretch.ui'
 #
 # Created by: PyQt5 UI code generator 5.5.1
 #
@@ -11,17 +11,17 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_Dialog_image_stretch(object):
     def setupUi(self, Dialog_image_stretch):
         Dialog_image_stretch.setObjectName("Dialog_image_stretch")
-        Dialog_image_stretch.resize(448, 300)
+        Dialog_image_stretch.resize(421, 265)
         self.buttonBox = QtWidgets.QDialogButtonBox(Dialog_image_stretch)
-        self.buttonBox.setGeometry(QtCore.QRect(270, 260, 171, 32))
+        self.buttonBox.setGeometry(QtCore.QRect(240, 230, 171, 32))
         self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
         self.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.Cancel|QtWidgets.QDialogButtonBox.Ok)
         self.buttonBox.setObjectName("buttonBox")
         self.groupBox = QtWidgets.QGroupBox(Dialog_image_stretch)
-        self.groupBox.setGeometry(QtCore.QRect(10, 10, 411, 171))
+        self.groupBox.setGeometry(QtCore.QRect(10, 10, 401, 151))
         self.groupBox.setObjectName("groupBox")
         self.layoutWidget = QtWidgets.QWidget(self.groupBox)
-        self.layoutWidget.setGeometry(QtCore.QRect(10, 30, 386, 131))
+        self.layoutWidget.setGeometry(QtCore.QRect(10, 20, 386, 131))
         self.layoutWidget.setObjectName("layoutWidget")
         self.verticalLayout = QtWidgets.QVBoxLayout(self.layoutWidget)
         self.verticalLayout.setObjectName("verticalLayout")
@@ -98,7 +98,7 @@ class Ui_Dialog_image_stretch(object):
         self.horizontalLayout_8.addLayout(self.horizontalLayout_6)
         self.verticalLayout.addLayout(self.horizontalLayout_8)
         self.groupBox_2 = QtWidgets.QGroupBox(Dialog_image_stretch)
-        self.groupBox_2.setGeometry(QtCore.QRect(10, 190, 411, 71))
+        self.groupBox_2.setGeometry(QtCore.QRect(10, 170, 401, 61))
         self.groupBox_2.setObjectName("groupBox_2")
         self.layoutWidget1 = QtWidgets.QWidget(self.groupBox_2)
         self.layoutWidget1.setGeometry(QtCore.QRect(10, 30, 381, 24))
@@ -127,7 +127,7 @@ class Ui_Dialog_image_stretch(object):
 
     def retranslateUi(self, Dialog_image_stretch):
         _translate = QtCore.QCoreApplication.translate
-        Dialog_image_stretch.setWindowTitle(_translate("Dialog_image_stretch", "Dialog"))
+        Dialog_image_stretch.setWindowTitle(_translate("Dialog_image_stretch", "Stetch image"))
         self.groupBox.setTitle(_translate("Dialog_image_stretch", "Input parameters"))
         self.label.setText(_translate("Dialog_image_stretch", "Input Dir"))
         self.pushButton_input.setText(_translate("Dialog_image_stretch", "Open"))

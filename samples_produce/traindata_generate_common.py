@@ -20,20 +20,21 @@ img_w = 256
 img_h = 256
 
 valid_labels=[0,1,2] # ignore Nodata
+
 # valid_labels=[0,1]
-target_label = 2 # used for binary: 1: roads or shuidao; 2: buildings
+target_label = 1 # used for binary: 1: roads or shuidao,huapo; 2: buildings
 
-# FLAG_BINARY = False
-FLAG_BINARY = True
+FLAG_BINARY = False  # for multiclass
+# FLAG_BINARY = True  #for binary
 
 
-# input_path = '../../data/originaldata/sat_urban_4bands/'
+# input_path = '../../data/originaldata/zs/'
 # input_path = '/media/omnisky/6b62a451-463c-41e2-b06c-57f95571fdec/Backups/data/originaldata/ssj/'
-input_path = '/media/omnisky/6b62a451-463c-41e2-b06c-57f95571fdec/Backups/data/originaldata/sat_urban_rgb/'
+input_path = '/media/omnisky/6b62a451-463c-41e2-b06c-57f95571fdec/Backups/data/originaldata/APsamples/'
 
 # output_path = '../../data/traindata/sat_urban_nrg/multiclass/'
-output_path = '../../data/traindata/sat_rgb/binary/buildings/'
-# output_path = '../../data/traindata/huapo/'
+output_path = '../../data/traindata/APsamples/multiclass/'
+# output_path = '../../data/traindata/huapo_512/'
 # output_path = '../../data/traindata/sat_4bands_224/binary/buildings/'
 # output_path = '/media/omnisky/6b62a451-463c-41e2-b06c-57f95571fdec/Backups/data/traindata/sat_4bands_320/binary/roads/'
 
@@ -53,12 +54,13 @@ def add_noise(xb,dtype=1):
         noise_value =1024
     else:
         noise_value = 65535
-    for i in range(200):
+    tmp = np.random.random()/20.0  # max = 0.05
+    noise_num =int(tmp*img_w*img_h)
+    for i in range(noise_num):
         temp_x = np.random.randint(0, xb.shape[1])
         temp_y = np.random.randint(0, xb.shape[2])
         xb[:, temp_x, temp_y] = noise_value
     return xb
-
 
 
 def data_augment(xb, yb, d_type=1):
@@ -84,7 +86,8 @@ def data_augment(xb, yb, d_type=1):
         yb = np.flipud(yb)
 
     if np.random.random() < 0.25:  # gamma adjust
-        xb = exposure.adjust_gamma(xb, 2.0)
+        tmp = np.random.random()*3  #max = 3.0
+        xb = exposure.adjust_gamma(xb, tmp)
 
     if np.random.random() < 0.25:  # medium filtering
         xb = xb.astype(np.float32)
@@ -99,7 +102,6 @@ def data_augment(xb, yb, d_type=1):
         xb = add_noise(xb, d_type)
 
     return xb, yb
-
 
 
 def produce_training_samples_binary(in_path, out_path, image_num=50000, mode='original'):
@@ -205,9 +207,6 @@ def produce_training_samples_binary(in_path, out_path, image_num=50000, mode='or
             g_count += 1
 
 
-
-
-
 def produce_training_samples_multiclass(in_path, out_path, image_num=50000, mode='original'):
     print('\ncreating dataset...')
 
@@ -293,7 +292,6 @@ def produce_training_samples_multiclass(in_path, out_path, image_num=50000, mode
             g_count += 1
 
 
-
 if __name__ == '__main__':
 
     """check input directories"""
@@ -306,10 +304,10 @@ if __name__ == '__main__':
 
     if FLAG_BINARY==True:
         print("Produce labels for binary classification")
-        produce_training_samples_binary(input_path, output_path, 500000, mode='augment')
+        produce_training_samples_binary(input_path, output_path, 50000, mode='augment')
     else:
         print("produce labels for multiclass")
-        produce_training_samples_multiclass(input_path, output_path, 300000, mode='augment')
+        produce_training_samples_multiclass(input_path, output_path, 500000, mode='augment')
 
 
 

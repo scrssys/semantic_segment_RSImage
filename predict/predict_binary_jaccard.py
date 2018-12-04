@@ -27,16 +27,16 @@ from smooth_tiled_predictions import predict_img_with_smooth_windowing_multiclas
 """
    The following global variables should be put into meta data file 
 """
-os.environ["CUDA_VISIBLE_DEVICES"] = "4"
+os.environ["CUDA_VISIBLE_DEVICES"] = "3"
 
 
 target_class =1
 
-window_size = 256  #224, 256, 288. 320
+window_size = 512  #224, 256, 288. 320
 # step = 128
 
-im_bands =3
-im_type = UINT8  # UINT10,UINT8,UINT16
+im_bands =6
+im_type = UINT10  # UINT10,UINT8,UINT16
 dict_network={0: 'unet', 1: 'fcnnet', 2: 'segnet'}
 dict_target={0: 'roads', 1: 'buildings'}
 FLAG_USING_NETWORK = 0  # 0:unet; 1:fcn; 2:segnet;
@@ -49,13 +49,13 @@ FLAG_APPROACH_PREDICT = 1 # 0: original predict, 1: smooth predict
 # 4)cuiping, 5)shuangliu_1test, 6) tongchuan_test
 # 7) lizhou_test, 8) jianyang, 9)yushui22_test, 10) sample1, 11)ruoergai_52test
 # img_file = '../../data/test/paper/images/'+position+'_4bands1024.png'  # _rgb, _nrg, _4bands1024.
-img_file = '/home/omnisky/PycharmProjects/data/test/tianfuxinqu/images/fw0.tiff'
+img_file = '/home/omnisky/PycharmProjects/data/originaldata/zs/test/stretched/composed.png'
 # img_file='/home/omnisky/PycharmProjects/data/test/sample1_12.png'
 
 
-model_file = ''.join(['../../data/models/sat_urban_rgb/',dict_network[FLAG_USING_NETWORK], '_',
-                      dict_target[FLAG_TARGET_CLASS],'_binary_jaccard_', str(window_size), '_final.h5'])
-# model_file ='/home/omnisky/PycharmProjects/data/models/huapo/unet_jaccardCrossentropy_320_2018-10-12_08-45-22.h5'
+# model_file = ''.join(['../../data/models/sat_urban_rgb/',dict_network[FLAG_USING_NETWORK], '_',
+#                       dict_target[FLAG_TARGET_CLASS],'_binary_jaccard_', str(window_size), '_final.h5'])
+model_file ='/home/omnisky/PycharmProjects/data/models/huapo/huapo_jaccard_512_2018-11-15_21-11-44.h5'
 
 print("model: {}".format(model_file))
 
@@ -98,6 +98,7 @@ if __name__ == '__main__':
         #                        abs_filename, '_', dict_target[FLAG_TARGET_CLASS],'_jaccard.png'])
         output_file = ''.join(['../../data/test/tianfuxinqu/pred/pred_', str(window_size), '/mask_binary_',
                                abs_filename, '_', dict_target[FLAG_TARGET_CLASS], '_jaccard_original.png'])
+        output_file = '/home/omnisky/PycharmProjects/data/originaldata/zs/pred/b_pred_original.png'
         print("result save as to: {}".format(output_file))
         cv2.imwrite(output_file, result*128)
 
@@ -113,9 +114,9 @@ if __name__ == '__main__':
         )
         # output_file = ''.join(['../../data/predict/', dict_network[FLAG_USING_NETWORK],'/sat_rgb/mask_binary_',str(window_size),
         #                        '_', abs_filename, '_', dict_target[FLAG_TARGET_CLASS],'_jaccard.png'])
-        output_file = ''.join(['../../data/test/tianfuxinqu/pred/pred_', str(window_size), '/mask_binary_',
-                               abs_filename, '_', dict_target[FLAG_TARGET_CLASS], '_jaccard_smooth.png'])
-
+        # output_file = ''.join(['../../data/test/tianfuxinqu/pred/pred_', str(window_size), '/mask_binary_',
+        #                        abs_filename, '_', dict_target[FLAG_TARGET_CLASS], '_jaccard_smooth.png'])
+        output_file = '/home/omnisky/PycharmProjects/data/originaldata/zs/pred/b_pred_512.png'
         print("result save as to: {}".format(output_file))
 
         cv2.imwrite(output_file, result)

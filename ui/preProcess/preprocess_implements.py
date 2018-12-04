@@ -51,6 +51,7 @@ class child_image_stretch(QDialog, Ui_Dialog_image_stretch):
 
         # ss = QCoreApplication.applicationDirPath()
         QDir.setCurrent(QCoreApplication.applicationDirPath()) # change current dir to "venv/bin/"
+        ''' save parameters into xml '''
         xmlfile = '../../metadata/image_stretch_inputs.xml'
         generate_xml_from_dict(imgStretch_dict, xmlfile)
 

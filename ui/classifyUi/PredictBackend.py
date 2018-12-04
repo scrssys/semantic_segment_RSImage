@@ -198,6 +198,7 @@ def predict_binary_for_batch_image(input_dict={}):
 
     for img_file in all_files:
         print("[INFO] opening image...")
+        print("FileName:{}".format(img_file))
         input_img = load_img_by_gdal(img_file)
         if im_type == UINT8:
             input_img = input_img / 255.0
@@ -277,7 +278,7 @@ def predict_multiclass_for_batch_image(input_dict={}):
         sys.exit(-1)
 
     for img_file in all_files:
-        print("[INFO] opening image...")
+        print("[INFO] opening image...".format(img_file))
         input_img = load_img_by_gdal(img_file)
         if im_type == UINT8:
             input_img = input_img / 255.0
@@ -309,12 +310,13 @@ def predict_multiclass_for_batch_image(input_dict={}):
                 window_size=window_size,
                 subdivisions=2,
                 real_classes=out_bands,  # output channels = 是真的类别，总类别-背景
-                pred_func=smooth_predict_for_multiclass
+                pred_func=smooth_predict_for_multiclass,
+                PLOT_PROGRESS=False
             )
 
             for b in range(out_bands):
                 output_file = ''.join([output_path, '/', abs_filename, '_', dict_target[b],'smooth.png'])
-                cv2.imwrite(output_file, result)
+                cv2.imwrite(output_file, result[:,:,b])
                 print("Saved to: {}".format(output_file))
 
         gc.collect()

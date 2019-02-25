@@ -263,14 +263,14 @@
         </spacer>
        </item>
        <item>
-        <widget class="QLabel" name="label_5">
+        <widget class="QLabel" name="label_6">
          <property name="text">
-          <string>rows:</string>
+          <string>columns:</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QSpinBox" name="spinBox_row">
+        <widget class="QSpinBox" name="spinBox_column">
          <property name="maximumSize">
           <size>
            <width>70</width>
@@ -302,14 +302,14 @@
         </spacer>
        </item>
        <item>
-        <widget class="QLabel" name="label_6">
+        <widget class="QLabel" name="label_5">
          <property name="text">
-          <string>columns:</string>
+          <string>rows:</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QSpinBox" name="spinBox_column">
+        <widget class="QSpinBox" name="spinBox_row">
          <property name="maximumSize">
           <size>
            <width>70</width>

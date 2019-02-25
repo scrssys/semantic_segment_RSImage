@@ -118,15 +118,15 @@ def binary_unet_jaccard(img_w, img_h, im_bands, n_label=1):
     # adam = Adam()
 
     model = Model(inputs=inputs, outputs=conv10)
-    # model.compile(optimizer='Adam', loss='binary_crossentropy', metrics=['accuracy'])
 
     model.compile(optimizer=sgd,
                   loss=losses.jaccard_coef_binary_crossentropy_loss,
                   metrics=['accuracy', metrics.jaccard_coef_int])
-
+    #
     # model.compile(optimizer='Adam',
-    #               loss='binary_crossentropy',
-    #               metrics=['accuracy', metrics.jaccard_coef, metrics.jaccard_coef_int])
+    #               loss=losses.jaccard_coef_binary_crossentropy_loss,
+    #               metrics=['accuracy', metrics.jaccard_coef_int])
+
     model.summary()
     return model
 

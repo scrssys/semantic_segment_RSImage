@@ -14,15 +14,15 @@ from ulitities.base_functions import load_img_by_cv2
 # random.seed(seed)
 os.environ["CUDA_VISIBLE_DEVICES"] = "4"
 
-valid_labels=[0,1,2]
-# valid_labels=[0,1]
-dict_class={0:'background', 1:'roads', 2:'buildings'}
-# dict_class={0:'background', 1:'shuidao'}
+# valid_labels=[0,1,2]
+valid_labels=[0,1]
+# dict_class={0:'background', 1:'roads', 2:'buildings'}
+dict_class={0:'background', 1:'tuitiantu'}
 n_class = len(dict_class)
 
 
-# ref_file = '/home/omnisky/PycharmProjects/data/test/shuidao/GF2shuitian22_test_label2.png'
-ref_file = '../../data/test/paper/label/tongchuan_test_label.png'
+ref_file = '/home/omnisky/PycharmProjects/data/test/ducha/cd13_test_label.png'
+# ref_file = '../../data/test/paper/label/tongchuan_test_label.png'
 # 1) jian11_test_label, 2) jiangyou_label, 3) yujiang_test_label,
 # 4) cuiping_label, 5) shuangliu_1test_label, 6) tongchuan_test_label
 # sample1_label, yushui22_test_label, lizhou_test_label,
@@ -34,8 +34,7 @@ ref_file = '../../data/test/paper/label/tongchuan_test_label.png'
 
 # pred_file = '../../data/test/paper/voted/' \
 #             'unet_yujiang_4bands_voted2.png'
-pred_file = '/home/omnisky/PycharmProjects/data/test/paper/' \
-            'ecognition/pred/tongchuan.png'
+pred_file = '/home/omnisky/PycharmProjects/data/test/ducha/cd13_test_src_pred.png'
 check_rate=1.0
 
 

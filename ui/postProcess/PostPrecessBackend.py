@@ -22,12 +22,34 @@ def check_input_file(files):
     num_img = len(files)
 
     for next_index in range(1,num_img):
+        # print(files[next_index])
         next_ret, next_img=load_img_by_cv2(files[next_index],grayscale=True)
         assert (next_ret ==0 )
         next_height, next_width = next_img.shape
         assert(height==next_height and width==next_width)
     return height, width
 
+def binarize_mask(input_dict):
+    threshold = input_dict['threshold']
+    grayscale_mask_path = input_dict['grayscale_mask']
+    binary_mask_saving_path = input_dict['binary_mask']
+
+    if not os.path.isfile(grayscale_mask_path):
+        print("input file do not exist!\n")
+        return -2
+    print("input grayscale mask: {}".format(grayscale_mask_path))
+
+    img = cv2.imread(grayscale_mask_path, cv2.IMREAD_GRAYSCALE)
+
+    result = np.zeros(img.shape, np.uint8)
+    ind_foreground = np.where(img>threshold)
+    result[ind_foreground]=1
+    plt.imshow(result)
+    plt.show()
+
+    cv2.imwrite(binary_mask_saving_path,result)
+
+    return 0
 
 def combine_masks(input_dict):
     FOREGROUND = input_dict['foreground']
@@ -36,6 +58,8 @@ def combine_masks(input_dict):
     output_file = input_dict['save_mask']
 
     files = [road_mask, building_mask]
+    print("road mask:{}".format(road_mask))
+    print("building mask:{}".format(building_mask))
     height, width = check_input_file(files)
 
     final_mask = np.zeros((height, width), np.uint8)
@@ -87,8 +111,9 @@ def vote_masks(input_dict):
     height, width = check_input_file(files)
 
     mask_list = []
-    for tt in range(len(files)):
-        ret, img = load_img_by_cv2(files[tt], grayscale=True)
+    for file in files:
+        ret, img = load_img_by_cv2(file, grayscale=True)
+        print(file)
         assert (ret == 0)
         mask_list.append(img)
 

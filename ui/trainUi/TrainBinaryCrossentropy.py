@@ -195,6 +195,7 @@ class Ui_Dialog_train_binary_crossentropy(object):
         self.comboBox_target_class.addItem("")
         self.comboBox_target_class.addItem("")
         self.comboBox_target_class.addItem("")
+        self.comboBox_target_class.addItem("")
         self.horizontalLayout_11.addWidget(self.comboBox_target_class)
         self.horizontalLayout_3.addWidget(self.groupBox_5)
         self.verticalLayout.addLayout(self.horizontalLayout_3)
@@ -254,7 +255,8 @@ class Ui_Dialog_train_binary_crossentropy(object):
         self.comboBox_target_class.setItemText(1, _translate("Dialog_train_binary_crossentropy", "buildings"))
         self.comboBox_target_class.setItemText(2, _translate("Dialog_train_binary_crossentropy", "vegetation"))
         self.comboBox_target_class.setItemText(3, _translate("Dialog_train_binary_crossentropy", "water"))
-        self.comboBox_target_class.setItemText(4, _translate("Dialog_train_binary_crossentropy", "else"))
+        self.comboBox_target_class.setItemText(4, _translate("Dialog_train_binary_crossentropy", "rice"))
+        self.comboBox_target_class.setItemText(5, _translate("Dialog_train_binary_crossentropy", "else"))
         self.label_6.setText(_translate("Dialog_train_binary_crossentropy", "model save path:"))
         self.pushButton_savemodel.setText(_translate("Dialog_train_binary_crossentropy", "Open"))
 

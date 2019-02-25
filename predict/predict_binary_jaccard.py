@@ -32,10 +32,10 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "3"
 
 target_class =1
 
-window_size = 512  #224, 256, 288. 320
+window_size = 256  #224, 256, 288. 320
 # step = 128
 
-im_bands =6
+im_bands =4
 im_type = UINT10  # UINT10,UINT8,UINT16
 dict_network={0: 'unet', 1: 'fcnnet', 2: 'segnet'}
 dict_target={0: 'roads', 1: 'buildings'}
@@ -43,19 +43,19 @@ FLAG_USING_NETWORK = 0  # 0:unet; 1:fcn; 2:segnet;
 
 FLAG_TARGET_CLASS = 0  # 0:roads; 1:buildings
 
-FLAG_APPROACH_PREDICT = 1 # 0: original predict, 1: smooth predict
+FLAG_APPROACH_PREDICT = 1  # 0: original predict, 1: smooth predict
 
 # position = 'shuangliu_1test' #  1)jian11_test, , 2)jiangyou, 3)yujiang_test,
 # 4)cuiping, 5)shuangliu_1test, 6) tongchuan_test
 # 7) lizhou_test, 8) jianyang, 9)yushui22_test, 10) sample1, 11)ruoergai_52test
 # img_file = '../../data/test/paper/images/'+position+'_4bands1024.png'  # _rgb, _nrg, _4bands1024.
-img_file = '/home/omnisky/PycharmProjects/data/originaldata/zs/test/stretched/composed.png'
+img_file = '/home/omnisky/PycharmProjects/data/test/ducha/cd13_test_src.png'
 # img_file='/home/omnisky/PycharmProjects/data/test/sample1_12.png'
 
 
 # model_file = ''.join(['../../data/models/sat_urban_rgb/',dict_network[FLAG_USING_NETWORK], '_',
 #                       dict_target[FLAG_TARGET_CLASS],'_binary_jaccard_', str(window_size), '_final.h5'])
-model_file ='/home/omnisky/PycharmProjects/data/models/huapo/huapo_jaccard_512_2018-11-15_21-11-44.h5'
+model_file ='/home/omnisky/PycharmProjects/data/models/ducha/tuitiantu_jaccardandCross_2018-12-29_09-14-05.h5'
 
 print("model: {}".format(model_file))
 

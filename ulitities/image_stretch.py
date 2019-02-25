@@ -11,12 +11,12 @@ from tqdm import tqdm
 from ulitities.base_functions import get_file
 
 NoData = 65535
-input_path = '../../data/originaldata/zs/test/original/'
-# input_path = '/media/omnisky/6b62a451-463c-41e2-b06c-57f95571fdec/Backups/data/originaldata/zs/original/'
+# input_path = '../../data/originaldata/zs/test/original/'
+input_path = '/media/omnisky/e0331d4a-a3ea-4c31-90ab-41f5b0ee2663/ducha/DCtuitiantu/original_src/'
 
 # output_path = '/home/omnisky/PycharmProjects/data/originaldata/4bands/test/'
-output_path = '../../data/originaldata/zs/test/stretched/'
-# output_path = './media/omnisky/6b62a451-463c-41e2-b06c-57f95571fdec/Backups/data/originaldata/zs/testout/'
+# output_path = '../../data/originaldata/zs/test/stretched/'
+output_path = '/media/omnisky/e0331d4a-a3ea-4c31-90ab-41f5b0ee2663/ducha/DCtuitiantu/src/'
 absname = 'lizhou_test_4bands.png'  # fenyi11, qingbaijiang, yujiang4, lizhou_test_4bands
 
 
@@ -168,8 +168,8 @@ def convert_all_image_to_8bits():
 
 
 def convert_all_image_to_16bits():
-    src_files, tt = get_file(input_path,file_type='.tif')
-    # src_files, tt = get_file(input_path)
+    # src_files, tt = get_file(input_path,file_type='.tif')
+    src_files, tt = get_file(input_path)
     assert (tt != 0)
 
     for file in tqdm(src_files):
@@ -256,3 +256,4 @@ if __name__ == '__main__':
     # convert_all_image_to_8bits()
     convert_all_image_to_16bits()
     # convert_single_image()
+

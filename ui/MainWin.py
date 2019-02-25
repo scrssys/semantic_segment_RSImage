@@ -16,7 +16,7 @@ class Ui_MainWindow(object):
         self.centralwidget.setObjectName("centralwidget")
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 519, 18))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 519, 19))
         self.menubar.setDefaultUp(True)
         self.menubar.setNativeMenuBar(False)
         self.menubar.setObjectName("menubar")
@@ -87,6 +87,8 @@ class Ui_MainWindow(object):
         self.actionExit.setObjectName("actionExit")
         self.actionTrain_Binary_new = QtWidgets.QAction(MainWindow)
         self.actionTrain_Binary_new.setObjectName("actionTrain_Binary_new")
+        self.actionBinarization = QtWidgets.QAction(MainWindow)
+        self.actionBinarization.setObjectName("actionBinarization")
         self.menuFile.addAction(self.actionOpen)
         self.menuFile.addAction(self.actionExit)
         self.menuPrepocess.addAction(self.actionLabel_check)
@@ -107,6 +109,7 @@ class Ui_MainWindow(object):
         self.menuPostproc.addAction(self.actionCombineSingleModelReults)
         self.menuPostproc.addAction(self.action_VoteMultiModelResults)
         self.menuPostproc.addAction(self.actionAccuracyEvaluation)
+        self.menuPostproc.addAction(self.actionBinarization)
         self.menubar.addAction(self.menuFile.menuAction())
         self.menubar.addAction(self.menuPrepocess.menuAction())
         self.menubar.addAction(self.menuSampleProduce.menuAction())
@@ -136,6 +139,7 @@ class Ui_MainWindow(object):
         self.actionAbout.triggered.connect(MainWindow.slot_action_about)
         self.actionExit.triggered.connect(MainWindow.close)
         self.actionTrain_Binary_new.triggered.connect(MainWindow.slot_action_trainBinaryNew)
+        self.actionBinarization.triggered.connect(MainWindow.slot_action_binarization)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -168,4 +172,5 @@ class Ui_MainWindow(object):
         self.actionOpen.setText(_translate("MainWindow", "Open Raster"))
         self.actionExit.setText(_translate("MainWindow", "Exit"))
         self.actionTrain_Binary_new.setText(_translate("MainWindow", "Train Binary new"))
+        self.actionBinarization.setText(_translate("MainWindow", "Binarization"))
 

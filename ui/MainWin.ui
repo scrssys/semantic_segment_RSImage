@@ -20,7 +20,7 @@
      <x>0</x>
      <y>0</y>
      <width>519</width>
-     <height>18</height>
+     <height>19</height>
     </rect>
    </property>
    <property name="defaultUp">
@@ -83,6 +83,7 @@
     <addaction name="actionCombineSingleModelReults"/>
     <addaction name="action_VoteMultiModelResults"/>
     <addaction name="actionAccuracyEvaluation"/>
+    <addaction name="actionBinarization"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuPrepocess"/>
@@ -206,6 +207,11 @@
   <action name="actionTrain_Binary_new">
    <property name="text">
     <string>Train Binary new</string>
+   </property>
+  </action>
+  <action name="actionBinarization">
+   <property name="text">
+    <string>Binarization</string>
    </property>
   </action>
  </widget>
@@ -522,12 +528,28 @@
    <slot>slot_action_trainBinaryNew()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>242</x>
-     <y>11</y>
+     <x>-1</x>
+     <y>-1</y>
     </hint>
     <hint type="destinationlabel">
      <x>289</x>
      <y>73</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionBinarization</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>slot_action_binarization()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>259</x>
+     <y>108</y>
     </hint>
    </hints>
   </connection>
@@ -552,5 +574,6 @@
   <slot>slot_open_show()</slot>
   <slot>slot_action_about()</slot>
   <slot>slot_action_trainBinaryNew()</slot>
+  <slot>slot_action_binarization()</slot>
  </slots>
 </ui>

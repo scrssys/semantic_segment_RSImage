@@ -7,14 +7,12 @@ import matplotlib.pyplot as plt
 import cv2
 
 
-input_file = '/home/omnisky/PycharmProjects/data/test/paper/ecognition/classifed_new/cuiping_4bands1024.v1_DT.tif'
-output_file = '/home/omnisky/PycharmProjects/data/test/paper/ecognition/classifed_new/pred/cuiping_4bands1024.v1_DT.png'
+input_file = '/home/omnisky/PycharmProjects/data/test/tianfuxinqu/ecognition/original/c2017_GJ_Clip_SVM.v1.tif'
+output_file = '/home/omnisky/PycharmProjects/data/test/tianfuxinqu/ecognition/pred/2017_GJ_Clip_SVM.png'
 if __name__=='__main__':
-
     if not os.path.isfile(input_file):
         print("Not valid file path or name:{}".format(input_file))
         sys.exit(-1)
-
 
     dataset_in = gdal.Open(input_file)
     if None==dataset_in:

@@ -12,7 +12,7 @@ from preProcess.preprocess_implements import child_image_stretch, child_label, c
 from sampleProduce.sampleProcess_implements import child_sampleGenCommon
 from trainUi.trainModels_implements import child_trainBinaryJaccardCross, child_trainBinaryJaccardOnly, child_trainBinaryOnehot, child_trainBinaryCrossentropy, child_trainMulticlass
 from classifyUi.predict_implements import child_predictBinaryForSingleImage, child_predictMulticlassForSingleImage, child_predictBinaryBatch, child_predictMulticlassBatch
-from postProcess.postProcess_implements import child_CombineMulticlassFromSingleModelResults, child_VoteMultimodleResults, child_AccuacyEvaluate
+from postProcess.postProcess_implements import child_CombineMulticlassFromSingleModelResults, child_VoteMultimodleResults, child_AccuacyEvaluate, child_Binarization
 from about import Ui_Dialog_about
 from new_train_implements import child_trainBinaryCommon
 
@@ -58,6 +58,12 @@ class mywindow(QMainWindow, Ui_MainWindow):
         self.actionCombineSingleModelReults.setText(_translate("MainWindow", "多类别合成"))
         self.action_VoteMultiModelResults.setText(_translate("MainWindow", "多模型集成"))
         self.actionAccuracyEvaluation.setText(_translate("MainWindow", "精度评估"))
+        self.actionBinarization.setText(_translate("MainWindow", "掩膜二值化"))
+
+    def slot_action_binarization(self):
+        child = child_Binarization()
+        child.show()
+        child.exec_()
 
     def for_action_label_check(self):
         child = child_label()

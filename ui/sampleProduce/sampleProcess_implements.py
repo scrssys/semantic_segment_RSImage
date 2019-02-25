@@ -179,6 +179,7 @@ class SampleGenerate():
             y, x = label_img.shape
             # print("label_img: {}".format(np.unique(label_img)))
 
+
             dataset = gdal.Open(src_file)
             if dataset == None:
                 print("open failed!\n")
@@ -203,6 +204,18 @@ class SampleGenerate():
             all_label[index] = 1
 
             print(np.unique(all_label))
+            # if no pixel in target value, ignore this label file
+            tp = np.unique(all_label)
+            # if tp[0]==0:
+            #     print("no target value in {}".format(label_file))
+            #     continue
+            #
+            if len(tp) < 2:
+                print("Only one value {} in {}".format(tp, label_file))
+                if tp[0] == 0:
+                    print("no target value in {}".format(label_file))
+                    continue
+
             count = 0
             while count < image_each:
                 random_width = random.randint(0, X_width - img_w - 1)
@@ -290,6 +303,14 @@ class SampleGenerate():
             X_width = dataset.RasterXSize
             im_bands = dataset.RasterCount
             data_type = dataset.GetRasterBand(1).DataType
+
+            # check size of label and src images
+            x, y = label_img.shape
+            print("Heigh, width of label is :{}, {}".format(x, y))
+            print("Heigh, width of src is :{}, {}".format(X_height, X_width))
+            if x != X_height or y != X_width:
+                print("Warning: src and label have different size!")
+                continue
 
             src_img = dataset.ReadAsArray(0, 0, X_width, X_height)
             src_img = np.array(src_img)

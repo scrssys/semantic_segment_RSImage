@@ -30,7 +30,7 @@ K.set_image_dim_ordering('tf')
 from semantic_segmentation_networks import binary_unet_jaccard, binary_fcnnet_jaccard, binary_segnet_jaccard
 from ulitities.base_functions import load_img_normalization, load_img_by_gdal, UINT16, UINT8, UINT10
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "3"
+os.environ["CUDA_VISIBLE_DEVICES"] = "2"
 seed = 7
 np.random.seed(seed)
 
@@ -39,15 +39,15 @@ img_h = 256
 
 n_label = 1
 
-im_bands =4
-im_type = UINT10  # UINT8:0, UINT10:1, UINT16:2
+im_bands =3
+im_type = UINT8  # UINT8:0, UINT10:1, UINT16:2
 
 dict_network={0: 'unet', 1: 'fcnnet', 2: 'segnet'}
-# dict_target={0: 'roads', 1: 'buildings'}
-dict_target={0: 'huapo'}
+dict_target={0: 'roads', 1: 'buildings'}
+# dict_target={0: 'huapo'}
 
 FLAG_USING_NETWORK = 0  # 0:unet; 1:fcn; 2:segnet;
-FLAG_TARGET_CLASS = 0   # 0:roads; 1:buildings
+FLAG_TARGET_CLASS = 1   # 0:roads; 1:buildings
 FLAG_MAKE_TEST=True
 
 date_time = time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime())
@@ -58,13 +58,13 @@ print("date and time: {}".format(date_time))
 #                       dict_target[FLAG_TARGET_CLASS],'_binary_jaccard_final.h5'])
 base_model = ''
 
-# model_save_path = ''.join(['../../data/models/APsamples/',dict_network[FLAG_USING_NETWORK], '_',
-#                            dict_target[FLAG_TARGET_CLASS],'_binary_jaccard_', str(img_w),'_', date_time, '.h5'])
-model_save_path = ''.join(['/home/omnisky/PycharmProjects/data/models/huapo/huapo_jaccard_4bands_',  str(img_w), '_', date_time, '.h5'])
+model_save_path = ''.join(['../../data/models/APsamples/',dict_network[FLAG_USING_NETWORK], '_',
+                           dict_target[FLAG_TARGET_CLASS],'_binary_jaccard_and_crossentropy', str(img_w),'_', date_time, '.h5'])
+# model_save_path = ''.join(['/home/omnisky/PycharmProjects/data/models/rice/unet_jaccard_4bands_',  str(img_w), '_', date_time, '.h5'])
 print("model save as to: {}".format(model_save_path))
 
-# train_data_path = ''.join(['../../data/traindata/APsamples/binary/',dict_target[FLAG_TARGET_CLASS], '/'])
-train_data_path = '/home/omnisky/PycharmProjects/data/traindata/4bands_huapo_256/'
+train_data_path = ''.join(['../../data/traindata/APsamples/binary/',dict_target[FLAG_TARGET_CLASS], '/'])
+# train_data_path = '/home/omnisky/PycharmProjects/data/traindata/rice/'
 print("traindata from: {}".format(train_data_path))
 
 
@@ -181,11 +181,6 @@ def train(model,model_path):
         monitor='val_jaccard_coef_int',
         save_best_only=False)
 
-    # model_checkpoint = ModelCheckpoint(
-    #     model_save_path,
-    #     monitor='val_jaccard_coef_int',
-    #     save_best_only=True,
-    #     mode='max')
 
     model_earlystop = EarlyStopping(
         monitor='val_jaccard_coef_int',

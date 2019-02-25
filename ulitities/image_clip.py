@@ -10,11 +10,11 @@ import sys
 
 
 # input_src_file = '/home/omnisky/PycharmProjects/data/test/paper/label/yujiang_test_label.png'
-input_src_file ='/media/omnisky/6b62a451-463c-41e2-b06c-57f95571fdec/Backups/data/originaldata/APsamples/label/13044.png'
+input_src_file ='/media/omnisky/e0331d4a-a3ea-4c31-90ab-41f5b0ee2663/ducha/DCtuitiantu/label/cd13.png'
 # clip_src_file = '/home/omnisky/PycharmProjects/data/test/paper/new/yujiang_test_label.png'
-clip_src_file = '/home/omnisky/PycharmProjects/data/test/APtest/label/13044_test.png'
+clip_src_file = '/home/omnisky/PycharmProjects/data/test/ducha/cd13_test_label.png'
 
-window_size = 5000
+window_size = 8000
 # h_clip = 5000
 
 if __name__=='__main__':
@@ -33,13 +33,13 @@ if __name__=='__main__':
 
     # x = np.random.randint(0, height-window_size-1)
     # y = np.random.randint(0, width - window_size - 1)
-    x =0
-    y=0
+    x =15000
+    y=3000
     # h_clip = int(0.5*width+0.5)
     # print("cliped pixels:{}".format(h_clip))
 
     if im_bands ==1:
-        output_img = img[x:x + window_size, y:y + window_size]
+        output_img = img[y:y + window_size, x:x + window_size]
         # output_img = img[100:5000+100, 100:5500+100]
         output_img = np.array(output_img, np.uint16)
         # output_img[output_img > 2] = 127
@@ -51,7 +51,7 @@ if __name__=='__main__':
         plt.show()
         cv2.imwrite(clip_src_file, output_img)  # for label clip
     else:
-        output_img = img[:, x:x + window_size, y:y + window_size]
+        output_img = img[:,y:y + window_size, x:x + window_size]
         # output_img = img[:, :, :h_clip]
         # output_img = img[:, :, h_clip:]
         plt.imshow(output_img[0])

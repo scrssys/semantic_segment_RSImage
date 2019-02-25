@@ -30,7 +30,7 @@ K.set_image_dim_ordering('tf')
 from semantic_segmentation_networks import binary_unet_jaccard, binary_fcnnet_jaccard, binary_segnet_jaccard
 from ulitities.base_functions import load_img_normalization, load_img_by_gdal, UINT16, UINT8, UINT10
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 seed = 7
 np.random.seed(seed)
 
@@ -39,7 +39,7 @@ img_h = 256
 
 n_label = 1
 
-im_bands =3
+im_bands = 3
 im_type = UINT8  # UINT8:0, UINT10:1, UINT16:2
 
 dict_network={0: 'unet', 1: 'fcnnet', 2: 'segnet'}
@@ -47,7 +47,7 @@ dict_target={0: 'roads', 1: 'buildings'}
 
 FLAG_USING_NETWORK = 0  # 0:unet; 1:fcn; 2:segnet;
 FLAG_TARGET_CLASS = 0   # 0:roads; 1:buildings
-FLAG_MAKE_TEST=True
+FLAG_MAKE_TEST = True
 
 date_time = time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime())
 print("date and time: {}".format(date_time))
@@ -55,17 +55,16 @@ print("date and time: {}".format(date_time))
 
 # base_model = ''.join(['../../data/models/sat_urban_rgb/',dict_network[FLAG_USING_NETWORK], '_',
 #                       dict_target[FLAG_TARGET_CLASS],'_binary_jaccard_final.h5'])
+# base_model = '/home/omnisky/PycharmProjects/data/models/sat_urban_4bands/unet_buildings_binary_jaccard_256_final.h5'
 base_model = ''
-
 model_save_path = ''.join(['../../data/models/APsamples/',dict_network[FLAG_USING_NETWORK], '_',
-                           dict_target[FLAG_TARGET_CLASS],'_binary_jaccard_', str(img_w),'_', date_time, '.h5'])
-# model_save_path = ''.join(['/home/omnisky/PycharmProjects/data/models/ssj/shuidao_jaccard_', date_time, '.h5'])
+                           dict_target[FLAG_TARGET_CLASS],'_binary_jaccard_and_crossentropy', str(img_w),'_', date_time, '.h5'])
+# model_save_path = ''.join(['/home/omnisky/PycharmProjects/data/models/ducha/tuitiantu_jaccardandCross_', date_time, '.h5'])
 print("model save as to: {}".format(model_save_path))
 
 train_data_path = ''.join(['../../data/traindata/APsamples/binary/',dict_target[FLAG_TARGET_CLASS], '/'])
-# train_data_path = '/home/omnisky/PycharmProjects/data/traindata/shuidao/'
-# train_data_path = ''.join(['/media/omnisky/6b62a451-463c-41e2-b06c-57f95571fdec/Backups/data/traindata/sat_urban_4bands/binary/',dict_target[FLAG_TARGET_CLASS], '/'])
-# train_data_path = '/media/omnisky/6b62a451-463c-41e2-b06c-57f95571fdec/Backups/data/traindata/sat_4bands_320/binary/roads/'
+# train_data_path = '/home/omnisky/PycharmProjects/data/traindata/tuitiantu/'
+
 print("traindata from: {}".format(train_data_path))
 
 
@@ -146,43 +145,12 @@ def generateValidData(batch_size, data=[]):
                 batch = 0
 
 
-# data for validation
-def generateValidData(batch_size, data=[]):
-    # print 'generateValidData...'
-    im_bands = 3
-    im_type = UINT8
-    n_label = 1
-    while True:
-        valid_data = []
-        valid_label = []
-        batch = 0
-        for i in (range(len(data))):
-            url = data[i]
-            batch += 1
-            _, img = load_img_normalization(im_bands, (train_data_path + '/src/' + url), data_type=im_type)
-
-            # Adapt dim_ordering automatically
-            img = img_to_array(img)
-            valid_data.append(img)
-            _, label = load_img_normalization(1, (train_data_path + '/label/' + url))
-            label = img_to_array(label)
-            valid_label.append(label)
-            if batch % batch_size == 0:
-                valid_data = np.array(valid_data)
-                valid_label = np.array(valid_label)
-                # valid_label = to_categorical(valid_label, num_classes=n_label)
-                valid_label = valid_label.reshape((batch_size, img_w * img_h, n_label))
-                yield (valid_data, valid_label)
-                valid_data = []
-                valid_label = []
-                batch = 0
-
 
 
 """Train model ............................................."""
 def train(model,model_path):
     EPOCHS = 100  # should be 10 or bigger number
-    BS = 32
+    BS = 48
 
     if os.path.isfile(base_model):
         print("load last weight from:{}".format(base_model))
@@ -194,11 +162,6 @@ def train(model,model_path):
         monitor='val_jaccard_coef_int',
         save_best_only=False)
 
-    # model_checkpoint = ModelCheckpoint(
-    #     model_save_path,
-    #     monitor='val_jaccard_coef_int',
-    #     save_best_only=True,
-    #     mode='max')
 
     model_earlystop = EarlyStopping(
         monitor='val_jaccard_coef_int',

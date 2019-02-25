@@ -219,8 +219,9 @@ def train_binary_jaccCross(input_dict={}):
         EPOCHS = input_dict['EPOCHS']
     target_class = input_dict['target_class']
     if target_class not in train_data_path:
-        print("target class and train data path is not consistent!")
-        sys.exit(-5)
+        if not 'else' in target_class:  # do not check "else" class
+            print("target class and train data path is not consistent!")
+            sys.exit(-5)
 
     gup_id = input_dict['GPUID']
     os.environ["CUDA_VISIBLE_DEVICES"] = gup_id
@@ -228,6 +229,7 @@ def train_binary_jaccCross(input_dict={}):
 
     if 'unet' in network:
         model = binary_unet_jaccard(img_w, img_h, im_bands, n_label)
+        # model = binary_unet(img_w, img_h, im_bands, n_label)
     elif 'fcnnet' in network:
         model = binary_fcnnet_jaccard(img_w, img_h, im_bands, n_label)
     elif 'segnet' in network:
@@ -241,12 +243,6 @@ def train_binary_jaccCross(input_dict={}):
         model_path,
         monitor='val_jaccard_coef_int',
         save_best_only=False)
-
-    # model_checkpoint = ModelCheckpoint(
-    #     model_save_path,
-    #     monitor='val_jaccard_coef_int',
-    #     save_best_only=True,
-    #     mode='max')
 
     model_earlystop = EarlyStopping(
         monitor='val_jaccard_coef_int',
@@ -266,6 +262,29 @@ def train_binary_jaccCross(input_dict={}):
         min_lr=0
     )
 
+    # model_checkpoint = ModelCheckpoint(
+    #     model_path,
+    #     monitor='val_acc',
+    #     save_best_only=True)
+    #
+    # model_earlystop = EarlyStopping(
+    #     monitor='val_acc',
+    #     patience=6,
+    #     verbose=0,
+    #     mode='max')
+    #
+    # """自动调整学习率"""
+    # model_reduceLR = ReduceLROnPlateau(
+    #     monitor='val_acc',
+    #     factor=0.1,
+    #     patience=3,
+    #     verbose=0,
+    #     mode='max',
+    #     epsilon=0.0001,
+    #     cooldown=0,
+    #     min_lr=0
+    # )
+
     model_history = History()
 
     callable = [model_checkpoint, model_earlystop, model_reduceLR, model_history]
@@ -283,24 +302,6 @@ def train_binary_jaccCross(input_dict={}):
                             validation_data=generateValidData(BS,im_bands,im_type, train_data_path, img_w, img_h, n_label, val_set),
                             validation_steps=valid_numb // BS,
                             callbacks=callable)
-
-    # # plot the training loss and accuracy
-    # plt.style.use("ggplot")
-    # plt.figure()
-    # N = EPOCHS
-    # plt.plot(np.arange(0, N), H.history["loss"], label="train_loss")
-    # plt.plot(np.arange(0, N), H.history["val_loss"], label="val_loss")
-    # plt.plot(np.arange(0, N), H.history["acc"], label="train_acc")
-    # plt.plot(np.arange(0, N), H.history["val_acc"], label="val_acc")
-    # plt.plot(np.arange(0, N), H.history["jaccard_coef_int"], label="train_jaccard_coef_int")
-    # plt.plot(np.arange(0, N), H.history["val_jaccard_coef_int"], label="val_jaccard_coef_int")
-    # plt.title("Training Loss and Accuracy on U-Net Satellite Seg")
-    # plt.xlabel("Epoch #")
-    # plt.ylabel("Loss/Accuracy")
-    # plt.legend(loc="lower left")
-    # fig_train_acc = ''.join([saveModel_path, network, '_',
-    #                          target_class, '_jaccard.png'])
-    # plt.savefig(fig_train_acc)
 
     return 0
 
@@ -350,8 +351,9 @@ def train_binary_jaccard(input_dict={}):
         EPOCHS = input_dict['EPOCHS']
     target_class = input_dict['target_class']
     if target_class not in train_data_path:
-        print("target class and train data path is not consistent!")
-        sys.exit(-5)
+        if not 'else' in target_class:  # do not check "else" class
+            print("target class and train data path is not consistent!")
+            sys.exit(-5)
 
     gup_id = input_dict['GPUID']
     os.environ["CUDA_VISIBLE_DEVICES"] = gup_id
@@ -496,7 +498,7 @@ def train_binary_onehot(input_dict={}):
 
     model_checkpoint = ModelCheckpoint(
         model_path,
-        monitor='val_jaccard_coef_int',
+        monitor='val_acc',
         save_best_only=False)
 
     # model_checkpoint = ModelCheckpoint(
@@ -506,14 +508,14 @@ def train_binary_onehot(input_dict={}):
     #     mode='max')
 
     model_earlystop = EarlyStopping(
-        monitor='val_jaccard_coef_int',
+        monitor='val_acc',
         patience=6,
         verbose=0,
         mode='max')
 
     """自动调整学习率"""
     model_reduceLR = ReduceLROnPlateau(
-        monitor='val_jaccard_coef_int',
+        monitor='val_acc',
         factor=0.1,
         patience=3,
         verbose=0,
@@ -608,8 +610,9 @@ def train_binary_crossentropy(input_dict={}):
         EPOCHS = input_dict['EPOCHS']
     target_class = input_dict['target_class']
     if target_class not in train_data_path:
-        print("target class and train data path is not consistent!")
-        sys.exit(-5)
+        if not 'else' in target_class:  # do not check "else" class
+            print("target class and train data path is not consistent!")
+            sys.exit(-5)
 
     gup_id = input_dict['GPUID']
     os.environ["CUDA_VISIBLE_DEVICES"] = gup_id
@@ -628,24 +631,18 @@ def train_binary_crossentropy(input_dict={}):
 
     model_checkpoint = ModelCheckpoint(
         model_path,
-        monitor='val_jaccard_coef_int',
-        save_best_only=False)
-
-    # model_checkpoint = ModelCheckpoint(
-    #     model_save_path,
-    #     monitor='val_jaccard_coef_int',
-    #     save_best_only=True,
-    #     mode='max')
+        monitor='val_acc',
+        save_best_only=True)
 
     model_earlystop = EarlyStopping(
-        monitor='val_jaccard_coef_int',
+        monitor='val_acc',
         patience=6,
         verbose=0,
         mode='max')
 
     """自动调整学习率"""
     model_reduceLR = ReduceLROnPlateau(
-        monitor='val_jaccard_coef_int',
+        monitor='val_acc',
         factor=0.1,
         patience=3,
         verbose=0,
@@ -755,18 +752,18 @@ def train_multiclass(input_dict={}):
 
     model_checkpoint = ModelCheckpoint(
         model_path,
-        monitor='val_jaccard_coef_int',
+        monitor='val_acc',
         save_best_only=False)
 
     model_earlystop = EarlyStopping(
-        monitor='val_jaccard_coef_int',
+        monitor='val_acc',
         patience=6,
         verbose=0,
         mode='max')
 
     """自动调整学习率"""
     model_reduceLR = ReduceLROnPlateau(
-        monitor='val_jaccard_coef_int',
+        monitor='val_acc',
         factor=0.1,
         patience=3,
         verbose=0,
@@ -1043,7 +1040,7 @@ def binary_unet_jaccard(img_w, img_h, im_bands, n_label=1):
                   metrics=['accuracy', metrics.jaccard_coef_int])
 
     # model.compile(optimizer='Adam',
-    #               loss='binary_crossentropy',
+    #               loss=losses.jaccard_coef_binary_crossentropy_loss,
     #               metrics=['accuracy', metrics.jaccard_coef, metrics.jaccard_coef_int])
     model.summary()
     return model
@@ -1096,13 +1093,13 @@ def binary_unet_onlyjaccard(img_w, img_h, im_bands, n_label=1):
     model = Model(inputs=inputs, outputs=conv10)
     # model.compile(optimizer='Adam', loss='binary_crossentropy', metrics=['accuracy'])
 
-    model.compile(optimizer=sgd,
+    # model.compile(optimizer=sgd,
+    #               loss=losses.jaccard_coef_loss,
+    #               metrics=['accuracy', metrics.jaccard_coef_int])
+
+    model.compile(optimizer='Adam',
                   loss=losses.jaccard_coef_loss,
                   metrics=['accuracy', metrics.jaccard_coef_int])
-
-    # model.compile(optimizer='Adam',
-    #               loss='binary_crossentropy',
-    #               metrics=['accuracy', metrics.jaccard_coef, metrics.jaccard_coef_int])
     model.summary()
     return model
 

@@ -18,14 +18,18 @@ img_h = 256
 
 valid_labels=[0,1,2]
 
-# FLAG_BINARY = False
-FLAG_BINARY = True
+FLAG_BINARY = False
+# FLAG_BINARY = True
 
 
-input_path = '/media/omnisky/6b62a451-463c-41e2-b06c-57f95571fdec/Backups/data/originaldata/sat_urban_rgb/'
+input_path = '/media/omnisky/6b62a451-463c-41e2-b06c-57f95571fdec/Backups/data/originaldata/APsamples/'
 
 
-output_path = '../../data/traindata/sat_urban_rgb_cv/'
+output_path = '../../data/traindata/test_2/'
+
+if os.path.isdir(output_path):
+    print("ok")
+    pass
 
 
 def gamma_transform(img, gamma):
@@ -91,7 +95,9 @@ def data_augment(xb, yb):
 """ check the size of src_img and label_img"""
 def check_src_label_size(srcimg, labelimg):
     row_src, column_src,_ = srcimg.shape
+    print("source image size: ({},{})".format(row_src, column_src))
     row_label, column_label = labelimg.shape
+    print("label image size: ({},{})".format(row_label, column_label))
     assert (row_src==row_label and column_src==column_src)
 
 
@@ -312,7 +318,7 @@ if __name__ == '__main__':
 
     if FLAG_BINARY==True:
         print("Produce labels for binary classification")
-        creat_dataset_binary(input_path, output_path, 300000, mode='augment')
+        creat_dataset_binary(input_path, output_path, 1000, mode='augment')
     else:
         print("produce labels for multiclass")
-        creat_dataset_multiclass(input_path, output_path, 200000, mode='augment')
+        creat_dataset_multiclass(input_path, output_path, 1000, mode='augment')

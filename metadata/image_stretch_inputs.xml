@@ -5,7 +5,7 @@
         <NoData>65535</NoData>
         <OutBits>16 bits</OutBits>
         <StretchRange>1024</StretchRange>
-        <input_dir>/media/omnisky/6b62a451-463c-41e2-b06c-57f95571fdec/Backups/data/originaldata/shifan/omit</input_dir>
-        <output_dir>/media/omnisky/6b62a451-463c-41e2-b06c-57f95571fdec/Backups/data/originaldata/shifan/stretched</output_dir>
+        <input_dir>/media/omnisky/e0331d4a-a3ea-4c31-90ab-41f5b0ee2663/guoqing/src_original</input_dir>
+        <output_dir>/media/omnisky/e0331d4a-a3ea-4c31-90ab-41f5b0ee2663/guoqing/src</output_dir>
     </instance>
 </root>

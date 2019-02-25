@@ -6,6 +6,7 @@ import numpy as np
 import os
 import sys
 import argparse
+from tqdm import tqdm
 import gc
 from keras.preprocessing.image import img_to_array
 
@@ -207,7 +208,7 @@ def orignal_predict_notonehot(image,bands, model,window_size):
     padding_img = img_to_array(padding_img)
 
     mask_whole = np.zeros((padding_h, padding_w), dtype=np.float32)
-    for i in list(range(padding_h // stride)):
+    for i in tqdm(list(range(padding_h // stride))):
         for j in list(range(padding_w // stride)):
             crop = padding_img[i * stride:i * stride + window_size, j * stride:j * stride + window_size, :bands]
 
@@ -221,7 +222,7 @@ def orignal_predict_notonehot(image,bands, model,window_size):
             pred[pred>=0.5]=1
 
             pred = pred.reshape(256, 256)
-            print(np.unique(pred))
+            # print(np.unique(pred))
 
             mask_whole[i * stride:i * stride + window_size, j * stride:j * stride + window_size] = pred[:, :]
 

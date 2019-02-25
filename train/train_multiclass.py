@@ -26,6 +26,9 @@ from keras.optimizers import *
 from keras import backend as K
 K.set_image_dim_ordering('tf')
 
+from keras.callbacks import TensorBoard
+
+
 
 from semantic_segmentation_networks import multiclass_unet, multiclass_fcnnet, multiclass_segnet
 from ulitities.base_functions import load_img_normalization, load_img_by_gdal, UINT16, UINT8, UINT10
@@ -52,11 +55,11 @@ print("date and time: {}".format(date_time))
 
 base_model = ''
 
-model_save_path = ''.join(['../../data/models/sat_urban_rgb/',dict_network[FLAG_USING_NETWORK],
+model_save_path = ''.join(['../../data/models/APsamples/',dict_network[FLAG_USING_NETWORK],
                            '_multiclass_', date_time, '.h5'])
 print("model save as to: {}".format(model_save_path))
 
-train_data_path = ''.join(['../../data/traindata/sat_urban_rgb/multiclass/'])
+train_data_path = ''.join(['../../data/traindata/test/multiclass/'])
 print("traindata from: {}".format(train_data_path))
 
 
@@ -160,7 +163,7 @@ class CustomModelCheckpoint(keras.callbacks.Callback):
 
 """Train model ............................................."""
 def train(model):
-    EPOCHS = 100  # should be 10 or bigger number
+    EPOCHS = 20  # should be 10 or bigger number
     BS = 32
 
     if os.path.isfile(base_model):
@@ -180,7 +183,10 @@ def train(model):
         min_lr=0
     )
     model_history = History()
-    callable = [modelcheck, model_earlystop,model_reduceLR, model_history]
+
+    tb_log = TensorBoard(log_dir='../../data/tmp/log')
+
+    callable = [modelcheck, model_earlystop,model_reduceLR, model_history, tb_log]
     train_set, val_set = get_train_val()
     train_numb = len(train_set)
     valid_numb = len(val_set)
@@ -205,7 +211,6 @@ def train(model):
     plt.legend(loc="lower left")
     fig_train_acc=''.join(['../../data/models/train_acc_', dict_network[FLAG_USING_NETWORK],'.png'])
     plt.savefig(fig_train_acc)
-
 
 
 """

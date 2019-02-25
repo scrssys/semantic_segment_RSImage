@@ -30,18 +30,18 @@ K.set_image_dim_ordering('tf')
 from semantic_segmentation_networks import binary_unet, binary_fcnnet, binary_segnet, binary_unet_onlyjaccard, binary_unet_jaccard
 from ulitities.base_functions import load_img_normalization,  load_img_by_gdal, UINT16, UINT8, UINT10
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+os.environ["CUDA_VISIBLE_DEVICES"] = "2"
 seed = 7
 np.random.seed(seed)
 
 
 
-img_w = 320
-img_h = 320
+img_w = 256
+img_h = 256
 
 n_label = 1
 
-im_bands =6
+im_bands =4
 im_type = UINT10  # UINT8:0, UINT10:1, UINT16:2
 
 dict_network = {0: 'unet', 1: 'fcnnet', 2: 'segnet'}
@@ -59,14 +59,14 @@ base_model = ""
 # model_save_path = ''.join(['../../data/models/sat_urban_4bands/',dict_network[FLAG_USING_NETWORK], '_',
 #                            dict_target[FLAG_TARGET_CLASS], '_binary_notonehot_', date_time, '.h5'])
 # model_save_path = ''.join(['/home/omnisky/PycharmProjects/data/models/ssj/shuidao_jaccard', date_time, '.h5'])
-model_save_path = ''.join(['/home/omnisky/PycharmProjects/data/models/huapo/', dict_network[FLAG_USING_NETWORK],
-                           '_jaccardCrossentropy_', str(img_w),'_', date_time, '.h5'])
+model_save_path = ''.join(['/home/omnisky/PycharmProjects/data/models/ducha/tuitiantu_', dict_network[FLAG_USING_NETWORK],
+                           '_Crossentropy_', str(img_w),'_', date_time, '.h5'])
 print("model save as to: {}".format(model_save_path))
 
 # train_data_path = ''.join(['../../data/traindata/sat_urban_4bands/binary/',dict_target[FLAG_TARGET_CLASS], '/'])
 #
 # train_data_path = '/home/omnisky/PycharmProjects/data/traindata/shuidao/'
-train_data_path = '/home/omnisky/PycharmProjects/data/traindata/huapo/'
+train_data_path = '/home/omnisky/PycharmProjects/data/traindata/tuitiantu/'
 print("traindata from: {}".format(train_data_path))
 
 """get the train file name and divide to train and val parts"""
@@ -183,23 +183,6 @@ def train(model):
     model_checkpoint = ModelCheckpoint(model_save_path, monitor='val_acc', save_best_only=True, mode='max')
     model_earlystop=EarlyStopping(monitor='val_acc', patience=10, verbose=0, mode='max')
 
-    # model_checkpoint = ModelCheckpoint(
-    #     model_save_path,
-    #     monitor='val_jaccard_coef_int',
-    #     save_best_only=False)
-
-    # model_checkpoint = ModelCheckpoint(
-    #     model_save_path,
-    #     monitor='val_jaccard_coef_int',
-    #     save_best_only=True,
-    #     mode='max')
-
-    # model_earlystop = EarlyStopping(
-    #     monitor='val_jaccard_coef_int',
-    #     patience=6,
-    #     verbose=0,
-    #     mode='max')
-
     """自动调整学习率"""
     model_reduceLR=ReduceLROnPlateau(
         monitor='val_acc',
@@ -301,8 +284,8 @@ if __name__ == '__main__':
         print ("train data does not exist in the path:\n {}".format(train_data_path))
 
     if FLAG_USING_NETWORK==0:
-        # model = binary_unet(im_bands,n_label)
-        model = binary_unet_jaccard(img_w, img_h, im_bands, n_label)
+        model = binary_unet(img_w, img_h, im_bands,n_label)
+        # model = binary_unet_jaccard(img_w, img_h, im_bands, n_label)
     elif FLAG_USING_NETWORK==1:
         model = binary_fcnnet(img_w, img_h, im_bands, n_label)
     elif FLAG_USING_NETWORK==2:

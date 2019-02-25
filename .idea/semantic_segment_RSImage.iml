@@ -22,6 +22,7 @@
     <orderEntry type="module" module-name="kaggle_dstl_submission-master" />
     <orderEntry type="module" module-name="selective_search_py" />
     <orderEntry type="module" module-name="selective_search_py" />
+    <orderEntry type="module" module-name="RS_CNN" />
   </component>
   <component name="TestRunnerService">
     <option name="PROJECT_TEST_RUNNER" value="Unittests" />

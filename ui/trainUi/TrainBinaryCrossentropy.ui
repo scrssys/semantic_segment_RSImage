@@ -549,6 +549,11 @@
            </item>
            <item>
             <property name="text">
+             <string>rice</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
              <string>else</string>
             </property>
            </item>

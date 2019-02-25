@@ -22,7 +22,7 @@ img_h = 256
 valid_labels=[0,1,2] # ignore Nodata
 
 # valid_labels=[0,1]
-target_label = 1 # used for binary: 1: roads or shuidao,huapo; 2: buildings
+target_label = 2 # used for binary: 1: roads or shuidao,huapo,tuitiantu; 2: buildings
 
 FLAG_BINARY = False  # for multiclass
 # FLAG_BINARY = True  #for binary
@@ -33,15 +33,18 @@ FLAG_BINARY = False  # for multiclass
 input_path = '/media/omnisky/6b62a451-463c-41e2-b06c-57f95571fdec/Backups/data/originaldata/APsamples/'
 
 # output_path = '../../data/traindata/sat_urban_nrg/multiclass/'
-output_path = '../../data/traindata/APsamples/multiclass/'
+output_path = '../../data/traindata/test/'
 # output_path = '../../data/traindata/huapo_512/'
 # output_path = '../../data/traindata/sat_4bands_224/binary/buildings/'
 # output_path = '/media/omnisky/6b62a451-463c-41e2-b06c-57f95571fdec/Backups/data/traindata/sat_4bands_320/binary/roads/'
 
 def rotate(xb, yb, angle):
-    xb = np.transpose(xb, (1, 2, 0))
+    a,b,c=xb.shape
+    if a <c:
+        xb = xb.transpose(1,2,0)
     xb = np.rot90(np.array(xb), k=angle)
-    xb = np.transpose(xb, ((2, 0, 1)))
+    if a<c:
+        xb = xb.transpose(2,0,1)
 
     yb = np.rot90(np.array(yb), k=angle)
 
@@ -54,12 +57,17 @@ def add_noise(xb,dtype=1):
         noise_value =1024
     else:
         noise_value = 65535
+    a, b, c = xb.shape
+    if a > c:
+        xb = xb.transpose(2,0,1)
     tmp = np.random.random()/20.0  # max = 0.05
     noise_num =int(tmp*img_w*img_h)
     for i in range(noise_num):
         temp_x = np.random.randint(0, xb.shape[1])
         temp_y = np.random.randint(0, xb.shape[2])
         xb[:, temp_x, temp_y] = noise_value
+    # if a > c:
+    #     xb = xb.transpose(2,0,1)
     return xb
 
 
@@ -75,27 +83,45 @@ def data_augment(xb, yb, d_type=1):
         assert (xb.shape[1] == xb.shape[2])
         xb, yb = rotate(xb, yb, 3)
     if np.random.random() < 0.25:
-        xb = np.transpose(xb, (1, 2, 0))
+        a, b, c = xb.shape
+        if a < c:
+            xb = xb.transpose(1,2,0)
+        # xb = np.transpose(xb, (1, 2, 0))
         xb = np.fliplr(xb)  # flip an array horizontally
-        xb = np.transpose(xb, (2, 0, 1))
+        if a < c:
+            xb = xb.transpose(2, 0, 1)
         yb = np.fliplr(yb)
     if np.random.random() < 0.25:
-        xb = np.transpose(xb, (1, 2, 0))
+        a, b, c = xb.shape
+        if a < c:
+            xb = xb.transpose(1, 2, 0)
         xb = np.flipud(xb)  # flip an array vertically (up down directory)
-        xb = np.transpose(xb, (2, 0, 1))
+        if a < c:
+            xb = xb.transpose(2, 0, 1)
         yb = np.flipud(yb)
 
     if np.random.random() < 0.25:  # gamma adjust
         tmp = np.random.random()*3  #max = 3.0
+        if tmp < 0.6:
+            tmp = 0.6
+        if tmp > 2.0:
+            tmp = 2
+        a, b, c = xb.shape
+        if a > c:
+            xb = xb.transpose(2, 0, 1)
         xb = exposure.adjust_gamma(xb, tmp)
 
     if np.random.random() < 0.25:  # medium filtering
         xb = xb.astype(np.float32)
-        xb = np.transpose(xb, (1, 2, 0))
+        a, b, c = xb.shape
+        if a < c:
+            xb = xb.transpose(1, 2, 0)
+        # xb = np.transpose(xb, (1, 2, 0))
         _, _,bands = xb.shape
         for i in range(bands):
             xb[:,:,i] = medfilt2d(xb[:,:,i],(3,3))
-        xb = np.transpose(xb, (2, 0, 1))
+        if a<c:
+            xb = np.transpose(xb, (2, 0, 1))
         xb = xb.astype(np.uint16)
 
     if np.random.random() < 0.2:
@@ -137,6 +163,9 @@ def produce_training_samples_binary(in_path, out_path, image_num=50000, mode='or
 
         Y_height = dataset.RasterYSize
         X_width = dataset.RasterXSize
+
+        # check size of label and src images
+        x, y = label_img.shape
         if(X_width!=x and Y_height!=y):
             print("label and source image have different size:".format(label_file))
             continue
@@ -238,6 +267,15 @@ def produce_training_samples_multiclass(in_path, out_path, image_num=50000, mode
         im_bands = dataset.RasterCount
         data_type = dataset.GetRasterBand(1).DataType
 
+        # check size of label and src images
+        x,y= label_img.shape
+        print("Heigh, width of label is :{}, {}".format(x, y))
+        print("Heigh, width of src is :{}, {}".format(X_height, X_width))
+        if x!=X_height or y!=X_width:
+            print("Warning: src and label have different size!")
+            continue
+
+
         src_img = dataset.ReadAsArray(0, 0, X_width, X_height)
         src_img = np.array(src_img)
 
@@ -307,7 +345,7 @@ if __name__ == '__main__':
         produce_training_samples_binary(input_path, output_path, 50000, mode='augment')
     else:
         print("produce labels for multiclass")
-        produce_training_samples_multiclass(input_path, output_path, 500000, mode='augment')
+        produce_training_samples_multiclass(input_path, output_path, 500, mode='augment')
 
 
 

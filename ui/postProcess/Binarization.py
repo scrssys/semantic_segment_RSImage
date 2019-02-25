@@ -1,0 +1,91 @@
+# -*- coding: utf-8 -*-
+
+# Form implementation generated from reading ui file 'Binarization.ui'
+#
+# Created by: PyQt5 UI code generator 5.5.1
+#
+# WARNING! All changes made in this file will be lost!
+
+from PyQt5 import QtCore, QtGui, QtWidgets
+
+class Ui_Dialog_binarization(object):
+    def setupUi(self, Dialog_binarization):
+        Dialog_binarization.setObjectName("Dialog_binarization")
+        Dialog_binarization.resize(408, 214)
+        self.buttonBox = QtWidgets.QDialogButtonBox(Dialog_binarization)
+        self.buttonBox.setGeometry(QtCore.QRect(180, 180, 221, 32))
+        self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
+        self.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.Cancel|QtWidgets.QDialogButtonBox.Ok)
+        self.buttonBox.setObjectName("buttonBox")
+        self.layoutWidget = QtWidgets.QWidget(Dialog_binarization)
+        self.layoutWidget.setGeometry(QtCore.QRect(0, 10, 401, 161))
+        self.layoutWidget.setObjectName("layoutWidget")
+        self.verticalLayout = QtWidgets.QVBoxLayout(self.layoutWidget)
+        self.verticalLayout.setObjectName("verticalLayout")
+        self.horizontalLayout_8 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_8.setObjectName("horizontalLayout_8")
+        self.label_6 = QtWidgets.QLabel(self.layoutWidget)
+        self.label_6.setMinimumSize(QtCore.QSize(55, 23))
+        self.label_6.setObjectName("label_6")
+        self.horizontalLayout_8.addWidget(self.label_6)
+        self.lineEdit_grayscale_mask = QtWidgets.QLineEdit(self.layoutWidget)
+        self.lineEdit_grayscale_mask.setMinimumSize(QtCore.QSize(201, 23))
+        self.lineEdit_grayscale_mask.setObjectName("lineEdit_grayscale_mask")
+        self.horizontalLayout_8.addWidget(self.lineEdit_grayscale_mask)
+        self.pushButton_grayscale_mask = QtWidgets.QPushButton(self.layoutWidget)
+        self.pushButton_grayscale_mask.setMinimumSize(QtCore.QSize(0, 23))
+        self.pushButton_grayscale_mask.setObjectName("pushButton_grayscale_mask")
+        self.horizontalLayout_8.addWidget(self.pushButton_grayscale_mask)
+        self.verticalLayout.addLayout(self.horizontalLayout_8)
+        self.horizontalLayout_2 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_2.setObjectName("horizontalLayout_2")
+        self.label = QtWidgets.QLabel(self.layoutWidget)
+        self.label.setObjectName("label")
+        self.horizontalLayout_2.addWidget(self.label)
+        self.spinBox_forground = QtWidgets.QSpinBox(self.layoutWidget)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(23)
+        sizePolicy.setHeightForWidth(self.spinBox_forground.sizePolicy().hasHeightForWidth())
+        self.spinBox_forground.setSizePolicy(sizePolicy)
+        self.spinBox_forground.setMinimum(1)
+        self.spinBox_forground.setMaximum(100000)
+        self.spinBox_forground.setSingleStep(1)
+        self.spinBox_forground.setProperty("value", 127)
+        self.spinBox_forground.setObjectName("spinBox_forground")
+        self.horizontalLayout_2.addWidget(self.spinBox_forground)
+        spacerItem = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout_2.addItem(spacerItem)
+        self.verticalLayout.addLayout(self.horizontalLayout_2)
+        self.horizontalLayout = QtWidgets.QHBoxLayout()
+        self.horizontalLayout.setObjectName("horizontalLayout")
+        self.label_7 = QtWidgets.QLabel(self.layoutWidget)
+        self.label_7.setMinimumSize(QtCore.QSize(55, 23))
+        self.label_7.setObjectName("label_7")
+        self.horizontalLayout.addWidget(self.label_7)
+        self.lineEdit_binary_mask = QtWidgets.QLineEdit(self.layoutWidget)
+        self.lineEdit_binary_mask.setMinimumSize(QtCore.QSize(201, 23))
+        self.lineEdit_binary_mask.setObjectName("lineEdit_binary_mask")
+        self.horizontalLayout.addWidget(self.lineEdit_binary_mask)
+        self.pushButton_binary_mask = QtWidgets.QPushButton(self.layoutWidget)
+        self.pushButton_binary_mask.setMinimumSize(QtCore.QSize(0, 23))
+        self.pushButton_binary_mask.setObjectName("pushButton_binary_mask")
+        self.horizontalLayout.addWidget(self.pushButton_binary_mask)
+        self.verticalLayout.addLayout(self.horizontalLayout)
+
+        self.retranslateUi(Dialog_binarization)
+        self.pushButton_grayscale_mask.clicked.connect(Dialog_binarization.slot_get_grayscale_mask)
+        self.pushButton_binary_mask.clicked.connect(Dialog_binarization.slot_get_saving_binary_mask_path)
+        self.buttonBox.accepted.connect(Dialog_binarization.slot_ok)
+        self.buttonBox.rejected.connect(Dialog_binarization.reject)
+        QtCore.QMetaObject.connectSlotsByName(Dialog_binarization)
+
+    def retranslateUi(self, Dialog_binarization):
+        _translate = QtCore.QCoreApplication.translate
+        Dialog_binarization.setWindowTitle(_translate("Dialog_binarization", "Dialog"))
+        self.label_6.setText(_translate("Dialog_binarization", "Grayscale mask:"))
+        self.pushButton_grayscale_mask.setText(_translate("Dialog_binarization", "Open"))
+        self.label.setText(_translate("Dialog_binarization", "Threshold value:"))
+        self.label_7.setText(_translate("Dialog_binarization", "Binary Mask:"))
+        self.pushButton_binary_mask.setText(_translate("Dialog_binarization", "Open"))
+

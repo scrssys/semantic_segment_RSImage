@@ -49,13 +49,13 @@ position = 'tongchuan_test' #  1)jian11_test, , 2)jiangyou, 3)yujiang_test,
 # 4)cuiping, 5)shuangliu_1test, 6) tongchuan_test
 # 7) lizhou_test, 8) jianyang, 9)yushui22_test, 10) sample1, 11)ruoergai_52test
 # img_file = '../../data/test/sat_test/'+position+'_4bands1024.png'  # _rgb, _nrg, __4bands1024.
-img_file = '../../data/test/paper/images/'+position+'_4bands1024.png'  # _rgb, _nrg, _4bands1024.
-# img_file = '/home/omnisky/PycharmProjects/data/test/shuidao/GF2shuitian22_test_4bands10.png'
+# img_file = '../../data/test/paper/images/'+position+'_4bands1024.png'  # _rgb, _nrg, _4bands1024.
+img_file = '/home/omnisky/PycharmProjects/data/test/ducha/cd13_test_src.png'
 
-model_file = ''.join(['../../data/models/sat_urban_4bands/',dict_network[FLAG_USING_NETWORK], '_',
-                      dict_target[FLAG_TARGET_CLASS],'_binary_notonehot_final.h5'])
+# model_file = ''.join(['../../data/models/sat_urban_4bands/',dict_network[FLAG_USING_NETWORK], '_',
+#                       dict_target[FLAG_TARGET_CLASS],'_binary_notonehot_final.h5'])
 
-# model_file = '/home/omnisky/PycharmProjects/data/models/ssj/shuidao_jaccard2018-09-25_22-18-49.h5'
+model_file = '/home/omnisky/PycharmProjects/data/models/ducha/tuitiantuunet_Crossentropy_256_2018-12-29_14-59-59.h5'
 # print("model: {}".format(model_file))
 
 if __name__ == '__main__':
@@ -104,16 +104,17 @@ if __name__ == '__main__':
             real_classes=target_class,  # output channels = 是真的类别，总类别-背景
             pred_func=smooth_predict_for_binary_notonehot
         )
-        """for shuidao test"""
-        # result[result<128]=0
-        # result[result>127]=1
+        """for single class test"""
+        result[result<128]=0
+        result[result>=128]=1
         # output_file = '//home/omnisky/PycharmProjects/data/test/shuidao/GF2shuitian22_test_pred.png'
 
         # output_file = ''.join(['../../data/predict/', dict_network[FLAG_USING_NETWORK],'/sat_4bands/mask_binary_',
         #                        abs_filename, '_', dict_target[FLAG_TARGET_CLASS],'_notonehot.png'])
 
-        output_file = ''.join(['../../data/test/paper/pred/mask_binary_',
-                               abs_filename, '_', dict_target[FLAG_TARGET_CLASS], '_notonehot.png'])
+        # output_file = ''.join(['../../data/test/paper/pred/mask_binary_',
+        #                        abs_filename, '_', dict_target[FLAG_TARGET_CLASS], '_notonehot.png'])
+        output_file = '/home/omnisky/PycharmProjects/data/test/ducha/cd13_test_src_pred.png'
 
         print("result save as to: {}".format(output_file))
 

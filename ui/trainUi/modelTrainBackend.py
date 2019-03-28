@@ -23,6 +23,7 @@ from keras.optimizers import *
 
 from keras import backend as K
 K.set_image_dim_ordering('tf')
+from keras.callbacks import TensorBoard
 
 from keras.utils.np_utils import to_categorical
 from semantic_segmentation_networks import binary_unet_jaccard, binary_fcnnet_jaccard, binary_segnet_jaccard
@@ -287,7 +288,9 @@ def train_binary_jaccCross(input_dict={}):
 
     model_history = History()
 
-    callable = [model_checkpoint, model_earlystop, model_reduceLR, model_history]
+    tb_log = TensorBoard(log_dir='../../../data/tmp/log')
+
+    callable = [model_checkpoint, model_earlystop, model_reduceLR, model_history, tb_log]
     # callable = [model_checkpoint, model_history]
     # callable = [model_checkpoint,model_earlystop, model_history]
     train_set, val_set = get_train_val(train_data_path)
@@ -396,7 +399,10 @@ def train_binary_jaccard(input_dict={}):
 
     model_history = History()
 
-    callable = [model_checkpoint, model_earlystop, model_reduceLR, model_history]
+
+    tb_log = TensorBoard(log_dir='../../../data/tmp/log')
+
+    callable = [model_checkpoint, model_earlystop, model_reduceLR, model_history, tb_log]
     # callable = [model_checkpoint, model_history]
     # callable = [model_checkpoint,model_earlystop, model_history]
     train_set, val_set = get_train_val(train_data_path)
@@ -527,7 +533,9 @@ def train_binary_onehot(input_dict={}):
 
     model_history = History()
 
-    callable = [model_checkpoint, model_earlystop, model_reduceLR, model_history]
+    tb_log = TensorBoard(log_dir='../../../data/tmp/log')
+
+    callable = [model_checkpoint, model_earlystop, model_reduceLR, model_history, tb_log]
     # callable = [model_checkpoint, model_history]
     # callable = [model_checkpoint,model_earlystop, model_history]
     train_set, val_set = get_train_val(train_data_path)
@@ -654,7 +662,9 @@ def train_binary_crossentropy(input_dict={}):
 
     model_history = History()
 
-    callable = [model_checkpoint, model_earlystop, model_reduceLR, model_history]
+    tb_log = TensorBoard(log_dir='../../../data/tmp/log')
+
+    callable = [model_checkpoint, model_earlystop, model_reduceLR, model_history, tb_log]
     # callable = [model_checkpoint, model_history]
     # callable = [model_checkpoint,model_earlystop, model_history]
     train_set, val_set = get_train_val(train_data_path)
@@ -775,7 +785,9 @@ def train_multiclass(input_dict={}):
 
     model_history = History()
 
-    callable = [model_checkpoint, model_earlystop, model_reduceLR, model_history]
+    tb_log = TensorBoard(log_dir='../../../data/tmp/log')
+
+    callable = [model_checkpoint, model_earlystop, model_reduceLR, model_history, tb_log]
     train_set, val_set = get_train_val(train_data_path)
     train_numb = len(train_set)
     valid_numb = len(val_set)

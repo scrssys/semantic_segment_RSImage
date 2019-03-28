@@ -164,10 +164,20 @@ def predict_multiclass_for_single_image(input_dict={}):
             pred_func=smooth_predict_for_multiclass
         )
 
-        for b in range(out_bands):
-            output_file = ''.join([output_dir,'/', abs_filename, '_', dict_target[b], '.png'])
-            print("result save as to: {}".format(output_file))
-            cv2.imwrite(output_file, result[:,:,b])
+        H, W, C = np.array(input_img).shape
+        output_file = ''.join([output_dir, '/', abs_filename, '_smooth_pred.png'])
+        output_mask = np.zeros((H, W), np.uint8)
+        for i in range(out_bands):
+            indx = np.where(result[:, :, i] >= 127)
+            output_mask[indx] = i + 1
+        print(np.unique(result))
+        cv2.imwrite(output_file, output_mask)
+        print("Saved to:{}".format(output_file))
+
+        # for b in range(out_bands):
+        #     output_file = ''.join([output_dir,'/', abs_filename, '_', dict_target[b], '.png'])
+        #     print("result save as to: {}".format(output_file))
+        #     cv2.imwrite(output_file, result[:,:,b])
 
     gc.collect()
 
@@ -314,10 +324,20 @@ def predict_multiclass_for_batch_image(input_dict={}):
                 PLOT_PROGRESS=False
             )
 
-            for b in range(out_bands):
-                output_file = ''.join([output_path, '/', abs_filename, '_', dict_target[b],'smooth.png'])
-                cv2.imwrite(output_file, result[:,:,b])
-                print("Saved to: {}".format(output_file))
+            H, W, C = np.array(input_img).shape
+            output_file = ''.join([output_path, '/', abs_filename, '_smooth_pred.png'])
+            output_mask = np.zeros((H, W), np.uint8)
+            for i in range(out_bands):
+                indx = np.where(result[:, :, i] >= 127)
+                output_mask[indx] = i + 1
+            print(np.unique(result))
+            cv2.imwrite(output_file, output_mask)
+            print("Saved to:{}".format(output_file))
+
+            # for b in range(out_bands):
+            #     output_file = ''.join([output_path, '/', abs_filename, '_', dict_target[b],'smooth.png'])
+            #     cv2.imwrite(output_file, result[:,:,b])
+            #     print("Saved to: {}".format(output_file))
 
         gc.collect()
 

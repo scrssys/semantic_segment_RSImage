@@ -1,5 +1,4 @@
 import os
-import sys
 import gdal
 import numpy as np
 import matplotlib.pyplot as plt
@@ -14,7 +13,7 @@ from trainUi.trainModels_implements import child_trainBinaryJaccardCross, child_
 from classifyUi.predict_implements import child_predictBinaryForSingleImage, child_predictMulticlassForSingleImage, child_predictBinaryBatch, child_predictMulticlassBatch
 from postProcess.postProcess_implements import child_CombineMulticlassFromSingleModelResults, child_VoteMultimodleResults, child_AccuacyEvaluate, child_Binarization
 from about import Ui_Dialog_about
-from new_train_implements import child_trainBinaryCommon
+from tmp.new_train_implements import child_trainBinaryCommon
 
 
 class mywindow(QMainWindow, Ui_MainWindow):

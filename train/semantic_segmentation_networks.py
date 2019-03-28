@@ -66,8 +66,8 @@ def binary_unet(img_w, img_h, im_bands, n_label=1):
     conv10 = Reshape((img_w * img_h, n_label))(conv10)  # 4D(bath_size, img_w*img_h, n_label)
 
     model = Model(inputs=inputs, outputs=conv10)
-    model.compile(optimizer='Adam', loss='binary_crossentropy', metrics=['accuracy'])
-    # model.compile(optimizer=sgd, loss='binary_crossentropy', metrics=['accuracy'])
+    # model.compile(optimizer='Adam', loss='binary_crossentropy', metrics=['accuracy'])
+    model.compile(optimizer=sgd, loss='binary_crossentropy', metrics=['accuracy'])
 
 
     model.summary()

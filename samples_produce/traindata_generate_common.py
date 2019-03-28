@@ -19,24 +19,24 @@ from ulitities.base_functions import get_file, load_img_by_gdal
 img_w = 256
 img_h = 256
 
-valid_labels=[0,1,2] # ignore Nodata
+# valid_labels=[0,1,2] # ignore Nodata
 
-# valid_labels=[0,1]
-target_label = 2 # used for binary: 1: roads or shuidao,huapo,tuitiantu; 2: buildings
+valid_labels=[0,1]
+target_label = 1 # used for binary: 1: roads or shuidao,huapo,tuitiantu,rice; 2: buildings
 
-FLAG_BINARY = False  # for multiclass
-# FLAG_BINARY = True  #for binary
+# FLAG_BINARY = False  # for multiclass
+FLAG_BINARY = True  #for binary
 
 
 # input_path = '../../data/originaldata/zs/'
 # input_path = '/media/omnisky/6b62a451-463c-41e2-b06c-57f95571fdec/Backups/data/originaldata/ssj/'
-input_path = '/media/omnisky/6b62a451-463c-41e2-b06c-57f95571fdec/Backups/data/originaldata/APsamples/'
+input_path = '/media/omnisky/e0331d4a-a3ea-4c31-90ab-41f5b0ee2663/originalLabelandImages/rice/'
 
 # output_path = '../../data/traindata/sat_urban_nrg/multiclass/'
-output_path = '../../data/traindata/test/'
+# output_path = '../../data/traindata/test_3/multiclass'
 # output_path = '../../data/traindata/huapo_512/'
 # output_path = '../../data/traindata/sat_4bands_224/binary/buildings/'
-# output_path = '/media/omnisky/6b62a451-463c-41e2-b06c-57f95571fdec/Backups/data/traindata/sat_4bands_320/binary/roads/'
+output_path = '../../data/traindata/rice/'
 
 def rotate(xb, yb, angle):
     a,b,c=xb.shape
@@ -173,7 +173,6 @@ def produce_training_samples_binary(in_path, out_path, image_num=50000, mode='or
         im_bands = dataset.RasterCount
         data_type = dataset.GetRasterBand(1).DataType
 
-
         src_img = dataset.ReadAsArray(0, 0, X_width, Y_height)
         src_img = np.array(src_img)
 
@@ -235,6 +234,14 @@ def produce_training_samples_binary(in_path, out_path, image_num=50000, mode='or
             count += 1
             g_count += 1
 
+class SelfDefinedExceptions(Exception):
+    def __init__(self):
+        pass
+
+    def __str__(self):
+        print("Can not find the position in label\n")
+        print("The label may have different size from src image")
+
 
 def produce_training_samples_multiclass(in_path, out_path, image_num=50000, mode='original'):
     print('\ncreating dataset...')
@@ -287,6 +294,10 @@ def produce_training_samples_multiclass(in_path, out_path, image_num=50000, mode
             random_height = random.randint(0, X_height - img_h - 1)
             src_roi = src_img[:, random_height: random_height + img_h, random_width: random_width + img_w]
             label_roi = label_img[random_height: random_height + img_h, random_width: random_width + img_w]
+            # try:
+            #     label_roi = label_img[random_height: random_height + img_h, random_width: random_width + img_w]
+            # except SelfDefinedExceptions as e_result:
+            #     print(e_result)
 
             """ignore nodata area"""
             FLAG_HAS_NODATA = False
@@ -342,7 +353,7 @@ if __name__ == '__main__':
 
     if FLAG_BINARY==True:
         print("Produce labels for binary classification")
-        produce_training_samples_binary(input_path, output_path, 50000, mode='augment')
+        produce_training_samples_binary(input_path, output_path, 300000, mode='augment')
     else:
         print("produce labels for multiclass")
         produce_training_samples_multiclass(input_path, output_path, 500, mode='augment')

@@ -26,11 +26,13 @@ from keras.optimizers import *
 from keras import backend as K
 K.set_image_dim_ordering('tf')
 
+from keras.callbacks import TensorBoard
+
 
 from semantic_segmentation_networks import binary_unet_jaccard, binary_fcnnet_jaccard, binary_segnet_jaccard
 from ulitities.base_functions import load_img_normalization, load_img_by_gdal, UINT16, UINT8, UINT10
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "2"
+os.environ["CUDA_VISIBLE_DEVICES"] = "3"
 seed = 7
 np.random.seed(seed)
 
@@ -43,11 +45,11 @@ im_bands =3
 im_type = UINT8  # UINT8:0, UINT10:1, UINT16:2
 
 dict_network={0: 'unet', 1: 'fcnnet', 2: 'segnet'}
-dict_target={0: 'roads', 1: 'buildings'}
-# dict_target={0: 'huapo'}
+# dict_target={0: 'roads', 1: 'buildings'}
+dict_target={0: 'rice'}
 
 FLAG_USING_NETWORK = 0  # 0:unet; 1:fcn; 2:segnet;
-FLAG_TARGET_CLASS = 1   # 0:roads; 1:buildings
+FLAG_TARGET_CLASS = 0   # 0:roads, rice; 1:buildings
 FLAG_MAKE_TEST=True
 
 date_time = time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime())
@@ -56,15 +58,16 @@ print("date and time: {}".format(date_time))
 
 # base_model = ''.join(['../../data/models/sat_urban_rgb/',dict_network[FLAG_USING_NETWORK], '_',
 #                       dict_target[FLAG_TARGET_CLASS],'_binary_jaccard_final.h5'])
-base_model = ''
+# base_model = '/home/omnisky/PycharmProjects/data/models/rice/unet_rice_binary_jaccardandCrossentropy_256_2019-01-09_08-24-36.h5'
+base_model=''
 
-model_save_path = ''.join(['../../data/models/APsamples/',dict_network[FLAG_USING_NETWORK], '_',
+model_save_path = ''.join(['../../data/models/rice/',dict_network[FLAG_USING_NETWORK], '_',
                            dict_target[FLAG_TARGET_CLASS],'_binary_jaccard_and_crossentropy', str(img_w),'_', date_time, '.h5'])
 # model_save_path = ''.join(['/home/omnisky/PycharmProjects/data/models/rice/unet_jaccard_4bands_',  str(img_w), '_', date_time, '.h5'])
 print("model save as to: {}".format(model_save_path))
 
-train_data_path = ''.join(['../../data/traindata/APsamples/binary/',dict_target[FLAG_TARGET_CLASS], '/'])
-# train_data_path = '/home/omnisky/PycharmProjects/data/traindata/rice/'
+# train_data_path = ''.join(['../../data/traindata/APsamples/binary/',dict_target[FLAG_TARGET_CLASS], '/'])
+train_data_path = '/media/omnisky/e0331d4a-a3ea-4c31-90ab-41f5b0ee2663/traindata/rice/'
 print("traindata from: {}".format(train_data_path))
 
 
@@ -168,7 +171,7 @@ class CustomModelCheckpoint(keras.callbacks.Callback):
 
 """Train model ............................................."""
 def train(model,model_path):
-    EPOCHS = 100  # should be 10 or bigger number
+    EPOCHS = 50  # should be 10 or bigger number
     BS = 48
 
     if os.path.isfile(base_model):
@@ -202,7 +205,9 @@ def train(model,model_path):
 
     model_history = History()
 
-    callable = [model_checkpoint,model_earlystop, model_reduceLR, model_history]
+    tb_log = TensorBoard(log_dir='../../../data/tmp/log')
+
+    callable = [model_checkpoint, model_earlystop, model_reduceLR, model_history, tb_log]
     # callable = [model_checkpoint, model_reduceLR, model_history]
     # callable = [model_checkpoint,model_earlystop, model_history]
     train_set, val_set = get_train_val()

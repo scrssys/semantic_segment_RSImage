@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <root>
     <instance>
-        <column>2000</column>
-        <input_file>/media/omnisky/e0331d4a-a3ea-4c31-90ab-41f5b0ee2663/guoqing/label/cd2.png</input_file>
-        <output_file>/home/omnisky/PycharmProjects/data/test/guoqing/label/cd2_test.png</output_file>
-        <row>2000</row>
-        <x>5000</x>
-        <y>5000</y>
+        <column>5000</column>
+        <input_file>/home/omnisky/PycharmProjects/data/test/global/stretched/ZY3031182201502260.png</input_file>
+        <output_file>/home/omnisky/PycharmProjects/data/test/global/stretched/ZY3031182201502260_clip5000.png</output_file>
+        <row>5000</row>
+        <x>0</x>
+        <y>0</y>
     </instance>
 </root>

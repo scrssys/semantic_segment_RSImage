@@ -16,16 +16,16 @@ from ulitities.base_functions import get_file
 img_w = 256
 img_h = 256
 
-valid_labels=[0,1,2]
+valid_labels=[0,1]
 
-FLAG_BINARY = False
-# FLAG_BINARY = True
-
-
-input_path = '/media/omnisky/6b62a451-463c-41e2-b06c-57f95571fdec/Backups/data/originaldata/APsamples/'
+# FLAG_BINARY = False
+FLAG_BINARY = True
 
 
-output_path = '../../data/traindata/test_2/'
+input_path = '/media/omnisky/e0331d4a-a3ea-4c31-90ab-41f5b0ee2663/originalLabelandImages/rice/'
+
+
+output_path = '../../data/traindata/rice/'
 
 if os.path.isdir(output_path):
     print("ok")
@@ -318,7 +318,7 @@ if __name__ == '__main__':
 
     if FLAG_BINARY==True:
         print("Produce labels for binary classification")
-        creat_dataset_binary(input_path, output_path, 1000, mode='augment')
+        creat_dataset_binary(input_path, output_path, 300000, mode='augment')
     else:
         print("produce labels for multiclass")
-        creat_dataset_multiclass(input_path, output_path, 1000, mode='augment')
+        creat_dataset_multiclass(input_path, output_path, 100000, mode='augment')

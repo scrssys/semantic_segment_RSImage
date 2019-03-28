@@ -1,13 +1,7 @@
-
-import random
 import sys
 import os
-import time
-import matplotlib.pyplot as plt
 
 from keras.layers import *
-from keras.preprocessing.image import img_to_array
-from keras.callbacks import ModelCheckpoint, EarlyStopping, History, ReduceLROnPlateau
 
 from keras import backend as K
 K.set_image_dim_ordering('tf')
@@ -16,7 +10,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QDialog, QFileDialog, QMessageBox
 
 from TrainBinaryCommon import Ui_Dialog_train_binary_common
-from new_train_backend import train_binary_for_ui
+from tmp.new_train_backend import train_binary_for_ui
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 seed = 7

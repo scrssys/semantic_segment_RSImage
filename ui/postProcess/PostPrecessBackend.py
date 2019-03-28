@@ -174,6 +174,7 @@ def accuracy_evalute(input_dict):
 
     print("[INFO] Calculate confusion matrix..\n")
 
+    ref_img = np.array(ref_img)
     height, width = ref_img.shape
     print(height, width)
     if height != pred_img.shape[0] or width != pred_img.shape[1]:

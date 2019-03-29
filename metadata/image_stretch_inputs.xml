@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+    <instance>
+        <CutValue>100</CutValue>
+        <NoData>65535</NoData>
+        <OutBits>16 bits</OutBits>
+        <StretchRange>1024</StretchRange>
+        <input_dir>/home/omnisky/PycharmProjects/data/test/putao/images</input_dir>
+        <output_dir>/home/omnisky/PycharmProjects/data/test/putao/stretched</output_dir>
+    </instance>
+</root>

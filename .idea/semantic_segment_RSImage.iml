@@ -2,10 +2,31 @@
 <module type="PYTHON_MODULE" version="4">
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/train" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/predict" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/ulitities" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/ui" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/batch_predict" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/ui/preProcess" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/ui/sampleProduce" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/ui/train" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/ui/trainUi" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/ui/classifyUi" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/ui/postProcess" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/model_build" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/segmentation_models" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/model_predict" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/venv" />
     </content>
-    <orderEntry type="jdk" jdkName="Python 2.7 (semantic_segment_RSImage)" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="Python 3.5 (venv)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module" module-name="test1" />
+    <orderEntry type="module" module-name="kaggle_dstl_submission-master" />
+    <orderEntry type="module" module-name="selective_search_py" />
+    <orderEntry type="module" module-name="selective_search_py" />
+    <orderEntry type="module" module-name="RS_CNN" />
+    <orderEntry type="module" module-name="segmentation_models-master" />
   </component>
   <component name="TestRunnerService">
     <option name="PROJECT_TEST_RUNNER" value="Unittests" />

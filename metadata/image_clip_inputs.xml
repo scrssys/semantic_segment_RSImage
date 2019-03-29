@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+    <instance>
+        <column>5000</column>
+        <input_file>/home/omnisky/PycharmProjects/data/test/global/stretched/ZY3031182201502260.png</input_file>
+        <output_file>/home/omnisky/PycharmProjects/data/test/global/stretched/ZY3031182201502260_clip5000.png</output_file>
+        <row>5000</row>
+        <x>0</x>
+        <y>0</y>
+    </instance>
+</root>

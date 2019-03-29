@@ -33,14 +33,22 @@ def _spline_window(window_size, power=2):
     """
     intersection = int(window_size/4)
     wind_outer = (abs(2*(scipy.signal.triang(window_size))) ** power)/2
+    # wind_outer = 2 * (scipy.signal.triang(window_size)) ** power
     wind_outer[intersection:-intersection] = 0
 
     wind_inner = 1 - (abs(2*(scipy.signal.triang(window_size) - 1)) ** power)/2
+    # wind_inner = 1 - 2 * (scipy.signal.triang(window_size) - 1) ** power
     wind_inner[:intersection] = 0
     wind_inner[-intersection:] = 0
 
     wind = wind_inner + wind_outer
     wind = wind / np.average(wind)
+
+    # x = len(wind)
+    # x = list(range(x))
+    # plt.plot(x, wind, 'k')
+    # area = sum(wind)
+    # print("window area = {}".format(area))
     return wind
 
 
@@ -60,11 +68,13 @@ def _window_2D(window_size, power=2):
         wind = _spline_window(window_size, power)
         wind = np.expand_dims(np.expand_dims(wind, 3), 3)
         wind = wind * wind.transpose(1, 0, 2)
+        # PLOT_PROGRESS = True
         if PLOT_PROGRESS:
             # For demo purpose, let's look once at the window:
-            plt.imshow(wind[:, :, 0], cmap="viridis")
-            plt.title("2D Windowing Function for a Smooth Blending of "
-                      "Overlapping Patches")
+            # plt.imshow(wind[:, :, 0], cmap="viridis")
+            plt.imshow(wind[:, :, 0], cmap="gray")
+            # plt.title("2D Windowing Function for a Smooth Blending of "
+            #           "Overlapping Patches")
             plt.show()
         cached_2d_windows[key] = wind
     return wind
@@ -114,16 +124,29 @@ def _rotate_mirror_do(im):
     It is the D_4 (D4) Dihedral group:
     https://en.wikipedia.org/wiki/Dihedral_group
     """
+    # mirrs = []
+    # mirrs.append(np.array(im))
+    # mirrs.append(np.rot90(np.array(im), axes=(0, 1), k=1))
+    # mirrs.append(np.rot90(np.array(im), axes=(0, 1), k=2))
+    # mirrs.append(np.rot90(np.array(im), axes=(0, 1), k=3))
+    # im = np.array(im)[:, ::-1]
+    # mirrs.append(np.array(im))
+    # mirrs.append(np.rot90(np.array(im), axes=(0, 1), k=1))
+    # mirrs.append(np.rot90(np.array(im), axes=(0, 1), k=2))
+    # mirrs.append(np.rot90(np.array(im), axes=(0, 1), k=3))
+
     mirrs = []
     mirrs.append(np.array(im))
-    mirrs.append(np.rot90(np.array(im), axes=(0, 1), k=1))
-    mirrs.append(np.rot90(np.array(im), axes=(0, 1), k=2))
-    mirrs.append(np.rot90(np.array(im), axes=(0, 1), k=3))
+    mirrs.append(np.rot90(np.array(im), k=1))
+    mirrs.append(np.rot90(np.array(im), k=2))
+    mirrs.append(np.rot90(np.array(im), k=3))
     im = np.array(im)[:, ::-1]
     mirrs.append(np.array(im))
-    mirrs.append(np.rot90(np.array(im), axes=(0, 1), k=1))
-    mirrs.append(np.rot90(np.array(im), axes=(0, 1), k=2))
-    mirrs.append(np.rot90(np.array(im), axes=(0, 1), k=3))
+    mirrs.append(np.rot90(np.array(im), k=1))
+    mirrs.append(np.rot90(np.array(im), k=2))
+    mirrs.append(np.rot90(np.array(im), k=3))
+
+
     return mirrs
 
 
@@ -135,15 +158,35 @@ def _rotate_mirror_undo(im_mirrs):
 
     It is the D_4 (D4) Dihedral group:
     """
-    origs = []
-    origs.append(np.array(im_mirrs[0]))
-    origs.append(np.rot90(np.array(im_mirrs[1]), axes=(0, 1), k=3))
-    origs.append(np.rot90(np.array(im_mirrs[2]), axes=(0, 1), k=2))
-    origs.append(np.rot90(np.array(im_mirrs[3]), axes=(0, 1), k=1))
-    origs.append(np.array(im_mirrs[4])[:, ::-1])
-    origs.append(np.rot90(np.array(im_mirrs[5]), axes=(0, 1), k=3)[:, ::-1])
-    origs.append(np.rot90(np.array(im_mirrs[6]), axes=(0, 1), k=2)[:, ::-1])
-    origs.append(np.rot90(np.array(im_mirrs[7]), axes=(0, 1), k=1)[:, ::-1])
+    # origs = []
+    # origs.append(np.array(im_mirrs[0]))
+    # origs.append(np.rot90(np.array(im_mirrs[1]), axes=(0, 1), k=3))
+    # origs.append(np.rot90(np.array(im_mirrs[2]), axes=(0, 1), k=2))
+    # origs.append(np.rot90(np.array(im_mirrs[3]), axes=(0, 1), k=1))
+    # origs.append(np.array(im_mirrs[4])[:, ::-1])
+    # origs.append(np.rot90(np.array(im_mirrs[5]), axes=(0, 1), k=3)[:, ::-1])
+    # origs.append(np.rot90(np.array(im_mirrs[6]), axes=(0, 1), k=2)[:, ::-1])
+    # origs.append(np.rot90(np.array(im_mirrs[7]), axes=(0, 1), k=1)[:, ::-1])
+
+    # origs = []
+    # origs.append(np.array(im_mirrs[0]))
+    # origs.append(np.rot90(np.array(im_mirrs[1]), k=3))
+    # origs.append(np.rot90(np.array(im_mirrs[2]), k=2))
+    # origs.append(np.rot90(np.array(im_mirrs[3]), k=1))
+    # origs.append(np.array(im_mirrs[4])[:, ::-1])
+    # origs.append(np.rot90(np.array(im_mirrs[5]), k=3)[:, ::-1])
+    # origs.append(np.rot90(np.array(im_mirrs[6]), k=2)[:, ::-1])
+    # origs.append(np.rot90(np.array(im_mirrs[7]), k=1)[:, ::-1])
+
+    sum = np.array(im_mirrs[0])
+    sum += np.rot90(np.array(im_mirrs[1]), k=3)
+    sum += np.rot90(np.array(im_mirrs[2]), k=2)
+    sum += np.rot90(np.array(im_mirrs[3]), k=1)
+    sum += np.rot90(np.array(im_mirrs[1]), k=3)
+    sum += np.array(im_mirrs[4])[:, ::-1]
+    sum += np.rot90(np.array(im_mirrs[5]), k=3)[:, ::-1]
+    sum += np.rot90(np.array(im_mirrs[6]), k=2)[:, ::-1]
+    sum += np.rot90(np.array(im_mirrs[7]), k=1)[:, ::-1]
 
     """test: output each result of mirros"""
     # n = 0
@@ -151,7 +194,9 @@ def _rotate_mirror_undo(im_mirrs):
     #     cv2.imwrite('./data/predict/pre_smooth_unrotate' + str(n + 1) + '.png', one_img[128:-128, 128:-128])
     #     n +=1
 
-    return np.mean(origs, axis=0)
+    # return np.mean(origs, axis=0)
+    out_back = sum/8.0
+    return out_back
 
 def _rotate_mirror_undo_by_vote(im_mirrs, nb_classes):
     """
@@ -232,7 +277,7 @@ def _windowed_subdivs(padded_img, window_size, subdivisions, nb_classes, pred_fu
 
     subdivs = pred_func(subdivs)
     gc.collect()
-    subdivs = subdivs.astype("float")
+    subdivs = subdivs.astype(np.float16)
     subdivs = np.array([patch * WINDOW_SPLINE_2D for patch in subdivs])
     gc.collect()
 
@@ -246,7 +291,7 @@ def _windowed_subdivs(padded_img, window_size, subdivisions, nb_classes, pred_fu
     return subdivs
 
 
-def _windowed_subdivs_multiclassbands(padded_img, model, window_size, subdivisions, real_classes, pred_func, labelencoder):
+def _windowed_subdivs_multiclassbands(padded_img, model, window_size, subdivisions, real_classes, pred_func):
     """
     Create tiled overlapping patches.
 
@@ -284,9 +329,9 @@ def _windowed_subdivs_multiclassbands(padded_img, model, window_size, subdivisio
     subdivs = subdivs.reshape(a * b, c, d, e)
     gc.collect()
 
-    subdivs = pred_func(subdivs, model, real_classes, labelencoder)
+    subdivs = pred_func(subdivs, model, real_classes)
     gc.collect()
-    subdivs = subdivs.astype("float")
+    subdivs = subdivs.astype(np.float16)
     subdivs = np.array([patch * WINDOW_SPLINE_2D for patch in subdivs])
     gc.collect()
 
@@ -380,14 +425,14 @@ def predict_img_with_smooth_windowing(input_img, window_size, subdivisions, nb_c
     return prd
 
 
-def predict_img_with_smooth_windowing_multiclassbands(input_img, model, window_size, subdivisions, real_classes, pred_func, labelencoder):
+def predict_img_with_smooth_windowing_multiclassbands(input_img, model, window_size, subdivisions, real_classes, pred_func, PLOT_PROGRESS = True):
     """
     Apply the `pred_func` function to square patches of the image, and overlap
     the predictions to merge them smoothly.
 
     :return :real_class channels, range[0,255] corresponding to [0,1] probabilities
     """
-    PLOT_PROGRESS = True
+
     pad = _pad_img(input_img, window_size, subdivisions)
     pads = _rotate_mirror_do(pad)
 
@@ -414,7 +459,7 @@ def predict_img_with_smooth_windowing_multiclassbands(input_img, model, window_s
     for pad in tqdm(pads):
         # For every rotation:
         # predict each rotation with smooth window
-        sd = _windowed_subdivs_multiclassbands(pad, model, window_size, subdivisions, real_classes, pred_func, labelencoder)
+        sd = _windowed_subdivs_multiclassbands(pad, model, window_size, subdivisions, real_classes, pred_func)
 
         # Merge tiled overlapping patches smoothly.
         one_padded_result = _recreate_from_subdivs(
@@ -422,9 +467,13 @@ def predict_img_with_smooth_windowing_multiclassbands(input_img, model, window_s
             padded_out_shape=list(pad.shape[:-1])+[real_classes])
 
         res.append(one_padded_result)
+        del sd, pad,one_padded_result
+        gc.collect()
 
 
     # Merge after rotations:
+    del pads
+    gc.collect()
 
     padded_results = _rotate_mirror_undo(res)
 
@@ -433,21 +482,6 @@ def predict_img_with_smooth_windowing_multiclassbands(input_img, model, window_s
     prd = _unpad_img(padded_results, window_size, subdivisions)
 
     prd = prd[:input_img.shape[0], :input_img.shape[1], :]
-
-    # if real_classes == 1: # only for real_classes = 1
-    #     prd =prd[:,:,0]
-
-    """merge multiband prd to gray """
-    # gray_mask = np.zeros((input_img.shape[0],input_img.shape[1]),np.uint8)
-    # label_value = 0
-    # for ch in range(real_classes):
-    #     label_value +=1
-    #     print (np.unique(prd[:,:,ch]))
-    #     for i in range(input_img.shape[0]):
-    #         for j in range(input_img.shape[1]):
-    #             if prd[i,j,ch]>=0.5:
-    #                 gray_mask[i,j] = label_value
-
 
     """
     save [0,1] probabilities to [0,255]
@@ -461,11 +495,7 @@ def predict_img_with_smooth_windowing_multiclassbands(input_img, model, window_s
             plt.show()
 
     return prd  # probabilities for each target: [0,255]
-    # if PLOT_PROGRESS:
-    #     plt.imshow(gray_mask)
-    #     plt.title("Cheaply Merged Patches")
-    #     plt.show()
-    # return gray_mask
+
 
 
 

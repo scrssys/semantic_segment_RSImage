@@ -1,1 +1,1 @@
-We use tow semantic segmentation models (segnet and U-net) to predict roads and buildings from remote sensing images.
+We use several semantic segmentation models  to deal remote sensing images classifcation.

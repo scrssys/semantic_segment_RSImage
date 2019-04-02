@@ -27,12 +27,8 @@ from keras import backend as K
 K.set_image_dim_ordering('tf')
 from keras.callbacks import TensorBoard
 
-
-# from semantic_segmentation_networks import binary_unet, binary_fcnnet, binary_segnet, binary_unet_onlyjaccard, binary_unet_jaccard
 from ulitities.base_functions import load_img_normalization,  load_img_by_gdal, UINT16, UINT8, UINT10
 
-
-# os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 seed = 6
 np.random.seed(seed)
 from keras import metrics, losses
@@ -44,8 +40,8 @@ from segmentation_models import Unet,FPN,PSPNet,Linknet
 from utils import save, update_config
 from config import Config
 import json
+import sys
 
-'''
 import  argparse
 parser=argparse.ArgumentParser(description='RS classification train')
 parser.add_argument('--gpu', dest='gpu_id', help='GPU device id to use [0]',
@@ -61,20 +57,21 @@ config_file = args.config_file
 print("cofig file:{}".format(config_file))
 with open(args.config_file, 'r') as f:
     cfg = json.load(f)
-'''
-os.environ["CUDA_VISIBLE_DEVICES"] = "1"
-with open("config.json", 'r') as f:
-    cfg = json.load(f)
+
+# os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+# with open("config.json", 'r') as f:
+#     cfg = json.load(f)
+
 config = Config(**cfg)
 print(config)
-import sys
+
 # sys.exit(-1)
 
 FLAG_MAKE_TEST=True
 im_type=UINT8
 if '10' in config.im_type:
     im_type=UINT10
-elif "16" in config.im_type:
+elif '16' in config.im_type:
     im_type=UINT16
 else:
     pass
@@ -82,8 +79,7 @@ else:
 date_time = time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime())
 print("date and time: {}".format(date_time))
 print("traindata from: {}".format(config.train_data_path))
-model_save_path = ''.join([config.model_dir,'/',config.network, '_',config.target_name, '_',config.BACKBONE,
-                           '_',config.loss,'_', date_time, '.h5'])
+model_save_path = ''.join([config.model_dir,'/',config.target_name, '_', config.network, '_',config.BACKBONE,'_',config.loss,'_',str(config.img_w), '_', date_time, '.h5'])
 print("model save as to: {}".format(model_save_path))
 
 """get the train file name and divide to train and val parts"""

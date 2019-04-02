@@ -1,7 +1,7 @@
 {
-  "train_data_path":"/home/omnisky/PycharmProjects/data/traindata/rice288/",
-  "img_w":288,
-  "img_h":288,
+  "train_data_path":"/home/omnisky/PycharmProjects/data/traindata/rice/",
+  "img_w":256,
+  "img_h":256,
   "im_bands":3,
   "im_type":"UINT8",
   "target_name":"rice",
@@ -28,7 +28,7 @@
 
   "model_dir": "/home/omnisky/PycharmProjects/data/models/rice/",
   "base_model":"",
-  "monitor":" val_iou_score",
+  "monitor":"val_iou_score",
   "save_best_only":true,
   "mode":"max",
   "factor":0.1,

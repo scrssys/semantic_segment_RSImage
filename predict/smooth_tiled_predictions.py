@@ -115,7 +115,8 @@ def _unpad_img(padded_img, window_size, subdivisions):
     return ret
 
 
-def _rotate_mirror_do(im):
+
+def _rotate_mirror_do(im,slices=1):
     """
     Duplicate an np array (image) of shape (x, y, nb_channels) 8 times, in order
     to have all the possible rotations and mirrors of that image that fits the
@@ -124,33 +125,34 @@ def _rotate_mirror_do(im):
     It is the D_4 (D4) Dihedral group:
     https://en.wikipedia.org/wiki/Dihedral_group
     """
-    # mirrs = []
-    # mirrs.append(np.array(im))
-    # mirrs.append(np.rot90(np.array(im), axes=(0, 1), k=1))
-    # mirrs.append(np.rot90(np.array(im), axes=(0, 1), k=2))
-    # mirrs.append(np.rot90(np.array(im), axes=(0, 1), k=3))
-    # im = np.array(im)[:, ::-1]
-    # mirrs.append(np.array(im))
-    # mirrs.append(np.rot90(np.array(im), axes=(0, 1), k=1))
-    # mirrs.append(np.rot90(np.array(im), axes=(0, 1), k=2))
-    # mirrs.append(np.rot90(np.array(im), axes=(0, 1), k=3))
 
     mirrs = []
-    mirrs.append(np.array(im))
-    mirrs.append(np.rot90(np.array(im), k=1))
-    mirrs.append(np.rot90(np.array(im), k=2))
-    mirrs.append(np.rot90(np.array(im), k=3))
-    im = np.array(im)[:, ::-1]
-    mirrs.append(np.array(im))
-    mirrs.append(np.rot90(np.array(im), k=1))
-    mirrs.append(np.rot90(np.array(im), k=2))
-    mirrs.append(np.rot90(np.array(im), k=3))
-
+    if slices==1:
+        mirrs.append(np.array(im))
+    elif slices==2:
+        mirrs.append(np.array(im))
+        mirrs.append(np.rot90(np.array(im), k=1))
+    elif slices==4:
+        mirrs.append(np.array(im))
+        mirrs.append(np.rot90(np.array(im), k=1))
+        im = np.array(im)[:, ::-1]
+        mirrs.append(np.array(im))
+        mirrs.append(np.rot90(np.array(im), k=1))
+    else:
+        mirrs.append(np.array(im))
+        mirrs.append(np.rot90(np.array(im), k=1))
+        mirrs.append(np.rot90(np.array(im), k=2))
+        mirrs.append(np.rot90(np.array(im), k=3))
+        im = np.array(im)[:, ::-1]
+        mirrs.append(np.array(im))
+        mirrs.append(np.rot90(np.array(im), k=1))
+        mirrs.append(np.rot90(np.array(im), k=2))
+        mirrs.append(np.rot90(np.array(im), k=3))
 
     return mirrs
 
 
-def _rotate_mirror_undo(im_mirrs):
+def _rotate_mirror_undo(im_mirrs, slices=1):
     """
     merges a list of 8 np arrays (images) of shape (x, y, nb_channels) generated
     from the `_rotate_mirror_do` function. Each images might have changed and
@@ -158,35 +160,23 @@ def _rotate_mirror_undo(im_mirrs):
 
     It is the D_4 (D4) Dihedral group:
     """
-    # origs = []
-    # origs.append(np.array(im_mirrs[0]))
-    # origs.append(np.rot90(np.array(im_mirrs[1]), axes=(0, 1), k=3))
-    # origs.append(np.rot90(np.array(im_mirrs[2]), axes=(0, 1), k=2))
-    # origs.append(np.rot90(np.array(im_mirrs[3]), axes=(0, 1), k=1))
-    # origs.append(np.array(im_mirrs[4])[:, ::-1])
-    # origs.append(np.rot90(np.array(im_mirrs[5]), axes=(0, 1), k=3)[:, ::-1])
-    # origs.append(np.rot90(np.array(im_mirrs[6]), axes=(0, 1), k=2)[:, ::-1])
-    # origs.append(np.rot90(np.array(im_mirrs[7]), axes=(0, 1), k=1)[:, ::-1])
-
-    # origs = []
-    # origs.append(np.array(im_mirrs[0]))
-    # origs.append(np.rot90(np.array(im_mirrs[1]), k=3))
-    # origs.append(np.rot90(np.array(im_mirrs[2]), k=2))
-    # origs.append(np.rot90(np.array(im_mirrs[3]), k=1))
-    # origs.append(np.array(im_mirrs[4])[:, ::-1])
-    # origs.append(np.rot90(np.array(im_mirrs[5]), k=3)[:, ::-1])
-    # origs.append(np.rot90(np.array(im_mirrs[6]), k=2)[:, ::-1])
-    # origs.append(np.rot90(np.array(im_mirrs[7]), k=1)[:, ::-1])
-
     sum = np.array(im_mirrs[0])
-    sum += np.rot90(np.array(im_mirrs[1]), k=3)
-    sum += np.rot90(np.array(im_mirrs[2]), k=2)
-    sum += np.rot90(np.array(im_mirrs[3]), k=1)
-    sum += np.rot90(np.array(im_mirrs[1]), k=3)
-    sum += np.array(im_mirrs[4])[:, ::-1]
-    sum += np.rot90(np.array(im_mirrs[5]), k=3)[:, ::-1]
-    sum += np.rot90(np.array(im_mirrs[6]), k=2)[:, ::-1]
-    sum += np.rot90(np.array(im_mirrs[7]), k=1)[:, ::-1]
+    if slices == 1:
+        pass
+    elif slices == 2:
+        sum += np.rot90(np.array(im_mirrs[1]), k=3)
+    elif slices == 4:
+        sum += np.rot90(np.array(im_mirrs[1]), k=3)
+        sum += np.array(im_mirrs[2])[:, ::-1]
+        sum += np.rot90(np.array(im_mirrs[3]), k=3)[:, ::-1]
+    else:
+        sum += np.rot90(np.array(im_mirrs[1]), k=3)
+        sum += np.rot90(np.array(im_mirrs[2]), k=2)
+        sum += np.rot90(np.array(im_mirrs[3]), k=1)
+        sum += np.array(im_mirrs[4])[:, ::-1]
+        sum += np.rot90(np.array(im_mirrs[5]), k=3)[:, ::-1]
+        sum += np.rot90(np.array(im_mirrs[6]), k=2)[:, ::-1]
+        sum += np.rot90(np.array(im_mirrs[7]), k=1)[:, ::-1]
 
     """test: output each result of mirros"""
     # n = 0
@@ -195,8 +185,9 @@ def _rotate_mirror_undo(im_mirrs):
     #     n +=1
 
     # return np.mean(origs, axis=0)
-    out_back = sum/8.0
+    out_back = sum/slices
     return out_back
+
 
 def _rotate_mirror_undo_by_vote(im_mirrs, nb_classes):
     """
@@ -345,7 +336,6 @@ def _windowed_subdivs_multiclassbands(padded_img, model, window_size, subdivisio
     return subdivs
 
 
-
 def _recreate_from_subdivs(subdivs, window_size, subdivisions, padded_out_shape):
     """
     Merge tiled overlapping patches smoothly.
@@ -448,13 +438,6 @@ def predict_img_with_smooth_windowing_multiclassbands(input_img, model, window_s
     # back from an impure windowing function that would have badly weighted
     # windows.
 
-    # For example, since the U-net of Kaggle's DSTL satellite imagery feature
-    # prediction challenge's 3rd place winners use a different window size for
-    # the input and output of the neural net's patches predictions, it would be
-    # possible to fake a full-size window which would in fact just have a narrow
-    # non-zero dommain. This may require to augment the `subdivisions` argument
-    # to 4 rather than 2.
-
     res = []
     for pad in tqdm(pads):
         # For every rotation:
@@ -495,8 +478,6 @@ def predict_img_with_smooth_windowing_multiclassbands(input_img, model, window_s
             plt.show()
 
     return prd  # probabilities for each target: [0,255]
-
-
 
 
 def cheap_tiling_prediction(img, window_size, nb_classes, pred_func):

@@ -124,8 +124,14 @@ def smooth_predict_for_multiclass(small_img_patches, model, real_classes):
         crop = np.expand_dims(crop, axis=0)
         # print ('crop:{}'.format(crop.shape))
         pred = model.predict(crop, verbose=2)
-        pred = np.argmax(pred, axis=2)
+        if len(pred.shape) > 3:
+            pred = np.argmax(pred, axis=3)
+        else:
+            pred = np.argmax(pred, axis=2)
+
+        # pred = np.argmax(pred, axis=2)
         pred = pred.reshape((row*column))
+        # mask_output.append(pred)
 
         """using index function "where" to rapid find different class"""
         tmp = pred.astype(np.uint8)
@@ -147,6 +153,7 @@ def smooth_predict_for_multiclass(small_img_patches, model, real_classes):
         mask_output.append(res_pred)
 
     mask_output = np.array(mask_output, np.float16)
+    print(np.unique(mask_output))
 
     print ("Shape of mask_output:{}".format(mask_output.shape))
 
@@ -176,7 +183,12 @@ def orignal_predict_onehot(image,bands, model,window_size):
             # print('crop:{}'.format(crop.shape))
 
             pred = model.predict(crop, verbose=2)
-            pred = np.argmax(pred, axis=2)  #for one hot encoding
+            if len(pred.shape) > 3:
+                pred = np.argmax(pred, axis=3)
+            else:
+                pred = np.argmax(pred, axis=2)
+
+            # pred = np.argmax(pred, axis=2)  #for one hot encoding
             # pred = pred[:,:,1]
 
             pred = pred.reshape(256, 256)

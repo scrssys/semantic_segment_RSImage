@@ -14,10 +14,10 @@ from label_check import Ui_Dialog_label_check
 from ImageClip import Ui_Dialog_image_clip
 from ulitities.xml_prec import generate_xml_from_dict, parse_xml_to_dict
 from ulitities.base_functions import get_file, load_img_by_gdal
+from .preprocess_backend import image_normalize, image_clip
 
 imgStretch_dict = {'input_dir': '', 'output_dir': '', 'NoData': '65535', 'OutBits': '16bits',
-                       'StretchRange': '1024',
-                       'CutValue': '100'}
+                       'StretchRange': '1024','CutValue': '100'}
 imgClip_dict = {'input_file':'', 'output_file':'', 'x':'0', 'y':'0', 'row':'1', 'column':'1'}
 
 
@@ -43,8 +43,8 @@ class child_image_stretch(QDialog, Ui_Dialog_image_stretch):
         self.setWindowModality(Qt.ApplicationModal)
         imgStretch_dict['input_dir'] = self.lineEdit_input.text()
         imgStretch_dict['output_dir'] = self.lineEdit_output.text()
-        nodata = self.spinBox_nodata.value()
-        imgStretch_dict['NoData'] = str(nodata)
+        # nodata = self.spinBox_nodata.value()
+        imgStretch_dict['NoData'] = self.spinBox_nodata.value()
         imgStretch_dict['OutBits'] = self.comboBox_outbits.currentText()
         imgStretch_dict['StretchRange']=self.spinBox_range.value()
         imgStretch_dict['CutValue']=self.spinBox_cutvalue.value()
@@ -52,15 +52,24 @@ class child_image_stretch(QDialog, Ui_Dialog_image_stretch):
         # ss = QCoreApplication.applicationDirPath()
         QDir.setCurrent(QCoreApplication.applicationDirPath()) # change current dir to "venv/bin/"
         ''' save parameters into xml '''
-        xmlfile = '../../metadata/image_stretch_inputs.xml'
-        generate_xml_from_dict(imgStretch_dict, xmlfile)
 
-        QMessageBox.information(self, 'Prompt', self.tr("Have saved the xml file !"))
-        # one_stretch = ImageStretch(imgStretch_dict)
-        # one_stretch.stretch_all_image_from_dict()
-        one_stretch = ImageStretch(inputXml=xmlfile)
-        one_stretch.stretch_all_image_from_xml()
-        QMessageBox.information(self, 'Prompt', self.tr("Images stretched !"))
+        ret =0
+        ret = image_normalize(imgStretch_dict)
+        if ret !=0:
+            print("Error: failed to normalize images")
+        else:
+            QMessageBox.information(self, 'Prompt', self.tr("Images stretched !"))
+        self.setWindowModality(Qt.NonModal)
+
+        # xmlfile = '../../metadata/image_stretch_inputs.xml'
+        # generate_xml_from_dict(imgStretch_dict, xmlfile)
+        #
+        # QMessageBox.information(self, 'Prompt', self.tr("Have saved the xml file !"))
+        # # one_stretch = ImageStretch(imgStretch_dict)
+        # # one_stretch.stretch_all_image_from_dict()
+        # one_stretch = ImageStretch(inputXml=xmlfile)
+        # one_stretch.stretch_all_image_from_xml()
+        # QMessageBox.information(self, 'Prompt', self.tr("Images stretched !"))
         self.setWindowModality(Qt.NonModal)
 
 
@@ -383,14 +392,23 @@ class child_ImageClip(QDialog, Ui_Dialog_image_clip):
         inputDict['column']=self.spinBox_column.value()
 
         QDir.setCurrent(QCoreApplication.applicationDirPath())  # change current dir to "venv/bin/"
-        xmlFileName = '../../metadata/image_clip_inputs.xml'
-        generate_xml_from_dict(inputDict, xmlFileName)
 
-        QMessageBox.information(self, 'Prompt', self.tr("Have saved the xml file !"))
-        instance = ImageClip(inputDict)
-        instance.image_clip_from_dict()
-        QMessageBox.information(self, 'Prompt', self.tr("Images clipped !"))
+        ret =0
+        ret = image_clip(inputDict)
+        if ret !=0:
+            print("Error: failed to clip images")
+        else:
+            QMessageBox.information(self, 'Prompt', self.tr("Images cliped !"))
         self.setWindowModality(Qt.NonModal)
+
+        # xmlFileName = '../../metadata/image_clip_inputs.xml'
+        # generate_xml_from_dict(inputDict, xmlFileName)
+        #
+        # QMessageBox.information(self, 'Prompt', self.tr("Have saved the xml file !"))
+        # instance = ImageClip(inputDict)
+        # instance.image_clip_from_dict()
+        # QMessageBox.information(self, 'Prompt', self.tr("Images clipped !"))
+        # self.setWindowModality(Qt.NonModal)
 
 
 

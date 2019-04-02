@@ -18,6 +18,7 @@ from base_predict_functions import orignal_predict_notonehot, orignal_predict_on
 from ulitities.base_functions import load_img_normalization_by_cv2, load_img_by_gdal, UINT10,UINT8,UINT16
 from smooth_tiled_predictions import predict_img_with_smooth_windowing_multiclassbands
 from ulitities.base_functions import get_file
+from segmentation_models.losses import bce_dice_loss,bce_jaccard_loss,binary_crossentropy
 
 UINT8=0
 UINT10 =1
@@ -221,6 +222,10 @@ def predict_binary_for_batch_image(input_dict={}):
         input_img = input_img.astype(np.float16)
 
         model = load_model(model_file)
+        print(model.summary())
+        layer_dict = dict([(layer.name, layer) for layer in model.layers])
+        layer_name = 'sigmoid'  # sigmoid, softmax
+        nb_classes = layer_dict[layer_name].output.shape[-1]
 
         abs_filename = os.path.split(img_file)[1]
         abs_filename = abs_filename.split(".")[0]
@@ -301,6 +306,12 @@ def predict_multiclass_for_batch_image(input_dict={}):
         input_img = input_img.astype(np.float16)
 
         model = load_model(model_file)
+        print(model.summary())
+        layer_dict = dict([(layer.name, layer) for layer in model.layers])
+        layer_name = 'softmax'   #sigmoid, softmax
+        nb_classes = layer_dict[layer_name].output.shape[-1]
+        if out_bands!=nb_classes-1:
+            out_bands =nb_classes-1
 
         abs_filename = os.path.split(img_file)[1]
         abs_filename = abs_filename.split(".")[0]

@@ -26,6 +26,7 @@ from keras.optimizers import *
 from keras import backend as K
 K.set_image_dim_ordering('tf')
 from keras.callbacks import TensorBoard
+from keras.utils import multi_gpu_model
 
 from ulitities.base_functions import load_img_normalization,  load_img_by_gdal, UINT16, UINT8, UINT10
 
@@ -45,16 +46,29 @@ import sys
 import  argparse
 parser=argparse.ArgumentParser(description='RS classification train')
 parser.add_argument('--gpu', dest='gpu_id', help='GPU device id to use [0]',
-                        default=0, type=int)
+                        default=1, type=int)
 parser.add_argument('--config', dest='config_file', help='json file to config',
                          default='config.json')
 args=parser.parse_args()
 gpu_id=args.gpu_id
 print("gpu_id:{}".format(gpu_id))
-os.environ["CUDA_VISIBLE_DEVICES"] = str(gpu_id)
+# os.environ["CUDA_VISIBLE_DEVICES"] = str(gpu_id)
+if isinstance(gpu_id,int):
+    os.environ["CUDA_VISIBLE_DEVICES"]=str(gpu_id)
+elif isinstance(gpu_id,list):
+    tp_str =[]
+    for i in gpu_id:
+        tp_str.append(str(i))
+    ns = ",".join(tp_str)
+    os.environ["CUDA_VISIBLE_DEVICES"] = ns
+else:
+    pass
 
-config_file = args.config_file
-print("cofig file:{}".format(config_file))
+
+# os.environ["CUDA_VISIBLE_DEVICES"] = "3,4,5"
+#
+# config_file = args.config_file
+# print("cofig file:{}".format(config_file))
 with open(args.config_file, 'r') as f:
     cfg = json.load(f)
 
@@ -205,6 +219,21 @@ def train(model):
     print ("the number of train data is", train_numb)
     print ("the number of val data is", valid_numb)
 
+    if isinstance(gpu_id,int):
+        pass
+    elif isinstance(gpu_id,list):
+        model = multi_gpu_model(model, gpus=len(gpu_id))
+
+    self_optimizer = SGD(lr=config.lr, decay=1e-6, momentum=0.9, nesterov=True)
+    if 'adagrad' in config.optimizer:
+        self_optimizer = Adagrad(lr=config.lr, decay=1e-6)
+    elif 'adam' in config.optimizer:
+        self_optimizer = Adam(lr=config.lr, decay=1e-6)
+    else:
+        pass
+
+    model.compile(self_optimizer, loss=config.loss, metrics=[config.metrics])
+
     H = model.fit_generator(generator=generateData(config.batch_size,train_set),
                             steps_per_epoch=train_numb // config.batch_size, epochs=config.epochs,
                             verbose=1,
@@ -281,19 +310,9 @@ if __name__ == '__main__':
     else:
         pass
 
-    self_optimizer = SGD(lr=config.lr, decay=1e-6, momentum=0.9, nesterov=True)
-    if 'adagrad' in config.optimizer:
-        self_optimizer = Adagrad(lr=config.lr, decay=1e-6)
-    elif 'adam' in config.optimizer:
-        self_optimizer = Adam(lr=config.lr, decay=1e-6)
-    else:
-        pass
-
-    model.compile(self_optimizer, loss=config.loss, metrics=[config.metrics])
-    # model.compile('SGD', loss=bce_jaccard_loss, metrics=[iou_score])
-
     print(model.summary())
     print("Train by : {}_{}".format(config.network, config.BACKBONE))
+
     train(model)
 
     if FLAG_MAKE_TEST:

@@ -11,6 +11,7 @@
   "strategy":"smooth",
   "window_size":256,
   "subdivisions":2,
+  "slices":4,
   "model_path":"/home/omnisky/PycharmProjects/data/models/rice/unet_test_Unet_resnet2019-03-25_11-57-12.h5",
 
   "mask_dir": "/home/omnisky/PycharmProjects/data/test/rice/pred/",

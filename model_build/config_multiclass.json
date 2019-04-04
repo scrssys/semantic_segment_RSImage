@@ -1,8 +1,8 @@
 {
-  "train_data_path":"/media/omnisky/579215ea-c392-4d2f-b136-6b62d9fb31ac/train_data/globel_dsm/",
+  "train_data_path":"/home/omnisky/PycharmProjects/data/traindata/global/multiclass_6classes_8bits/",
   "img_w":288,
   "img_h":288,
-  "im_bands":6,
+  "im_bands":4,
   "im_type":"uint8",
   "target_name":"global",
   "val_rate":0.25,

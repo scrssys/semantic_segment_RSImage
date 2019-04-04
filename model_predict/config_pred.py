@@ -14,6 +14,9 @@ Config_Pred = namedtuple("Config_pred", [
   "strategy",
   "window_size",
   "subdivisions",
+  "slices",
+  "block_size",
+  "nodata",
   "mask_dir",
   "suffix"
 ])

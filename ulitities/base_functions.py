@@ -5,6 +5,7 @@ import sys
 import cv2
 import numpy as np
 import gdal
+import gc
 
 
 UINT8=0
@@ -73,6 +74,8 @@ def load_img_by_gdal(path, grayscale=False):
     x_width = dataset.RasterXSize
     im_bands = dataset.RasterCount
     img = dataset.ReadAsArray(0,0,x_width,y_height)
+    geotransform = dataset.GetGeoTransform()
+
     if grayscale == False:
         img = np.array(img, dtype="float")
         if im_bands>1:
@@ -83,6 +86,50 @@ def load_img_by_gdal(path, grayscale=False):
     del dataset
 
     return img
+def load_img_by_gdal_geo(path, grayscale=False):
+    dataset = gdal.Open(path)
+    assert(dataset is not None)
+
+    y_height = dataset.RasterYSize
+    x_width = dataset.RasterXSize
+    im_bands = dataset.RasterCount
+    img = dataset.ReadAsArray(0,0,x_width,y_height)
+    geotransform = dataset.GetGeoTransform()
+
+    if grayscale == False:
+        img = np.array(img, dtype="float")
+        if im_bands>1:
+            img = np.transpose(img, (1,2,0))
+    else:
+        if im_bands > 1:
+            img = np.transpose(img, (1, 2, 0))
+    del dataset
+
+    return img, geotransform
+
+def load_img_by_gdal_blocks(path, x,y,width,height,grayscale=False):
+    dataset = gdal.Open(path)
+    assert(dataset is not None)
+
+    y_height = dataset.RasterYSize
+    x_width = dataset.RasterXSize
+    im_bands = dataset.RasterCount
+    if y+height>y_height:
+        height = y_height-y
+    img = dataset.ReadAsArray(x,y,width,height)
+    if grayscale == False:
+        img = np.array(img, dtype="float")
+        if im_bands>1:
+            img = np.transpose(img, (1,2,0))
+    else:
+        if im_bands > 1:
+            img = np.transpose(img, (1, 2, 0))
+    del dataset
+    gc.collect()
+
+    return img
+
+
 
 def load_img_normalization(input_bands, path, data_type=UINT8):
     if not os.path.isfile(path):

@@ -304,7 +304,7 @@ def _windowed_subdivs_multiclassbands(padded_img, model, window_size, subdivisio
     return subdivs
 
 
-def predict_img_with_smooth_windowing(input_img, model, window_size, subdivisions, real_classes, pred_func, PLOT_PROGRESS = True):
+def predict_img_with_smooth_windowing(input_img, model, window_size, subdivisions, slices, real_classes, pred_func, PLOT_PROGRESS = True):
     """
     Apply the `pred_func` function to square patches of the image, and overlap
     the predictions to merge them smoothly.
@@ -313,7 +313,7 @@ def predict_img_with_smooth_windowing(input_img, model, window_size, subdivision
     """
 
     pad = _pad_img(input_img, window_size, subdivisions)
-    pads = _rotate_mirror_do(pad)
+    pads = _rotate_mirror_do(pad,slices)
 
     # Note that the implementation could be more memory-efficient by merging
     # the behavior of `_windowed_subdivs` and `_recreate_from_subdivs` into
@@ -347,7 +347,7 @@ def predict_img_with_smooth_windowing(input_img, model, window_size, subdivision
     del pads
     gc.collect()
 
-    padded_results = _rotate_mirror_undo(res)
+    padded_results = _rotate_mirror_undo(res,slices)
 
     # padded_results = _rotate_mirror_undo_by_vote(res, 5)
 
@@ -461,7 +461,7 @@ def core_smooth_predict_multiclass(small_img_patches, model, real_classes):
         mask_output.append(res_pred)
 
     mask_output = np.array(mask_output, np.float16)
-    print(np.unique(mask_output))
+    # print(np.unique(mask_output))
 
     print ("Shape of mask_output:{}".format(mask_output.shape))
 

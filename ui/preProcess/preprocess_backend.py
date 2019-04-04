@@ -15,7 +15,7 @@ def image_normalize(input_dict):
     valid_range = input_dict["StretchRange"]
     cut_value = input_dict["CutValue"]
 
-    src_files, tt = get_file(input_dir)
+    src_files, tt = get_file(input_dir, file_type='.png')
     assert (tt != 0)
     factor=4.0
 
@@ -33,7 +33,7 @@ def image_normalize(input_dict):
         absname = os.path.split(file)[1]
         absname = absname.split('.')[0]
         # absname = 'shuidao.png'
-        absname = ''.join([absname, '.png'])
+        absname = ''.join([absname, '.tif'])
         print(absname)
         if not os.path.isfile(file):
             print("input file dose not exist:{}\n".format(file))
@@ -50,6 +50,7 @@ def image_normalize(input_dict):
         im_bands = dataset.RasterCount
         im_type = dataset.GetRasterBand(1).DataType
         img = dataset.ReadAsArray(0, 0, width, height)
+        geotransform = dataset.GetGeoTransform()
         del dataset
         # img = np.array(img, np.uint16)
         img = np.array(img, np.float32)
@@ -98,10 +99,13 @@ def image_normalize(input_dict):
         outputfile = os.path.join(output_dir, absname)
         driver = gdal.GetDriverByName("GTiff")
 
+
         if '8' in result_bits:
             outdataset = driver.Create(outputfile, width, height, im_bands, gdal.GDT_Byte)
+            outdataset.SetGeoTransform(geotransform)
         elif '16' in result_bits:
             outdataset = driver.Create(outputfile, width, height, im_bands, gdal.GDT_UInt16)
+            outdataset.SetGeoTransform(geotransform)
         # outdataset = driver.Create(outputfile, width, height, im_bands, gdal.GDT_UInt16)
 
         for i in range(im_bands):

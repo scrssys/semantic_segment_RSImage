@@ -1,5 +1,5 @@
 {
-  "img_input":"/home/omnisky/PycharmProjects/data/test/global/images2019_16bit_norm/",
+  "img_input":"/home/omnisky/PycharmProjects/data/test/global/test1/",
   "img_w":288,
   "img_h":288,
   "im_bands":4,
@@ -10,7 +10,10 @@
   "strategy":"smooth",
   "window_size":288,
   "subdivisions":2,
-  "model_path":"/home/omnisky/PycharmProjects/data/models/global/global_unet_resnet34_categorical_crossentropy_288_2019-04-01_16-52-48.h5",
+  "slices":4,
+  "block_size":100000000,
+  "nodata":65535,
+  "model_path":"/home/omnisky/PycharmProjects/data/models/global/global16bits_unet_resnet34_categorical_crossentropy_288_2019-04-01_16-52-48.h5",
   "mask_dir": "/home/omnisky/PycharmProjects/data/test/global/",
-  "suffix":".png"
+  "suffix":".tif"
 }

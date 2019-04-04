@@ -110,7 +110,7 @@ if __name__ == '__main__':
             target_class = nb_classes-1
 
     for img_file in tqdm(input_files):
-        print("[INFO] opening image...".format(img_file))
+        print("\n[INFO] opening image...".format(img_file))
         input_img = load_img_by_gdal(img_file)
         if im_type == UINT8:
             input_img = input_img / 255.0

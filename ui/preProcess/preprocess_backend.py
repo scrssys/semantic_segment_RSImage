@@ -15,7 +15,7 @@ def image_normalize(input_dict):
     valid_range = input_dict["StretchRange"]
     cut_value = input_dict["CutValue"]
 
-    src_files, tt = get_file(input_dir, file_type='.png')
+    src_files, tt = get_file(input_dir)
     assert (tt != 0)
     factor=4.0
 
@@ -31,9 +31,9 @@ def image_normalize(input_dict):
     for file in tqdm(src_files):
 
         absname = os.path.split(file)[1]
-        absname = absname.split('.')[0]
+        # absname = absname.split('.')[0]
         # absname = 'shuidao.png'
-        absname = ''.join([absname, '.tif'])
+        # absname = ''.join([absname, '.tif'])
         print(absname)
         if not os.path.isfile(file):
             print("input file dose not exist:{}\n".format(file))

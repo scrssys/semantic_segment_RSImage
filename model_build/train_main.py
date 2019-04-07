@@ -45,8 +45,8 @@ import sys
 
 import  argparse
 parser=argparse.ArgumentParser(description='RS classification train')
-parser.add_argument('--gpu', dest='gpu_id', help='GPU device id to use [0]',
-                        default=1, type=int)
+parser.add_argument('--gpu', dest='gpu_id', help='GPU device id to use [0]', nargs='+',
+                        default=0, type=int)
 parser.add_argument('--config', dest='config_file', help='json file to config',
                          default='config.json')
 args=parser.parse_args()
@@ -220,9 +220,12 @@ def train(model):
     print ("the number of val data is", valid_numb)
 
     if isinstance(gpu_id,int):
+        print("using single gpu {}".format(gpu_id))
         pass
     elif isinstance(gpu_id,list):
-        model = multi_gpu_model(model, gpus=len(gpu_id))
+        print("using multi gpu {}".format(gpu_id))
+        if len(gpu_id)>1:
+            model = multi_gpu_model(model, gpus=len(gpu_id))
 
     self_optimizer = SGD(lr=config.lr, decay=1e-6, momentum=0.9, nesterov=True)
     if 'adagrad' in config.optimizer:

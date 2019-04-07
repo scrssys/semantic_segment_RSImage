@@ -10,10 +10,10 @@
   "strategy":"smooth",
   "window_size":288,
   "subdivisions":2,
-  "slices":4,
+  "slices":8,
   "block_size":100000000,
   "nodata":65535,
-  "model_path":"/home/omnisky/PycharmProjects/data/models/global/global16bits_unet_resnet34_categorical_crossentropy_288_2019-04-01_16-52-48.h5",
+  "model_path":"/home/omnisky/PycharmProjects/data/models/global/global_fpn_resnet34_categorical_crossentropy_288_2019-04-06_17-25-00.h5",
   "mask_dir": "/home/omnisky/PycharmProjects/data/test/global/",
   "suffix":".tif"
 }

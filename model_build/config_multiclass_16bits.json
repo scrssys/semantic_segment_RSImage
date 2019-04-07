@@ -1,5 +1,5 @@
 {
-  "train_data_path":"/home/omnisky/PycharmProjects/data/traindata/global/16bits_miandian/",
+  "train_data_path":"/home/omnisky/PycharmProjects/data/traindata/global/16bit_miandiantaiguo/",
   "img_w":288,
   "img_h":288,
   "im_bands":4,
@@ -7,7 +7,7 @@
   "target_name":"global",
   "val_rate":0.25,
 
-  "network":"unet",
+  "network":"fpn",
   "BACKBONE":"resnet34",
   "activation":"softmax",
   "encoder_weights":null,
@@ -32,7 +32,7 @@
   "save_best_only":true,
   "mode":"min",
   "factor":0.1,
-  "patience":5,
+  "patience":10,
   "epsilon":0.0001,
   "cooldown":0,
   "min_lr":0,

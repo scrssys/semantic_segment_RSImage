@@ -165,7 +165,7 @@ def get_file(file_dir, file_type='.png'):
     L=[]
     for root,dirs,files in os.walk(file_dir):
         for file in files:
-            if os.path.splitext(file)[1]==file_type:
+            if (os.path.splitext(file)[1]==file_type) or (os.path.splitext(file)[1]=='.tif'):
                 L.append(os.path.join(root,file))
     num = len(L)
     return L, num

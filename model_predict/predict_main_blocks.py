@@ -103,17 +103,18 @@ if __name__ == '__main__':
     out_bands = config.mask_classes
     model = load_model(config.model_path)
     print(model.summary())
-    layer_dict = dict([(layer.name, layer) for layer in model.layers])
-    layer_name = config.activation  # sigmoid, softmax
-    nb_classes = layer_dict[layer_name].output.shape[-1]
-    if "sigmoid" in config.activation:
-        if target_class != nb_classes:
-            print("Warning: mask classes in cofig file is not equal to output classes of model!")
-            target_class = nb_classes
-    elif "softmax" in config.activation:
-        if target_class !=nb_classes-1:
-            print("Warning: mask classes in cofig file is not equal to output classes of model!")
-            target_class = nb_classes-1
+
+    # layer_dict = dict([(layer.name, layer) for layer in model.layers])
+    # layer_name = config.activation  # sigmoid, softmax
+    # nb_classes = layer_dict[layer_name].output.shape[-1]
+    # if "sigmoid" in config.activation:
+    #     if target_class != nb_classes:
+    #         print("Warning: mask classes in cofig file is not equal to output classes of model!")
+    #         target_class = nb_classes
+    # elif "softmax" in config.activation:
+    #     if target_class !=nb_classes-1:
+    #         print("Warning: mask classes in cofig file is not equal to output classes of model!")
+    #         target_class = nb_classes-1
 
     for img_file in tqdm(input_files):
         print("\n[INFO] opening image:{}...".format(img_file))

@@ -28,7 +28,7 @@ class mywindow(QMainWindow, Ui_MainWindow):
 
     def new_translate(self ):
         _translate = QtCore.QCoreApplication.translate
-        self.setWindowTitle(_translate("MainWindow", "遥感影像人工地物深度学习识别系统"))
+        self.setWindowTitle(_translate("MainWindow", "自然资源督察要素遥感识别监测系统（服务器）"))
         self.menuFile.setTitle(_translate("MainWindow", "文件"))
         self.menuPrepocess.setTitle(_translate("MainWindow", "预处理"))
         self.menuTrain.setTitle(_translate("MainWindow", "模型训练"))

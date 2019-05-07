@@ -1,17 +1,17 @@
 {
-  "train_data_path":"/home/omnisky/PycharmProjects/data/traindata/global/multiclass_6classes_8bits/",
-  "img_w":288,
-  "img_h":288,
+  "train_data_path":"/media/omnisky/6b62a451-463c-41e2-b06c-57f95571fdec/Backups/data/traindata/sat_4bands_288/multiclass/",
+  "img_w":256,
+  "img_h":256,
   "im_bands":4,
-  "im_type":"uint8",
-  "target_name":"global",
+  "im_type":"uint10",
+  "target_name":"manmade",
   "val_rate":0.25,
 
-  "network":"pspnet",
+  "network":"fpn",
   "BACKBONE":"resnet34",
   "activation":"softmax",
   "encoder_weights":null,
-  "nb_classes":6,
+  "nb_classes":3,
   "batch_size":32,
   "epochs": 100,
 
@@ -26,7 +26,7 @@
   "old_epoch":0,
   "test_pad": 64,
 
-  "model_dir": "/home/omnisky/PycharmProjects/data/models/global/",
+  "model_dir": "/home/omnisky/PycharmProjects/data/models/sat_urban_4bands/",
   "base_model":"",
   "monitor":"val_loss",
   "save_best_only":true,

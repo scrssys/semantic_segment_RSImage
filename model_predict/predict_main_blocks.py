@@ -167,7 +167,7 @@ if __name__ == '__main__':
             if FLAG_APPROACH_PREDICT == 0:
                 print("[INFO] predict image by orignal approach for {} block".format(i))
                 result = core_orignal_predict(input_img, config.im_bands, model, config.window_size, config.img_w)
-                result_mask[start:end,:]=result[:this_h+config.window_size,:]
+                result_mask[start:end,:]=result[:this_h,:]
 
             elif FLAG_APPROACH_PREDICT == 1:
                 print("[INFO] predict image by smooth approach for {} block".format(i))
@@ -192,6 +192,7 @@ if __name__ == '__main__':
                         model,
                         window_size=config.window_size,
                         subdivisions=config.subdivisions,
+                        slices=config.slices,
                         real_classes=target_class,
                         pred_func=core_smooth_predict_binary,
                         PLOT_PROGRESS=False

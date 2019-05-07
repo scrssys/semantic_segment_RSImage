@@ -5,16 +5,15 @@
   "im_bands":3,
   "im_type":"UINT8",
   "target_name":"rice",
-
   "activation":"sigmoid",
   "mask_classes":1,
   "strategy":"smooth",
   "window_size":256,
   "subdivisions":2,
   "slices":4,
+  "block_size":100000000,
+  "nodata":65535,
   "model_path":"/home/omnisky/PycharmProjects/data/models/rice/unet_test_Unet_resnet2019-03-25_11-57-12.h5",
-
   "mask_dir": "/home/omnisky/PycharmProjects/data/test/rice/pred/",
   "suffix":".png"
-
 }

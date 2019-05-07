@@ -1,7 +1,7 @@
 # coding=utf-8
-import matplotlib
+# import matplotlib
 
-matplotlib.use("Agg")
+# matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 from keras.models import Sequential,load_model
@@ -26,15 +26,15 @@ from keras.optimizers import *
 from keras import backend as K
 K.set_image_dim_ordering('tf')
 from keras.callbacks import TensorBoard
-from keras.utils import multi_gpu_model
+# from keras.utils import multi_gpu_model
 
 from ulitities.base_functions import load_img_normalization,  load_img_by_gdal, UINT16, UINT8, UINT10
 
 seed = 6
 np.random.seed(seed)
 from keras import metrics, losses
-from segmentation_models.losses import bce_jaccard_loss
-from segmentation_models.metrics import iou_score
+# from segmentation_models.losses import bce_jaccard_loss
+# from segmentation_models.metrics import iou_score
 
 from segmentation_models import Unet,FPN,PSPNet,Linknet
 
@@ -64,22 +64,11 @@ elif isinstance(gpu_id,list):
 else:
     pass
 
-
-# os.environ["CUDA_VISIBLE_DEVICES"] = "3,4,5"
-#
-# config_file = args.config_file
-# print("cofig file:{}".format(config_file))
 with open(args.config_file, 'r') as f:
     cfg = json.load(f)
 
-# os.environ["CUDA_VISIBLE_DEVICES"] = "1"
-# with open("config.json", 'r') as f:
-#     cfg = json.load(f)
-
 config = Config(**cfg)
 print(config)
-
-# sys.exit(-1)
 
 FLAG_MAKE_TEST=True
 im_type=UINT8
@@ -101,7 +90,7 @@ def get_train_val(val_rate=config.val_rate):
     train_url = []
     train_set = []
     val_set = []
-    for pic in os.listdir(config.train_data_path + 'src'):
+    for pic in os.listdir(config.train_data_path + 'label'):
         train_url.append(pic)
     random.shuffle(train_url)
     total_num = len(train_url)
@@ -184,7 +173,7 @@ def train(model):
 
     model_earlystop = EarlyStopping(
         monitor=config.monitor,
-        patience=config.patience,
+        patience=config.patience+5,
         verbose=0,
         mode=config.mode)
 
@@ -222,10 +211,10 @@ def train(model):
     if isinstance(gpu_id,int):
         print("using single gpu {}".format(gpu_id))
         pass
-    elif isinstance(gpu_id,list):
-        print("using multi gpu {}".format(gpu_id))
-        if len(gpu_id)>1:
-            model = multi_gpu_model(model, gpus=len(gpu_id))
+    # elif isinstance(gpu_id,list):
+        # print("using multi gpu {}".format(gpu_id))
+        # if len(gpu_id)>1:
+        #     model = multi_gpu_model(model, gpus=len(gpu_id))
 
     self_optimizer = SGD(lr=config.lr, decay=1e-6, momentum=0.9, nesterov=True)
     if 'adagrad' in config.optimizer:
@@ -238,7 +227,8 @@ def train(model):
     model.compile(self_optimizer, loss=config.loss, metrics=[config.metrics])
 
     H = model.fit_generator(generator=generateData(config.batch_size,train_set),
-                            steps_per_epoch=train_numb // config.batch_size, epochs=config.epochs,
+                            steps_per_epoch=train_numb // config.batch_size,
+                            epochs=config.epochs,
                             verbose=1,
                             validation_data=generateValidData(config.batch_size, val_set),
                             validation_steps=valid_numb // config.batch_size,
@@ -316,6 +306,7 @@ if __name__ == '__main__':
     print(model.summary())
     print("Train by : {}_{}".format(config.network, config.BACKBONE))
 
+    # sys.exit(-1)
     train(model)
 
     if FLAG_MAKE_TEST:

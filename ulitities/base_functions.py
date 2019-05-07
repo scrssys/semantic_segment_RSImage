@@ -155,17 +155,22 @@ def load_img_normalization(input_bands, path, data_type=UINT8):
     return 0, img
 
 
-def get_file(file_dir, file_type='.png'):
+def get_file(file_dir, file_type=['.png', '.PNG', '.tif', '.img','.IMG']):
     """
 
     :param file_dir: directory of input files, it may have sub_folders
     :param file_type: file format, namely postfix
     :return: L: a list of files under the file_dir and sub_folders; num: the length of L
     """
+    im_type=['.png']
+    if isinstance(file_type, str):
+        im_type=file_type
+    elif isinstance(file_type,list):
+        im_type=file_type
     L=[]
     for root,dirs,files in os.walk(file_dir):
         for file in files:
-            if (os.path.splitext(file)[1]==file_type) or (os.path.splitext(file)[1]=='.tif'):
+            if (os.path.splitext(file)[1] in im_type):
                 L.append(os.path.join(root,file))
     num = len(L)
     return L, num

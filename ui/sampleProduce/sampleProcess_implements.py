@@ -293,6 +293,8 @@ class SampleGenerate():
             print("src file:{}".format(os.path.split(src_file)[1]))
 
             label_img = cv2.imread(label_file, cv2.IMREAD_GRAYSCALE)
+            absname = os.path.split(label_file)[1]
+            absname = absname.split('.')[0]
 
             dataset = gdal.Open(src_file)
             if dataset == None:
@@ -346,10 +348,10 @@ class SampleGenerate():
 
                 visualize = label_roi * 50
 
-                cv2.imwrite((out_path + '/visualize/%d.png' % g_count), visualize)
-                cv2.imwrite((out_path + '/label/%d.png' % g_count), label_roi)
+                cv2.imwrite((out_path + '/visualize/%d_%s.png' % (g_count,absname)), visualize)
+                cv2.imwrite((out_path + '/label/%d_%s.png' % (g_count, absname)), label_roi)
 
-                src_sample_file = out_path + '/src/%d.png' % g_count
+                src_sample_file = out_path + '/src/%d_%s.png' % (g_count,absname)
                 driver = gdal.GetDriverByName("GTiff")
                 outdataset = driver.Create(src_sample_file, img_w, img_h, im_bands, data_type)
                 if outdataset == None:

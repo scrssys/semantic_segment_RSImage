@@ -22,10 +22,11 @@ from segmentation_models.losses import bce_jaccard_loss
 from segmentation_models.metrics import iou_score
 
 # from base_predict_functions import orignal_predict_notonehot, smooth_predict_for_binary_notonehot
-from ulitities.base_functions import load_img_by_gdal,load_img_by_gdal_geo, load_img_by_gdal_blocks, UINT10,UINT8,UINT16, get_file
+from ulitities.base_functions import load_img_by_gdal,load_img_by_gdal_geo, load_img_by_gdal_blocks, UINT10,UINT8,UINT16, get_file, polygonize
 from predict_backbone import predict_img_with_smooth_windowing,core_orignal_predict,core_smooth_predict_multiclass, core_smooth_predict_binary
 
 from config_pred import Config_Pred
+import pandas as pd
 
 """
    The following global variables should be put into meta data file 
@@ -99,28 +100,20 @@ if __name__ == '__main__':
     print("{} images will be classified".format(len(input_files)))
 
     # sys.exit(-1)
+    csv_file = os.path.join(output_dir, 'readme.csv')
+    df = pd.DataFrame(list(config))
+    df.to_csv(csv_file)
 
     out_bands = config.mask_classes
     model = load_model(config.model_path)
-    print(model.summary())
-
-    # layer_dict = dict([(layer.name, layer) for layer in model.layers])
-    # layer_name = config.activation  # sigmoid, softmax
-    # nb_classes = layer_dict[layer_name].output.shape[-1]
-    # if "sigmoid" in config.activation:
-    #     if target_class != nb_classes:
-    #         print("Warning: mask classes in cofig file is not equal to output classes of model!")
-    #         target_class = nb_classes
-    # elif "softmax" in config.activation:
-    #     if target_class !=nb_classes-1:
-    #         print("Warning: mask classes in cofig file is not equal to output classes of model!")
-    #         target_class = nb_classes-1
+    # print(model.summary())
 
     for img_file in tqdm(input_files):
         print("\n[INFO] opening image:{}...".format(img_file))
         abs_filename = os.path.split(img_file)[1]
         abs_filename = abs_filename.split(".")[0]
         whole_img, geoinf = load_img_by_gdal_geo(img_file)
+        print("GeomTransform:{}".format(geoinf))
         H,W,C = np.array(whole_img).shape
         if C>1:
             nodata_indx = np.where(whole_img[:,:,0]==nodata)
@@ -217,8 +210,13 @@ if __name__ == '__main__':
         del outdataset
         # result_mask[nodata_indx] = 255
         gc.collect()
+        print("Saved to:{}".format(output_file))
+
+        # output vector file from raster file
+        shp_file= ''.join([output_dir, '/', abs_filename, '.shp'])
+        polygonize(output_file, shp_file)
 
         # cv2.imwrite(output_file, output_mask)
-        print("Saved to:{}".format(output_file))
+
 
 

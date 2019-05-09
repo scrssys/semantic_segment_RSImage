@@ -13,7 +13,7 @@
   "slices":1,
   "block_size":200000000,
   "nodata":256,
-  "model_path":"/home/omnisky/PycharmProjects/data/models/WHU/pre-trained/WHU_building_unet_seresnext50_bce_jaccard_loss_512_2019-05-07_08-55-56.h5",
+  "model_path":"/home/omnisky/PycharmProjects/data/models/WHU/pre-trained/WHU_building_unet_resnet34_bce_jaccard_loss_512_2019-05-08_17-10-32.h5",
   "mask_dir": "/media/omnisky/6b62a451-463c-41e2-b06c-57f95571fdec/Backups/data/test/WHU/pred/",
-  "suffix":".tif"
+  "suffix":".png"
 }

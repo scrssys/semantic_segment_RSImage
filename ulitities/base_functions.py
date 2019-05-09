@@ -4,7 +4,7 @@ import os
 import sys
 import cv2
 import numpy as np
-import gdal
+import gdal,osr,ogr
 import gc
 
 
@@ -78,8 +78,11 @@ def load_img_by_gdal(path, grayscale=False):
 
     if grayscale == False:
         img = np.array(img, dtype="float")
-        if im_bands>1:
-            img = np.transpose(img, (1,2,0))
+        try:
+            img = np.transpose(img, (1, 2, 0))
+        except:
+            print("image should be 3 dimensions!")
+            sys.exit(-1)
     else:
         if im_bands > 1:
             img = np.transpose(img, (1, 2, 0))
@@ -98,8 +101,11 @@ def load_img_by_gdal_geo(path, grayscale=False):
 
     if grayscale == False:
         img = np.array(img, dtype="float")
-        if im_bands>1:
-            img = np.transpose(img, (1,2,0))
+        try:
+            img = np.transpose(img, (1, 2, 0))
+        except:
+            print("image should be 3 dimensions!")
+            sys.exit(-1)
     else:
         if im_bands > 1:
             img = np.transpose(img, (1, 2, 0))
@@ -119,8 +125,11 @@ def load_img_by_gdal_blocks(path, x,y,width,height,grayscale=False):
     img = dataset.ReadAsArray(x,y,width,height)
     if grayscale == False:
         img = np.array(img, dtype="float")
-        if im_bands>1:
-            img = np.transpose(img, (1,2,0))
+        try:
+            img = np.transpose(img, (1, 2, 0))
+        except:
+            print("image should be 3 dimensions!")
+            sys.exit(-1)
     else:
         if im_bands > 1:
             img = np.transpose(img, (1, 2, 0))
@@ -186,3 +195,55 @@ def compare_two_image_size(img_one, img_two, grayscale=False):
         h2, w2, _ = img_two.shape
         assert (h1 == h2 and w1 == w2)
 
+
+def polygonize(rasterTemp, outShp, sieveSize=1):
+    sourceRaster = gdal.Open(rasterTemp)
+    band = sourceRaster.GetRasterBand(1)
+    driver = ogr.GetDriverByName("ESRI Shapefile")
+    # If shapefile already exist, delete it
+    if os.path.exists(outShp):
+        driver.DeleteDataSource(outShp)
+
+    outDatasource = driver.CreateDataSource(outShp)
+    # get proj from raster
+    srs = osr.SpatialReference()
+    srs.ImportFromWkt(sourceRaster.GetProjectionRef())
+    # create layer with proj
+    outLayer = outDatasource.CreateLayer(outShp, srs)
+    # Add class column (1,2...) to shapefile
+
+    newField = ogr.FieldDefn('grid_code', ogr.OFTInteger)
+    outLayer.CreateField(newField)
+
+    gdal.Polygonize(band, None, outLayer, 0, [], callback=None)
+
+    outDatasource.Destroy()
+    sourceRaster = None
+    band = None
+
+    try:
+        # Add area for each feature
+        ioShpFile = ogr.Open(outShp, update=1)
+
+        lyr = ioShpFile.GetLayerByIndex(0)
+        lyr.ResetReading()
+
+        field_defn = ogr.FieldDefn("Area", ogr.OFTReal)
+        lyr.CreateField(field_defn)
+    except:
+        print("Can not add filed of Area!")
+
+    for i in lyr:
+        # feat = lyr.GetFeature(i)
+        geom = i.GetGeometryRef()
+        area = round(geom.GetArea())
+
+        lyr.SetFeature(i)
+        i.SetField("Area", area)
+        lyr.SetFeature(i)
+        # if area is less than inMinSize or if it isn't forest, remove polygon
+        if area < sieveSize:
+            lyr.DeleteFeature(i.GetFID())
+    ioShpFile.Destroy()
+
+    return outShp

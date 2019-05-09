@@ -164,3 +164,5 @@ def image_clip(input_dict):
             for i in range(im_bands):
                 outdataset.GetRasterBand(i + 1).WriteArray(output_img[i])
         del outdataset
+
+    return 0

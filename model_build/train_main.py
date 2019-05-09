@@ -26,15 +26,15 @@ from keras.optimizers import *
 from keras import backend as K
 K.set_image_dim_ordering('tf')
 from keras.callbacks import TensorBoard
-# from keras.utils import multi_gpu_model
+from keras.utils import multi_gpu_model
 
 from ulitities.base_functions import load_img_normalization,  load_img_by_gdal, UINT16, UINT8, UINT10
 
-seed = 6
+seed = 4
 np.random.seed(seed)
 from keras import metrics, losses
-# from segmentation_models.losses import bce_jaccard_loss
-# from segmentation_models.metrics import iou_score
+from segmentation_models.losses import bce_jaccard_loss
+from segmentation_models.metrics import iou_score
 
 from segmentation_models import Unet,FPN,PSPNet,Linknet
 
@@ -169,13 +169,16 @@ def train(model):
     model_checkpoint = ModelCheckpoint(
         model_save_path,
         monitor=config.monitor,
-        save_best_only=config.save_best_only)
+        save_best_only=config.save_best_only,
+        mode=config.mode
+    )
 
     model_earlystop = EarlyStopping(
         monitor=config.monitor,
         patience=config.patience+5,
         verbose=0,
-        mode=config.mode)
+        mode=config.mode
+    )
 
     # """自动调整学习率"""
     model_reduceLR=ReduceLROnPlateau(
@@ -211,10 +214,10 @@ def train(model):
     if isinstance(gpu_id,int):
         print("using single gpu {}".format(gpu_id))
         pass
-    # elif isinstance(gpu_id,list):
-        # print("using multi gpu {}".format(gpu_id))
-        # if len(gpu_id)>1:
-        #     model = multi_gpu_model(model, gpus=len(gpu_id))
+    elif isinstance(gpu_id,list):
+        print("using multi gpu {}".format(gpu_id))
+        if len(gpu_id)>1:
+            model = multi_gpu_model(model, gpus=len(gpu_id))
 
     self_optimizer = SGD(lr=config.lr, decay=1e-6, momentum=0.9, nesterov=True)
     if 'adagrad' in config.optimizer:

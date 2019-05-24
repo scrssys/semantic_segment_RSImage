@@ -1,0 +1,19 @@
+{
+  "img_input":"/home/omnisky/PycharmProjects/data/test/tianfuxinqu/stretched/",
+  "img_w":480,
+  "img_h":480,
+  "im_bands":4,
+  "im_type":"UINT10",
+  "target_name":"tuitiantu",
+  "activation":"sigmoid",
+  "mask_classes":1,
+  "strategy":"smooth",
+  "window_size":480,
+  "subdivisions":2,
+  "slices":8,
+  "block_size":500000000,
+  "nodata":65535,
+  "model_path":"/home/omnisky/PycharmProjects/data/models/ducha/tuitiantu/tuitiantu_unet_vgg16_bce_jaccard_loss_480_2019-05-09_08-40-41.h5",
+  "mask_dir": "/home/omnisky/PycharmProjects/data/test/tianfuxinqu/tuitiantu_pred_2019/",
+  "suffix":".png"
+}

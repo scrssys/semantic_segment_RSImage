@@ -5,4 +5,10 @@ keras>=2.2.0
 keras_applications>=1.0.7
 scikit-image
 image-classifiers==0.2.0
+Scikit-learn
+matplotlib
+Pandas
+numpy==1.12.0
+scipy==0.19.1
+
 

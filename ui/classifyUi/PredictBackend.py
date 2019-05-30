@@ -14,9 +14,9 @@ from keras import backend as K
 K.set_image_dim_ordering('tf')
 K.clear_session()
 
-from base_predict_functions import orignal_predict_notonehot, orignal_predict_onehot, smooth_predict_for_binary_notonehot, smooth_predict_for_binary_onehot, smooth_predict_for_multiclass
+from ulitities.base_predict_functions import orignal_predict_notonehot, orignal_predict_onehot, smooth_predict_for_binary_notonehot, smooth_predict_for_binary_onehot, smooth_predict_for_multiclass
 from ulitities.base_functions import load_img_normalization_by_cv2, load_img_by_gdal, UINT10,UINT8,UINT16
-from smooth_tiled_predictions import predict_img_with_smooth_windowing_multiclassbands
+from ulitities.smooth_tiled_predictions import predict_img_with_smooth_windowing_multiclassbands
 from ulitities.base_functions import get_file
 from segmentation_models.losses import bce_dice_loss,bce_jaccard_loss,binary_crossentropy
 

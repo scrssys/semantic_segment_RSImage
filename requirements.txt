@@ -8,7 +8,5 @@ image-classifiers==0.2.0
 Scikit-learn
 matplotlib
 Pandas
-numpy==1.12.0
-scipy==0.19.1
 
 

@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QDialog, QFileDialog, QMe
 from MainWin import Ui_MainWindow
 from PyQt5.QtGui import QIcon
 from preProcess.preprocess_implements import child_image_stretch, child_label, child_ImageClip
-from sampleProduce.sampleProcess_implements import child_sampleGenCommon
+from sampleProduce.sampleProcess_implements import child_sampleGenCommon,child_sampleGenSelfAdapt
 from trainUi.trainModels_implements import child_trainBinaryJaccardCross, child_trainBinaryJaccardOnly, child_trainBinaryOnehot, child_trainBinaryCrossentropy, child_trainMulticlass
 from classifyUi.predict_implements import child_predictBinaryForSingleImage, child_predictMulticlassForSingleImage, child_predictBinaryBatch, child_predictMulticlassBatch
 from postProcess.postProcess_implements import child_CombineMulticlassFromSingleModelResults, child_VoteMultimodleResults, child_AccuacyEvaluate, child_Binarization
@@ -28,7 +28,7 @@ class mywindow(QMainWindow, Ui_MainWindow):
 
     def new_translate(self ):
         _translate = QtCore.QCoreApplication.translate
-        self.setWindowTitle(_translate("MainWindow", "自然资源督察要素遥感识别监测系统（服务器）"))
+        self.setWindowTitle(_translate("MainWindow", "          自然资源督察要素遥感识别监测系统（服务器）"))
         self.menuFile.setTitle(_translate("MainWindow", "文件"))
         self.menuPrepocess.setTitle(_translate("MainWindow", "预处理"))
         self.menuTrain.setTitle(_translate("MainWindow", "模型训练"))
@@ -38,7 +38,8 @@ class mywindow(QMainWindow, Ui_MainWindow):
         self.menuPostproc.setTitle(_translate("MainWindow", "后处理"))
         self.actionLabel_check.setText(_translate("MainWindow", "标注检查"))
         self.actionImage_strech.setText(_translate("MainWindow", "图像标准化"))
-        self.actionSampleGenCommon.setText(_translate("MainWindow", "样本制作"))
+        self.actionSampleGenCommon.setText(_translate("MainWindow", "样本制作(默认)"))
+        self.actionSample_gen_Self_adapt.setText(_translate("MainWindow", "样本制作(自适应)"))
         self.actionSampleGenByCV2.setText(_translate("MainWindow", "SampleGenByCV2"))
         self.actionImage_Clip.setText(_translate("MainWindow", "图像裁剪"))
         self.actionMismatch_Analyze.setText(_translate("MainWindow", "Mismatch Analyze"))
@@ -58,6 +59,12 @@ class mywindow(QMainWindow, Ui_MainWindow):
         self.action_VoteMultiModelResults.setText(_translate("MainWindow", "多模型集成"))
         self.actionAccuracyEvaluation.setText(_translate("MainWindow", "精度评估"))
         self.actionBinarization.setText(_translate("MainWindow", "掩膜二值化"))
+
+    def slot_action_sampleGenSelfAdapt(self):
+        child = child_sampleGenSelfAdapt()
+        child.show()
+        child.exec_()
+
 
     def slot_action_binarization(self):
         child = child_Binarization()

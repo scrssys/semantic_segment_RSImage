@@ -461,8 +461,8 @@
    <slot>slot_input()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>399</x>
-     <y>55</y>
+     <x>418</x>
+     <y>46</y>
     </hint>
     <hint type="destinationlabel">
      <x>226</x>
@@ -477,8 +477,8 @@
    <slot>slot_strategy_binary()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>78</x>
-     <y>217</y>
+     <x>300</x>
+     <y>106</y>
     </hint>
     <hint type="destinationlabel">
      <x>226</x>
@@ -493,8 +493,8 @@
    <slot>slot_strategy_multiclass()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>172</x>
-     <y>217</y>
+     <x>412</x>
+     <y>106</y>
     </hint>
     <hint type="destinationlabel">
      <x>226</x>
@@ -509,8 +509,8 @@
    <slot>slot_output()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>410</x>
-     <y>313</y>
+     <x>418</x>
+     <y>259</y>
     </hint>
     <hint type="destinationlabel">
      <x>234</x>

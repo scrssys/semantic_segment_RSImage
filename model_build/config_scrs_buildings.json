@@ -8,7 +8,7 @@
   "val_rate":0.25,
 
   "network":"unet",
-  "BACKBONE":"inceptionv3",
+  "BACKBONE":"inceptionresnetv2",
   "activation":"sigmoid",
   "encoder_weights":null,
   "nb_classes":1,

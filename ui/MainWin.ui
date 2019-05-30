@@ -20,7 +20,7 @@
      <x>0</x>
      <y>0</y>
      <width>519</width>
-     <height>19</height>
+     <height>20</height>
     </rect>
    </property>
    <property name="defaultUp">
@@ -75,6 +75,7 @@
      <string>Sample</string>
     </property>
     <addaction name="actionSampleGenCommon"/>
+    <addaction name="actionSample_gen_Self_adapt"/>
    </widget>
    <widget class="QMenu" name="menuPostproc">
     <property name="title">
@@ -212,6 +213,11 @@
   <action name="actionBinarization">
    <property name="text">
     <string>Binarization</string>
+   </property>
+  </action>
+  <action name="actionSample_gen_Self_adapt">
+   <property name="text">
+    <string>Sample_gen Self_adapt</string>
    </property>
   </action>
  </widget>
@@ -553,6 +559,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionSample_gen_Self_adapt</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>slot_action_sampleGenSelfAdapt()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>324</x>
+     <y>3</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>381</x>
+     <y>97</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>for_action_label_check()</slot>
@@ -575,5 +597,6 @@
   <slot>slot_action_about()</slot>
   <slot>slot_action_trainBinaryNew()</slot>
   <slot>slot_action_binarization()</slot>
+  <slot>slot_action_sampleGenSelfAdapt()</slot>
  </slots>
 </ui>

@@ -16,7 +16,7 @@ class Ui_MainWindow(object):
         self.centralwidget.setObjectName("centralwidget")
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 519, 19))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 519, 20))
         self.menubar.setDefaultUp(True)
         self.menubar.setNativeMenuBar(False)
         self.menubar.setObjectName("menubar")
@@ -89,6 +89,8 @@ class Ui_MainWindow(object):
         self.actionTrain_Binary_new.setObjectName("actionTrain_Binary_new")
         self.actionBinarization = QtWidgets.QAction(MainWindow)
         self.actionBinarization.setObjectName("actionBinarization")
+        self.actionSample_gen_Self_adapt = QtWidgets.QAction(MainWindow)
+        self.actionSample_gen_Self_adapt.setObjectName("actionSample_gen_Self_adapt")
         self.menuFile.addAction(self.actionOpen)
         self.menuFile.addAction(self.actionExit)
         self.menuPrepocess.addAction(self.actionLabel_check)
@@ -106,6 +108,7 @@ class Ui_MainWindow(object):
         self.menuClassify.addAction(self.actionPredict_Multiclass_Batch)
         self.menuHelp.addAction(self.actionAbout)
         self.menuSampleProduce.addAction(self.actionSampleGenCommon)
+        self.menuSampleProduce.addAction(self.actionSample_gen_Self_adapt)
         self.menuPostproc.addAction(self.actionCombineSingleModelReults)
         self.menuPostproc.addAction(self.action_VoteMultiModelResults)
         self.menuPostproc.addAction(self.actionAccuracyEvaluation)
@@ -140,6 +143,7 @@ class Ui_MainWindow(object):
         self.actionExit.triggered.connect(MainWindow.close)
         self.actionTrain_Binary_new.triggered.connect(MainWindow.slot_action_trainBinaryNew)
         self.actionBinarization.triggered.connect(MainWindow.slot_action_binarization)
+        self.actionSample_gen_Self_adapt.triggered.connect(MainWindow.slot_action_sampleGenSelfAdapt)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -173,4 +177,5 @@ class Ui_MainWindow(object):
         self.actionExit.setText(_translate("MainWindow", "Exit"))
         self.actionTrain_Binary_new.setText(_translate("MainWindow", "Train Binary new"))
         self.actionBinarization.setText(_translate("MainWindow", "Binarization"))
+        self.actionSample_gen_Self_adapt.setText(_translate("MainWindow", "Sample_gen Self_adapt"))
 

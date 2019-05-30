@@ -1,5 +1,5 @@
 {
-  "img_input":"/media/omnisky/b1aca4b8-81b8-4751-8dee-24f70574dae9/test_global/images_forClass/hy0424/",
+  "img_input":"/media/omnisky/b1aca4b8-81b8-4751-8dee-24f70574dae9/test_global/images_forClass/test_normal/",
   "img_w":288,
   "img_h":288,
   "im_bands":4,
@@ -11,7 +11,7 @@
   "window_size":288,
   "subdivisions":2,
   "slices":8,
-  "block_size":100000000,
+  "block_size":500000000,
   "nodata":65535,
   "model_path":"/home/omnisky/PycharmProjects/data/models/global/global16bits_miandiantaiguosamples_fpn_resnet34_categorical_crossentropy_288_2019-04-06_17-25-00.h5",
   "mask_dir": "/media/omnisky/b1aca4b8-81b8-4751-8dee-24f70574dae9/test_global/pred/",

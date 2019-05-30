@@ -8,7 +8,7 @@
   "val_rate":0.25,
 
   "network":"fpn",
-  "BACKBONE":"resnet18",
+  "BACKBONE":"seresnet18",
   "activation":"sigmoid",
   "encoder_weights":"imagenet",
   "nb_classes":1,

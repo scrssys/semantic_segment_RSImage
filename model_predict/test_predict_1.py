@@ -30,7 +30,7 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "5"
 
 target_class =1
 
-window_size = 288
+window_size = 256
 # step = 128
 
 im_bands =3
@@ -43,18 +43,10 @@ FLAG_TARGET_CLASS = 0  # 0:roads; 1:buildings
 
 FLAG_APPROACH_PREDICT = 1 # 0: original predict, 1: smooth predict
 
-# position = 'tongchuan_test' #  1)jian11_test, , 2)jiangyou, 3)yujiang_test,
-# 4)cuiping, 5)shuangliu_1test, 6) tongchuan_test
-# 7) lizhou_test, 8) jianyang, 9)yushui22_test, 10) sample1, 11)ruoergai_52test
-# img_file = '../../data/test/sat_test/'+position+'_4bands1024.png'  # _rgb, _nrg, __4bands1024.
-# img_file = '../../data/test/paper/images/'+position+'_4bands1024.png'  # _rgb, _nrg, _4bands1024.
 img_file = '/home/omnisky/PycharmProjects/data/test/rice/normal/testsrc_1.png'
 
-# model_file = ''.join(['../../data/models/sat_urban_4bands/',dict_network[FLAG_USING_NETWORK], '_',
-#                       dict_target[FLAG_TARGET_CLASS],'_binary_notonehot_final.h5'])
-
-model_file = '/home/omnisky/PycharmProjects/data/models/rice/PSPnet_test_resnet34_2019-03-27_14-45-13.h5'
-# print("model: {}".format(model_file))
+model_file = '/home/omnisky/PycharmProjects/data/models/rice/rice_unet_resnet34_bce_jaccard_loss_256_2019-03-28_20-42-58.h5'
+print("model: {}".format(model_file))
 
 if __name__ == '__main__':
 
@@ -70,7 +62,6 @@ if __name__ == '__main__':
 
     input_img = np.clip(input_img, 0.0, 1.0)
     input_img = input_img.astype(np.float32)
-
 
     abs_filename = os.path.split(img_file)[1]
     abs_filename = abs_filename.split(".")[0]
@@ -105,14 +96,8 @@ if __name__ == '__main__':
         """for single class test"""
         result[result<128]=0
         result[result>=128]=1
-        # output_file = '//home/omnisky/PycharmProjects/data/test/shuidao/GF2shuitian22_test_pred.png'
 
-        # output_file = ''.join(['../../data/predict/', dict_network[FLAG_USING_NETWORK],'/sat_4bands/mask_binary_',
-        #                        abs_filename, '_', dict_target[FLAG_TARGET_CLASS],'_notonehot.png'])
-
-        # output_file = ''.join(['../../data/test/paper/pred/mask_binary_',
-        #                        abs_filename, '_', dict_target[FLAG_TARGET_CLASS], '_notonehot.png'])
-        output_file = '/home/omnisky/PycharmProjects/data/test/rice/newpred/test_1_pspnet_resnet34_cross.png'
+        output_file = '/home/omnisky/PycharmProjects/data/test/rice/newpred/test_1_unet_resnet34_jaccard.png'
 
         print("result save as to: {}".format(output_file))
 

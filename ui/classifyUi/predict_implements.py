@@ -84,8 +84,6 @@ class child_predictBinaryForSingleImage(QDialog, Ui_Dialog_predict_binary_single
 
         self.setWindowModality(Qt.NonModal)
 
-
-
 class child_predictMulticlassForSingleImage(QDialog, Ui_Dialog_predict_multiclass_single):
     def __init__(self):
         super(child_predictMulticlassForSingleImage, self).__init__()
@@ -126,7 +124,6 @@ class child_predictMulticlassForSingleImage(QDialog, Ui_Dialog_predict_multiclas
             QMessageBox.information(self, "Prompt", self.tr("Classify successfully!"))
 
         self.setWindowModality(Qt.NonModal)
-
 
 
 class child_predictBinaryBatch(QDialog, Ui_Dialog_predict_binary_batch):

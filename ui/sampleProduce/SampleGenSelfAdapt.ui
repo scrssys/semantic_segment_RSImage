@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Dialog_sampleGenCommon</class>
- <widget class="QDialog" name="Dialog_sampleGenCommon">
+ <class>Dialog_sampleGenSelfAdapt</class>
+ <widget class="QDialog" name="Dialog_sampleGenSelfAdapt">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>431</width>
-    <height>337</height>
+    <width>447</width>
+    <height>332</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Generate samples</string>
+   <string>0</string>
   </property>
   <widget class="QDialogButtonBox" name="buttonBox">
    <property name="geometry">
@@ -103,7 +103,7 @@
             </widget>
            </item>
            <item>
-            <widget class="QSpinBox" name="spinBox_min_2">
+            <widget class="QSpinBox" name="spinBox_min">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                <horstretch>0</horstretch>
@@ -128,12 +128,12 @@
            <item>
             <widget class="QLabel" name="label_9">
              <property name="text">
-              <string>max</string>
+              <string>      max</string>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QSpinBox" name="spinBox_max_2">
+            <widget class="QSpinBox" name="spinBox_max">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                <horstretch>0</horstretch>
@@ -203,7 +203,7 @@
            </size>
           </property>
           <property name="text">
-           <string>windsize :</string>
+           <string>     windsize :</string>
           </property>
          </widget>
         </item>
@@ -227,14 +227,17 @@
             <height>23</height>
            </size>
           </property>
+          <property name="minimum">
+           <number>32</number>
+          </property>
           <property name="maximum">
            <number>1000</number>
           </property>
           <property name="singleStep">
-           <number>2</number>
+           <number>4</number>
           </property>
           <property name="value">
-           <number>256</number>
+           <number>480</number>
           </property>
          </widget>
         </item>
@@ -312,33 +315,15 @@
          </widget>
         </item>
         <item>
-         <widget class="QSpinBox" name="spinBox_sampNum">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>23</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>50</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>80</width>
-            <height>23</height>
-           </size>
-          </property>
-          <property name="maximum">
-           <number>100000000</number>
+         <widget class="QDoubleSpinBox" name="doubleSpinBox_sampleScale">
+          <property name="minimum">
+           <double>0.100000000000000</double>
           </property>
           <property name="singleStep">
-           <number>2</number>
+           <double>0.100000000000000</double>
           </property>
           <property name="value">
-           <number>5000</number>
+           <double>1.000000000000000</double>
           </property>
          </widget>
         </item>
@@ -423,94 +408,62 @@
  <resources/>
  <connections>
   <connection>
-   <sender>buttonBox</sender>
-   <signal>accepted()</signal>
-   <receiver>Dialog_sampleGenCommon</receiver>
-   <slot>slot_ok()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>430</x>
-     <y>334</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>157</x>
-     <y>274</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>buttonBox</sender>
-   <signal>rejected()</signal>
-   <receiver>Dialog_sampleGenCommon</receiver>
-   <slot>reject()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>430</x>
-     <y>340</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>286</x>
-     <y>274</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>pushButton_input</sender>
    <signal>clicked()</signal>
-   <receiver>Dialog_sampleGenCommon</receiver>
+   <receiver>Dialog_sampleGenSelfAdapt</receiver>
    <slot>slot_input()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>418</x>
-     <y>46</y>
+     <x>373</x>
+     <y>30</y>
     </hint>
     <hint type="destinationlabel">
-     <x>226</x>
-     <y>183</y>
+     <x>379</x>
+     <y>9</y>
     </hint>
    </hints>
   </connection>
   <connection>
    <sender>radioButton_binary</sender>
    <signal>clicked()</signal>
-   <receiver>Dialog_sampleGenCommon</receiver>
+   <receiver>Dialog_sampleGenSelfAdapt</receiver>
    <slot>slot_strategy_binary()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>300</x>
-     <y>106</y>
+     <x>259</x>
+     <y>101</y>
     </hint>
     <hint type="destinationlabel">
-     <x>226</x>
-     <y>183</y>
+     <x>236</x>
+     <y>137</y>
     </hint>
    </hints>
   </connection>
   <connection>
    <sender>radioButton_multiclass</sender>
    <signal>clicked()</signal>
-   <receiver>Dialog_sampleGenCommon</receiver>
+   <receiver>Dialog_sampleGenSelfAdapt</receiver>
    <slot>slot_strategy_multiclass()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>412</x>
-     <y>106</y>
+     <x>354</x>
+     <y>100</y>
     </hint>
     <hint type="destinationlabel">
-     <x>226</x>
-     <y>183</y>
+     <x>422</x>
+     <y>63</y>
     </hint>
    </hints>
   </connection>
   <connection>
    <sender>pushButton_output</sender>
    <signal>clicked()</signal>
-   <receiver>Dialog_sampleGenCommon</receiver>
+   <receiver>Dialog_sampleGenSelfAdapt</receiver>
    <slot>slot_output()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>418</x>
-     <y>259</y>
+     <x>382</x>
+     <y>244</y>
     </hint>
     <hint type="destinationlabel">
      <x>234</x>
@@ -518,12 +471,44 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>Dialog_sampleGenSelfAdapt</receiver>
+   <slot>slot_ok()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>354</x>
+     <y>308</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>164</x>
+     <y>301</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>Dialog_sampleGenSelfAdapt</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>318</x>
+     <y>299</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>269</x>
+     <y>272</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>slot_input()</slot>
   <slot>slot_output()</slot>
-  <slot>slot_ok()</slot>
   <slot>slot_strategy_binary()</slot>
   <slot>slot_strategy_multiclass()</slot>
+  <slot>slot_ok()</slot>
  </slots>
 </ui>

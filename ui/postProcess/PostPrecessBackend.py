@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import tensorflow as tf
 
 
-from ulitities.base_functions import load_img_by_cv2
+from ulitities.base_functions import load_img_by_cv2,get_file,load_img_by_gdal
 
 ROAD_VALUE=127
 BUILDING_VALUE=255
@@ -50,6 +50,38 @@ def binarize_mask(input_dict):
     cv2.imwrite(binary_mask_saving_path,result)
 
     return 0
+
+def batchbinarize_masks(inputdict):
+    threshold = inputdict['threshold']
+    inputdir=inputdict['inputdir']
+    outputdir=inputdict['outputdir']
+    if not os.path.isdir(inputdir):
+        print("Warning: ")
+        return -1
+
+    files, num= get_file(inputdir)
+
+    for file in tqdm(files):
+        img = cv2.imread(file, cv2.IMREAD_GRAYSCALE)
+
+        result = np.zeros(img.shape, np.uint8)
+        ind_foreground = np.where(img > threshold)
+        result[ind_foreground] = 1
+        # plt.imshow(result)
+        # plt.show()
+
+        absname = os.path.split(file)[1]
+        # absname = absname.split('.')[0]
+        # absname = 'shuidao.png'
+        # absname = ''.join([absname, '.png'])
+
+        mask_saving_path = os.path.join(outputdir, absname)
+
+        cv2.imwrite(mask_saving_path, result)
+
+
+    return 0
+
 
 def combine_masks(input_dict):
     FOREGROUND = input_dict['foreground']
@@ -159,16 +191,21 @@ def accuracy_evalute(input_dict):
     gup_id = input_dict['GPUID']
     os.environ["CUDA_VISIBLE_DEVICES"] = gup_id
 
-    ret, ref_img = load_img_by_cv2(ref_file, grayscale=True)
-    if ret != 0:
-        print("Open file failed: {}".format(ref_file))
-        sys.exit(-1)
+    # ret, ref_img = load_img_by_cv2(ref_file, grayscale=True)
+    # if ret != 0:
+    #     print("Open file failed: {}".format(ref_file))
+    #     sys.exit(-1)
 
-    ret, pred_img = load_img_by_cv2(pred_file, grayscale=True)
-    print(np.unique(pred_img))
-    if ret != 0:
-        print("Open file failed: {}".format(pred_file))
-        sys.exit(-2)
+    # ret, pred_img = load_img_by_cv2(pred_file, grayscale=True)
+    # print(np.unique(pred_img))
+    # if ret != 0:
+    #     print("Open file failed: {}".format(pred_file))
+    #     sys.exit(-2)
+
+
+    ref_img = load_img_by_gdal(ref_file, grayscale=True)
+
+    pred_img = load_img_by_gdal(pred_file, grayscale=True)
 
     print("\nfile: {}".format(os.path.split(pred_file)[1]))
 

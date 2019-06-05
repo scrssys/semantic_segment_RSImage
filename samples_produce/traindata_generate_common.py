@@ -16,8 +16,8 @@ from ulitities.base_functions import get_file, load_img_by_gdal
 # seed = 1
 # np.random.seed(seed)
 
-img_w = 256
-img_h = 256
+img_w = 288
+img_h = 288
 
 # valid_labels=[0,1,2] # ignore Nodata
 

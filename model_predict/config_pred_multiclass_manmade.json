@@ -1,0 +1,19 @@
+{
+  "img_input":"/home/omnisky/PycharmProjects/data/test/paper/images/",
+  "img_w":256,
+  "img_h":256,
+  "im_bands":4,
+  "im_type":"UINT10",
+  "target_name":"manmade",
+  "activation":"softmax",
+  "mask_classes":3,
+  "strategy":"smooth",
+  "window_size":256,
+  "subdivisions":2,
+  "slices":8,
+  "block_size":100000000,
+  "nodata":65535,
+  "model_path":"/home/omnisky/PycharmProjects/data/models/sat_urban_4bands/manmade_fpn_resnet34_categorical_crossentropy_256_2019-04-19_14-09-20.h5",
+  "mask_dir": "/home/omnisky/PycharmProjects/data/test/paper/",
+  "suffix":".png"
+}

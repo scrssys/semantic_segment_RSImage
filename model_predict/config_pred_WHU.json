@@ -1,0 +1,19 @@
+{
+  "img_input":"/media/omnisky/6b62a451-463c-41e2-b06c-57f95571fdec/Backups/data/test/WHU/images/",
+  "img_w":512,
+  "img_h":512,
+  "im_bands":3,
+  "im_type":"UINT8",
+  "target_name":"buildings",
+  "activation":"sigmoid",
+  "mask_classes":1,
+  "strategy":"smooth",
+  "window_size":512,
+  "subdivisions":2,
+  "slices":1,
+  "block_size":200000000,
+  "nodata":256,
+  "model_path":"/home/omnisky/PycharmProjects/data/models/WHU/pre-trained/WHU_building_unet_resnet101_bce_jaccard_loss_512_2019-05-09_14-01-47.h5",
+  "mask_dir": "/media/omnisky/6b62a451-463c-41e2-b06c-57f95571fdec/Backups/data/test/WHU/pred/",
+  "suffix":".png"
+}

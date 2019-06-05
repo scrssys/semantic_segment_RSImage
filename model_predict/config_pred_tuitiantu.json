@@ -1,0 +1,19 @@
+{
+  "img_input":"/home/omnisky/PycharmProjects/data/test/tianfuxinqu/stretched/",
+  "img_w":576,
+  "img_h":576,
+  "im_bands":4,
+  "im_type":"UINT10",
+  "target_name":"tuitiantu",
+  "activation":"sigmoid",
+  "mask_classes":1,
+  "strategy":"smooth",
+  "window_size":576,
+  "subdivisions":2,
+  "slices":8,
+  "block_size":500000000,
+  "nodata":65535,
+  "model_path":"/home/omnisky/PycharmProjects/data/models/scrs_buildings/scrs_building_unet_inceptionv3_bce_jaccard_loss_576_2019-05-21_16-02-24.h5",
+  "mask_dir": "/home/omnisky/PycharmProjects/data/test/tianfuxinqu/scrs_buildings/",
+  "suffix":".png"
+}

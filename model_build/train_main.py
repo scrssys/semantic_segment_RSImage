@@ -1,7 +1,7 @@
 # coding=utf-8
-import matplotlib
+# import matplotlib
 
-matplotlib.use("Agg")
+# matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 from keras.models import Sequential,load_model
@@ -26,14 +26,11 @@ from keras.optimizers import *
 from keras import backend as K
 K.set_image_dim_ordering('tf')
 from keras.callbacks import TensorBoard
+from keras.utils import multi_gpu_model
 
-
-# from semantic_segmentation_networks import binary_unet, binary_fcnnet, binary_segnet, binary_unet_onlyjaccard, binary_unet_jaccard
 from ulitities.base_functions import load_img_normalization,  load_img_by_gdal, UINT16, UINT8, UINT10
 
-
-# os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
-seed = 6
+seed = 4
 np.random.seed(seed)
 from keras import metrics, losses
 from segmentation_models.losses import bce_jaccard_loss
@@ -44,37 +41,40 @@ from segmentation_models import Unet,FPN,PSPNet,Linknet
 from utils import save, update_config
 from config import Config
 import json
+import sys
 
-'''
 import  argparse
 parser=argparse.ArgumentParser(description='RS classification train')
-parser.add_argument('--gpu', dest='gpu_id', help='GPU device id to use [0]',
+parser.add_argument('--gpu', dest='gpu_id', help='GPU device id to use [0]', nargs='+',
                         default=0, type=int)
 parser.add_argument('--config', dest='config_file', help='json file to config',
                          default='config.json')
 args=parser.parse_args()
 gpu_id=args.gpu_id
 print("gpu_id:{}".format(gpu_id))
-os.environ["CUDA_VISIBLE_DEVICES"] = str(gpu_id)
+# os.environ["CUDA_VISIBLE_DEVICES"] = str(gpu_id)
+if isinstance(gpu_id,int):
+    os.environ["CUDA_VISIBLE_DEVICES"]=str(gpu_id)
+elif isinstance(gpu_id,list):
+    tp_str =[]
+    for i in gpu_id:
+        tp_str.append(str(i))
+    ns = ",".join(tp_str)
+    os.environ["CUDA_VISIBLE_DEVICES"] = ns
+else:
+    pass
 
-config_file = args.config_file
-print("cofig file:{}".format(config_file))
 with open(args.config_file, 'r') as f:
     cfg = json.load(f)
-'''
-os.environ["CUDA_VISIBLE_DEVICES"] = "1"
-with open("config.json", 'r') as f:
-    cfg = json.load(f)
+
 config = Config(**cfg)
 print(config)
-import sys
-# sys.exit(-1)
 
 FLAG_MAKE_TEST=True
 im_type=UINT8
 if '10' in config.im_type:
     im_type=UINT10
-elif "16" in config.im_type:
+elif '16' in config.im_type:
     im_type=UINT16
 else:
     pass
@@ -82,8 +82,7 @@ else:
 date_time = time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime())
 print("date and time: {}".format(date_time))
 print("traindata from: {}".format(config.train_data_path))
-model_save_path = ''.join([config.model_dir,'/',config.network, '_',config.target_name, '_',config.BACKBONE,
-                           '_',config.loss,'_', date_time, '.h5'])
+model_save_path = ''.join([config.model_dir,'/',config.target_name, '_', config.network, '_',config.BACKBONE,'_',config.loss,'_',str(config.img_w), '_', date_time, '.h5'])
 print("model save as to: {}".format(model_save_path))
 
 """get the train file name and divide to train and val parts"""
@@ -91,7 +90,7 @@ def get_train_val(val_rate=config.val_rate):
     train_url = []
     train_set = []
     val_set = []
-    for pic in os.listdir(config.train_data_path + 'src'):
+    for pic in os.listdir(config.train_data_path + 'label'):
         train_url.append(pic)
     random.shuffle(train_url)
     total_num = len(train_url)
@@ -170,13 +169,16 @@ def train(model):
     model_checkpoint = ModelCheckpoint(
         model_save_path,
         monitor=config.monitor,
-        save_best_only=config.save_best_only)
+        save_best_only=config.save_best_only,
+        mode=config.mode
+    )
 
     model_earlystop = EarlyStopping(
         monitor=config.monitor,
-        patience=config.patience,
+        patience=config.patience+5,
         verbose=0,
-        mode=config.mode)
+        mode=config.mode
+    )
 
     # """自动调整学习率"""
     model_reduceLR=ReduceLROnPlateau(
@@ -209,8 +211,27 @@ def train(model):
     print ("the number of train data is", train_numb)
     print ("the number of val data is", valid_numb)
 
+    if isinstance(gpu_id,int):
+        print("using single gpu {}".format(gpu_id))
+        pass
+    elif isinstance(gpu_id,list):
+        print("using multi gpu {}".format(gpu_id))
+        if len(gpu_id)>1:
+            model = multi_gpu_model(model, gpus=len(gpu_id))
+
+    self_optimizer = SGD(lr=config.lr, decay=1e-6, momentum=0.9, nesterov=True)
+    if 'adagrad' in config.optimizer:
+        self_optimizer = Adagrad(lr=config.lr, decay=1e-6)
+    elif 'adam' in config.optimizer:
+        self_optimizer = Adam(lr=config.lr, decay=1e-6)
+    else:
+        pass
+
+    model.compile(self_optimizer, loss=config.loss, metrics=[config.metrics])
+
     H = model.fit_generator(generator=generateData(config.batch_size,train_set),
-                            steps_per_epoch=train_numb // config.batch_size, epochs=config.epochs,
+                            steps_per_epoch=train_numb // config.batch_size,
+                            epochs=config.epochs,
                             verbose=1,
                             validation_data=generateValidData(config.batch_size, val_set),
                             validation_steps=valid_numb // config.batch_size,
@@ -285,19 +306,10 @@ if __name__ == '__main__':
     else:
         pass
 
-    self_optimizer = SGD(lr=config.lr, decay=1e-6, momentum=0.9, nesterov=True)
-    if 'adagrad' in config.optimizer:
-        self_optimizer = Adagrad(lr=config.lr, decay=1e-6)
-    elif 'adam' in config.optimizer:
-        self_optimizer = Adam(lr=config.lr, decay=1e-6)
-    else:
-        pass
-
-    model.compile(self_optimizer, loss=config.loss, metrics=[config.metrics])
-    # model.compile('SGD', loss=bce_jaccard_loss, metrics=[iou_score])
-
     print(model.summary())
     print("Train by : {}_{}".format(config.network, config.BACKBONE))
+
+    # sys.exit(-1)
     train(model)
 
     if FLAG_MAKE_TEST:

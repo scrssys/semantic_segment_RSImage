@@ -1,0 +1,19 @@
+{
+  "img_input":"/media/omnisky/579215ea-c392-4d2f-b136-6b62d9fb31ac/test/bieshu/norm_images/",
+  "img_w":480,
+  "img_h":480,
+  "im_bands":4,
+  "im_type":"UINT10",
+  "target_name":"bieshu",
+  "activation":"sigmoid",
+  "mask_classes":1,
+  "strategy":"smooth",
+  "window_size":480,
+  "subdivisions":2,
+  "slices":8,
+  "block_size":5000000000,
+  "nodata":65535,
+  "model_path":"/home/omnisky/PycharmProjects/data/models/bieshu/bieshu_unet_vgg16_binary_crossentropy_480_2019-06-01_22-49-00.h5",
+  "mask_dir": "/media/omnisky/579215ea-c392-4d2f-b136-6b62d9fb31ac/test/bieshu/pred/",
+  "suffix":".tif"
+}

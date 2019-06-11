@@ -185,7 +185,7 @@ class Ui_Dialog_sampleGenSelfAdapt(object):
 
     def retranslateUi(self, Dialog_sampleGenSelfAdapt):
         _translate = QtCore.QCoreApplication.translate
-        Dialog_sampleGenSelfAdapt.setWindowTitle(_translate("Dialog_sampleGenSelfAdapt", "Dialog"))
+        Dialog_sampleGenSelfAdapt.setWindowTitle(_translate("Dialog_sampleGenSelfAdapt", "sample generate selfAdapt"))
         self.label.setText(_translate("Dialog_sampleGenSelfAdapt", "Input Dir"))
         self.pushButton_input.setText(_translate("Dialog_sampleGenSelfAdapt", "Open"))
         self.groupBox.setTitle(_translate("Dialog_sampleGenSelfAdapt", "valid data"))

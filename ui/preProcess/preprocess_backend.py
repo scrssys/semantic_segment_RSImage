@@ -31,8 +31,8 @@ def image_normalize(input_dict):
     for file in tqdm(src_files):
 
         absname = os.path.split(file)[1]
-        absname = absname.split('.')[0]
-        absname = ''.join([absname, '.tif'])
+        # absname = absname.split('.')[0]
+        # absname = ''.join([absname, '.tif'])
         print(absname)
         if not os.path.isfile(file):
             print("input file dose not exist:{}\n".format(file))

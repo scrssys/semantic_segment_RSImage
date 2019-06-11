@@ -33,6 +33,7 @@ from ulitities.base_functions import load_img_normalization,  load_img_by_gdal, 
 seed = 4
 np.random.seed(seed)
 from keras import metrics, losses
+from keras.losses import binary_crossentropy
 from segmentation_models.losses import bce_jaccard_loss
 from segmentation_models.metrics import iou_score
 
@@ -228,6 +229,7 @@ def train(model):
         pass
 
     model.compile(self_optimizer, loss=config.loss, metrics=[config.metrics])
+    # model.compile(self_optimizer, loss='binary_crossentropy', metrics=[config.metrics])
 
     H = model.fit_generator(generator=generateData(config.batch_size,train_set),
                             steps_per_epoch=train_numb // config.batch_size,

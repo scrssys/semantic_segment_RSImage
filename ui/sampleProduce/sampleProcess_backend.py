@@ -40,6 +40,36 @@ class SampleGenerate():
             xb[:, temp_x, temp_y] = noise_value
         return xb
 
+
+    def gamma_tansform(self, xb, g=2.0):
+        tmp = np.random.random() * g
+        print("gamma:{}".format(tmp))
+        if tmp < 0.6:
+            tmp = 0.6
+        if tmp > 1.4:
+            tmp = 1.4
+        a, b, c = xb.shape
+        if a > c:
+            xb = xb.transpose(2, 0, 1)
+        xb = exposure.adjust_gamma(xb, tmp)
+        if a < c:
+            xb = xb.transpose(1, 2, 0)
+        return xb
+
+    def med_filtering(self, xb, w=3):
+        xb = xb.astype(np.float32)
+        a, b, c = xb.shape
+        if a < c:
+            xb = xb.transpose(1, 2, 0)
+        _, _, bands = xb.shape
+
+        for i in range(bands):
+            xb[:, :, i] = medfilt2d(xb[:, :, i], (w, w))
+        if a < c:
+            xb = np.transpose(xb, (2, 0, 1))
+        xb = xb.astype(np.uint16)
+        return xb
+
     def data_augment(self, xb, yb, w, h, d_type=1):
         if np.random.random() < 0.25:
             assert (yb.shape[0] == yb.shape[1])
@@ -63,10 +93,13 @@ class SampleGenerate():
             yb = np.flipud(yb)
 
         if np.random.random() < 0.25:  # gamma adjust
-            tmp = np.random.random() * 3
-            xb = exposure.adjust_gamma(xb, tmp)
+            tmp = np.random.random() * 2
+            xb = self.gamma_tansform(xb,tmp)
+            # xb = exposure.adjust_gamma(xb, tmp)
 
         if np.random.random() < 0.25:  # medium filtering
+            xb = self.med_filtering(xb,3)
+            '''
             xb = xb.astype(np.float32)
             xb = np.transpose(xb, (1, 2, 0))
             _, _, bands = xb.shape
@@ -74,6 +107,8 @@ class SampleGenerate():
                 xb[:, :, i] = medfilt2d(xb[:, :, i], (3, 3))
             xb = np.transpose(xb, (2, 0, 1))
             xb = xb.astype(np.uint16)
+            '''
+
 
         if np.random.random() < 0.2:
             xb = self.add_noise(xb, w, h, d_type)
@@ -381,6 +416,7 @@ class SampleGenerate():
                 random_height = random.randint(0, Y_height - img_h - 1)
                 src_roi = src_img[:, random_height: random_height + img_h, random_width: random_width + img_w]
                 label_roi = all_label[random_height: random_height + img_h, random_width: random_width + img_w]
+                # print(np.unique(label_roi))
 
                 """ignore nodata area"""
                 FLAG_HAS_NODATA = False
@@ -401,6 +437,7 @@ class SampleGenerate():
                 if 'augment' in self.input_dict['mode']:
                     src_roi, label_roi = self.data_augment(src_roi, label_roi, img_w, img_h, data_type)
 
+                print(np.unique(label_roi))
                 visualize = label_roi * 50
 
                 cv2.imwrite((out_path + '/visualize/%d.png' % g_count), visualize)

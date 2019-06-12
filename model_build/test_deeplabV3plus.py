@@ -45,7 +45,7 @@ import sys
 import  argparse
 parser=argparse.ArgumentParser(description='RS classification train')
 parser.add_argument('--gpu', dest='gpu_id', help='GPU device id to use [0]', nargs='+',
-                        default=0, type=int)
+                        default=1, type=int)
 parser.add_argument('--config', dest='config_file', help='json file to config',
                          default='config.json')
 args=parser.parse_args()
@@ -227,6 +227,7 @@ def train(model):
         pass
 
     model.compile(self_optimizer, loss=config.loss, metrics=[config.metrics])
+    # model.compile(self_optimizer, loss='binary_crossentropy', metrics=[config.metrics])
 
     H = model.fit_generator(generator=generateData(config.batch_size,train_set),
                             steps_per_epoch=train_numb // config.batch_size,
@@ -287,25 +288,22 @@ if __name__ == '__main__':
 
 
     input_layer = (config.img_w, config.img_h, config.im_bands)
-    model = Unet(backbone_name=config.BACKBONE, input_shape=input_layer,
-                 classes=config.nb_classes, activation=config.activation,
-                 encoder_weights=config.encoder_weights)
-    if 'pspnet' in config.network:
-        model = PSPNet(backbone_name=config.BACKBONE, input_shape=input_layer,
-                     classes=config.nb_classes, activation=config.activation,
-                     encoder_weights=config.encoder_weights)
-    elif 'fpn' in config.network:
-        model = FPN(backbone_name=config.BACKBONE, input_shape=input_layer,
-                     classes=config.nb_classes, activation=config.activation,
-                     encoder_weights=config.encoder_weights)
-    elif 'linknet' in config.network:
-        model = Linknet(backbone_name=config.BACKBONE, input_shape=input_layer,
-                     classes=config.nb_classes, activation=config.activation,
-                     encoder_weights=config.encoder_weights)
-    elif 'deeplabv3plus' in config.network:
-        model = Deeplabv3(weights=None, input_shape=input_layer,
-                          classes=config.nb_classes, backbone=config.BACKBONE)
-
+    model = Deeplabv3(weights=None, input_shape=input_layer,
+                 classes=config.nb_classes, backbone='mobilenetv2')
+    # if 'pspnet' in config.network:
+    #     model = PSPNet(backbone_name=config.BACKBONE, input_shape=input_layer,
+    #                  classes=config.nb_classes, activation=config.activation,
+    #                  encoder_weights=config.encoder_weights)
+    # elif 'fpn' in config.network:
+    #     model = FPN(backbone_name=config.BACKBONE, input_shape=input_layer,
+    #                  classes=config.nb_classes, activation=config.activation,
+    #                  encoder_weights=config.encoder_weights)
+    # elif 'linknet' in config.network:
+    #     model = Linknet(backbone_name=config.BACKBONE, input_shape=input_layer,
+    #                  classes=config.nb_classes, activation=config.activation,
+    #                  encoder_weights=config.encoder_weights)
+    # else:
+    #     pass
 
     print(model.summary())
     print("Train by : {}_{}".format(config.network, config.BACKBONE))

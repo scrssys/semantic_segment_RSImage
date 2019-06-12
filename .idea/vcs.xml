@@ -2,5 +2,7 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../deeplab_old/keras-deeplab-v3-plus" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../keras-deeplab-v3-plus" vcs="Git" />
   </component>
 </project>

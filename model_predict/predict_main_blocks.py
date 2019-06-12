@@ -27,6 +27,8 @@ from predict_backbone import predict_img_with_smooth_windowing,core_orignal_pred
 
 from config_pred import Config_Pred
 import pandas as pd
+from segmentation_models.deeplab.model import relu6, BilinearUpsampling
+
 
 """
    The following global variables should be put into meta data file 
@@ -35,9 +37,9 @@ import  argparse
 import json , time
 parser=argparse.ArgumentParser(description='RS classification train')
 parser.add_argument('--gpu', dest='gpu_id', help='GPU device id to use [0]',
-                        default=0, type=int)
+                        default=3, type=int)
 parser.add_argument('--config', dest='config_file', help='json file to config',
-                         default='config_pred_multiclass.json')
+                         default='config_pred.json')
 args=parser.parse_args()
 gpu_id=args.gpu_id
 print("gpu_id:{}".format(gpu_id))
@@ -105,7 +107,19 @@ if __name__ == '__main__':
     df.to_csv(csv_file)
 
     out_bands = config.mask_classes
-    model = load_model(config.model_path)
+
+    try:
+        model = load_model(config.model_path)
+    except ValueError:
+        print("For deeplab V3+, load model with parameters of custom_objects\n")
+        model = load_model(config.model_path, custom_objects={'relu6': relu6, 'BilinearUpsampling': BilinearUpsampling})
+    except Exception:
+        print("Error: failde to load model!\n")
+        sys.exit(-1)
+    else:
+        print("Model is not deeplab V3+!\n")
+
+
     # print(model.summary())
 
     for img_file in tqdm(input_files):

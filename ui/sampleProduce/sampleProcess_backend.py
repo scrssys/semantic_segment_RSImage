@@ -517,7 +517,7 @@ class SampleGenerate():
 
             # Evaluate samples numbers according to the image_size, window_size and sample_scaleRate
             samples_num_of_current_image = int((X_width * Y_height * image_num_rate) / (img_w * img_h) + 0.5)
-            if 'augment' in self.input_dict['mode']:
+            if 'augument' in self.input_dict['mode']:
                 samples_num_of_current_image = 6*samples_num_of_current_image
             print("Extract {} samples from {}".format(samples_num_of_current_image, os.path.split(label_file)[1]))
 

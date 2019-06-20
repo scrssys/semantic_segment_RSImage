@@ -1,6 +1,7 @@
 import os
 import sys
 import gdal
+gdal.UseExceptions()
 import numpy as np
 import random
 import matplotlib.pyplot as plt
@@ -8,7 +9,8 @@ from scipy.signal import medfilt, medfilt2d
 from skimage import exposure
 import cv2
 from tqdm import tqdm
-from ulitities.base_functions import get_file, load_img_by_gdal
+from ulitities.base_functions import *
+from error_code import *
 
 
 class SampleGenerate():
@@ -354,24 +356,36 @@ class SampleGenerate():
         print("\n[INFO] produce samples---------------------")
         g_count = 0
         for label_file in tqdm(label_files):
-
+            absname = os.path.split(label_file)[1]
+            absname = absname.split('.')[0]
             src_file = os.path.join(in_path, 'src/') + os.path.split(label_file)[1]
-            if not os.path.isfile(src_file):
-                print("Have no file:".format(src_file))
-                continue
 
-            print("src file:{}".format(os.path.split(src_file)[1]))
-            label_img = load_img_by_gdal(label_file, grayscale=True)
-            # print("label_img: {}".format(np.unique(label_img)))
+            try:
+                label_img = load_img_by_gdal(label_file, grayscale=True)
+            except:
+                print("Warning: could not open labef image:{}".format(label_file))
+                continue
+            else:
+                print("loaded label image:{}".format(label_file))
             label_img = label_img.astype(np.uint8)
-            y, x = label_img.shape
-            # print("label_img: {}".format(np.unique(label_img)))
 
-
-            dataset = gdal.Open(src_file)
-            if dataset == None:
-                print("open failed!\n")
+            """find file in src directory, suffix may not be the same as that in label directory"""
+            try:
+                src_dir = os.path.join(in_path, 'src/')
+                tmp_file = find_file(src_dir, absname)
+            except FError:
+                print("Could not find source file in:".format(os.path.join(in_path, '/src/')))
                 continue
+            else:
+                src_file = tmp_file
+                print("find src file:{}".format(src_file))
+
+            try:
+                dataset = gdal.Open(src_file)
+            except RuntimeError:
+                print("Open failed :{}".format(src_file))
+            else:
+                print("Has opened the image")
 
             Y_height = dataset.RasterYSize
             X_width = dataset.RasterXSize
@@ -434,7 +448,7 @@ class SampleGenerate():
                     if 0 in np.unique(label_roi):
                         continue
 
-                if 'augment' in self.input_dict['mode']:
+                if 'augument' in self.input_dict['mode']:
                     src_roi, label_roi = self.data_augment(src_roi, label_roi, img_w, img_h, data_type)
 
                 print(np.unique(label_roi))
@@ -479,23 +493,36 @@ class SampleGenerate():
 
         g_count = 0
         for label_file in tqdm(label_files):
-
-            src_file = os.path.join(in_path, 'src/') + os.path.split(label_file)[1]
-            if not os.path.isfile(src_file):
-                print("Have no file:".format(src_file))
-                continue
-                # sys.exit(-1)
-
-            print("src file:{}".format(os.path.split(src_file)[1]))
-
-            label_img = cv2.imread(label_file, cv2.IMREAD_GRAYSCALE)
             absname = os.path.split(label_file)[1]
             absname = absname.split('.')[0]
+            src_file = os.path.join(in_path, 'src/') + os.path.split(label_file)[1]
 
-            dataset = gdal.Open(src_file)
-            if dataset == None:
-                print("open failed!\n")
+            try:
+                label_img = load_img_by_gdal(label_file, grayscale=True)
+            except:
+                print("Warning: could not open labef image:{}".format(label_file))
                 continue
+            else:
+                print("loaded label image:{}".format(label_file))
+            label_img = label_img.astype(np.uint8)
+
+            """find file in src directory, suffix may not be the same as that in label directory"""
+            try:
+                src_dir = os.path.join(in_path, 'src/')
+                tmp_file = find_file(src_dir, absname)
+            except FError:
+                print("Could not find source file in:".format(os.path.join(in_path, '/src/')))
+                continue
+            else:
+                src_file = tmp_file
+                print("find src file:{}".format(src_file))
+
+            try:
+                dataset = gdal.Open(src_file)
+            except RuntimeError:
+                print("Open failed :{}".format(src_file))
+            else:
+                print("Has opened the image")
 
             Y_height = dataset.RasterYSize
             X_width = dataset.RasterXSize

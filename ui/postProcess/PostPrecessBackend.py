@@ -218,7 +218,14 @@ def accuracy_evalute(input_dict):
         print("image sizes of reference and predicted are not equal!\n")
 
     img_length = height * width
-    assert (check_rate > 0.001 and check_rate <= 1.00)
+    if check_rate<0.01:
+        check_rate=0.01
+    elif check_rate>1.00:
+        check_rate=1.00
+    else:
+        pass
+
+    # assert (check_rate > 0.001 and check_rate <= 1.00)
     num_checkpoints = np.int(img_length * check_rate)
 
     pos = random.sample(range(img_length), num_checkpoints)
@@ -249,16 +256,11 @@ def accuracy_evalute(input_dict):
     print("valid value in predicton image: {}".format(np.unique(valid_pred)))
 
     tmp = np.unique(valid_pred)
+    """make nodata to zero in predicted results"""
     for ss in tmp:
-        assert (ss in valid_labels)
-
-    """Test to find out where are labels in the confusion matrix"""
-    # num_tmp = labels[labels==0].shape
-    # print("label 0 : {}".format(num_tmp))
-    # num_tmp = labels[labels == 1].shape
-    # print("label 1 : {}".format(num_tmp))
-    # num_tmp = labels[labels == 2].shape
-    # print("label 2 : {}".format(num_tmp))
+        if not ss in valid_labels:
+            nodata_index = np.where(valid_pred==ss)
+            valid_pred[nodata_index]=0
 
     # confus_matrix = tf.contrib.metrics.confusion_matrix(labels, predictions, n_class)
     confus_matrix = tf.contrib.metrics.confusion_matrix(valid_pred, valid_ref, n_class)

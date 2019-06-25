@@ -19,6 +19,7 @@ from tqdm import tqdm
 from keras.models import *
 from keras.layers import *
 from keras.optimizers import *
+from keras.models import load_model
 
 from keras import backend as K
 K.set_image_dim_ordering('tf')
@@ -31,7 +32,7 @@ seed = 4
 np.random.seed(seed)
 from keras import metrics, losses
 from keras.losses import binary_crossentropy
-from segmentation_models.losses import bce_jaccard_loss
+from segmentation_models.losses import bce_jaccard_loss, cce_jaccard_loss
 from segmentation_models.metrics import iou_score
 
 from segmentation_models import Unet,FPN,PSPNet,Linknet
@@ -47,7 +48,7 @@ parser=argparse.ArgumentParser(description='RS classification train')
 parser.add_argument('--gpu', dest='gpu_id', help='GPU device id to use [0]', nargs='+',
                         default=0, type=int)
 parser.add_argument('--config', dest='config_file', help='json file to config',
-                         default='config.json')
+                         default='config_WHU_buildings.json')
 args=parser.parse_args()
 gpu_id=args.gpu_id
 print("gpu_id:{}".format(gpu_id))
@@ -81,8 +82,9 @@ else:
 date_time = time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime())
 print("date and time: {}".format(date_time))
 print("traindata from: {}".format(config.train_data_path))
-model_save_path = ''.join([config.model_dir,'/',config.target_name, '_', config.network, '_',config.BACKBONE,'_',config.loss,'_',str(config.img_w), '_', date_time, '.h5'])
+model_save_path = ''.join([config.model_dir,'/',config.target_name, '_', config.network, '_',config.BACKBONE,'_',config.loss,'_',str(config.img_w), '_', date_time, 'best.h5'])
 print("model save as to: {}".format(model_save_path))
+last_model = ''.join([config.model_dir,'/',config.target_name, '_', config.network, '_',config.BACKBONE,'_',config.loss,'_',str(config.img_w), '_', date_time, 'last.h5'])
 
 """get the train file name and divide to train and val parts"""
 def get_train_val(val_rate=config.val_rate):
@@ -103,7 +105,7 @@ def get_train_val(val_rate=config.val_rate):
 
 
 # data for training
-def generateData(batch_size, data=[]):
+def generateData(config, data=[]):
     # print 'generateData...'
     while True:
         train_data = []
@@ -119,12 +121,15 @@ def generateData(batch_size, data=[]):
             _, label = load_img_normalization(1, (config.train_data_path + '/label/' + url))
             label = img_to_array(label)
             train_label.append(label)
-            if batch % batch_size == 0:
+            if batch % config.batch_size == 0:
                 # print 'get enough bacth!\n'
                 train_data = np.array(train_data)
                 train_label = np.array(train_label)
                 if config.nb_classes>2:
                     train_label = to_categorical(train_label, num_classes=config.nb_classes)
+                # train_label = train_label.reshape((config.batch_size, config.img_w * config.img_h,config.nb_classes))
+                # print("train_label shape:{}".format(train_label.shape))
+
                 yield (train_data, train_label)
                 train_data = []
                 train_label = []
@@ -132,7 +137,7 @@ def generateData(batch_size, data=[]):
 
 
 # data for validation
-def generateValidData(batch_size, data=[]):
+def generateValidData(config, data=[]):
     # print 'generateValidData...'
     while True:
         valid_data = []
@@ -148,22 +153,32 @@ def generateValidData(batch_size, data=[]):
             _, label = load_img_normalization(1, (config.train_data_path + '/label/' + url))
             label = img_to_array(label)
             valid_label.append(label)
-            if batch % batch_size == 0:
+            if batch % config.batch_size == 0:
                 valid_data = np.array(valid_data)
                 valid_label = np.array(valid_label)
                 if config.nb_classes>2:
                     valid_label = to_categorical(valid_label, num_classes=config.nb_classes)
+                # valid_label = valid_label.reshape((config.batch_size, config.img_w * config.img_h,config.nb_classes))
                 yield (valid_data, valid_label)
                 valid_data = []
                 valid_label = []
                 batch = 0
 
+def transfer_weights(trained_backbone, model):
+    for i, layer in enumerate(trained_backbone.layers):
+        weights = layer.get_weights()
+        model.layers[i].set_weights(weights)
+
 """Train model ............................................."""
 def train(model):
 
     if os.path.isfile(config.base_model):
-        model.load_weights(config.base_model)
-        print("load last weight from:{}".format(config.base_model))
+        try:
+            model.load_weights(config.base_model)
+        except ValueError:
+            print("Can not load weights from base model: {}".format(config.base_model))
+        else:
+            print("loaded weights from base model:{}".format(config.base_model))
 
     model_checkpoint = ModelCheckpoint(
         model_save_path,
@@ -226,17 +241,31 @@ def train(model):
     else:
         pass
 
+    # from segmentation_models.losses import my_loss
+    # print("class_weight:{}".format(config.class_weights))
+    # model.compile(self_optimizer, loss=my_loss(config.class_weights), metrics=[config.metrics])
     model.compile(self_optimizer, loss=config.loss, metrics=[config.metrics])
 
-    H = model.fit_generator(generator=generateData(config.batch_size,train_set),
+    H = model.fit_generator(generator=generateData(config,train_set),
                             steps_per_epoch=train_numb // config.batch_size,
                             epochs=config.epochs,
                             verbose=1,
-                            validation_data=generateValidData(config.batch_size, val_set),
+                            validation_data=generateValidData(config, val_set),
                             validation_steps=valid_numb // config.batch_size,
                             callbacks=callable,
-                            max_q_size=1)
+                            max_q_size=1,
+                            class_weight='auto')
+    # H = model.fit_generator(generator=generateData(config, train_set),
+    #                         steps_per_epoch=train_numb // config.batch_size,
+    #                         epochs=config.epochs,
+    #                         verbose=1,
+    #                         validation_data=generateValidData(config, val_set),
+    #                         validation_steps=valid_numb // config.batch_size,
+    #                         callbacks=callable,
+    #                         max_q_size=1,
+    #                         class_weight={0: 1, 1: 1, 2: 1, 3: 5, 4: 10, 5: 5})
 
+    model.save(last_model)
 """
 Test the model which has been trained right now
 """
@@ -280,17 +309,26 @@ def test_predict(bands, image,model):
     cv2.imwrite('../../data/predict/test_model_new.png',outputresult*255)
     return outputresult
 
+def add_new_model(base_moldel, cofig):
+    x = base_moldel.get_layer('softmax').output
+    x = Reshape((config.img_w * config.img_h,config.nb_classes))(x)
+    model=Model(input=base_moldel.input, output=x)
+    return model
+
+
+
 if __name__ == '__main__':
 
     if not os.path.isdir(config.train_data_path):
         print ("train data does not exist in the path:\n {}".format(config.train_data_path))
+        sys.exit(-1)
 
-
-    input_layer = (config.img_w, config.img_h, config.im_bands)
-    model = Unet(backbone_name=config.BACKBONE, input_shape=input_layer,
+    input_layer = (config.img_w,config.img_h, config.im_bands)
+    if 'unet' in config.network:
+        model = Unet(backbone_name=config.BACKBONE, input_shape=input_layer,
                  classes=config.nb_classes, activation=config.activation,
                  encoder_weights=config.encoder_weights)
-    if 'pspnet' in config.network:
+    elif 'pspnet' in config.network:
         model = PSPNet(backbone_name=config.BACKBONE, input_shape=input_layer,
                      classes=config.nb_classes, activation=config.activation,
                      encoder_weights=config.encoder_weights)
@@ -303,14 +341,31 @@ if __name__ == '__main__':
                      classes=config.nb_classes, activation=config.activation,
                      encoder_weights=config.encoder_weights)
     elif 'deeplabv3plus' in config.network:
-        model = Deeplabv3(weights=None, input_shape=input_layer,
-                          classes=config.nb_classes, backbone=config.BACKBONE)
+        try:
+            model = Deeplabv3(weights=None, input_shape=input_layer,
+                          classes=config.nb_classes, backbone=config.BACKBONE, activation=config.activation)
+        except RuntimeError:
+            print("Warning: Run this model with a backend that does not support separable convolutions.")
+            model = Deeplabv3(weights=None, input_shape=input_layer,
+                              classes=config.nb_classes, backbone="mobilenetv2", activation=config.activation)
+        except ValueError:
+            print("Warning:  invalid argument for `weights` or `backbone.")
+            model = Deeplabv3(weights=None, input_shape=input_layer,
+                              classes=config.nb_classes, backbone="mobilenetv2", activation=config.activation)
+        else:
+            print("input parameters correct for deeplab V3+!")
+
+    else:
+        print("Error:")
 
 
     print(model.summary())
     print("Train by : {}_{}".format(config.network, config.BACKBONE))
+    #
+    # model=add_new_model(model, config)
+    # print(model.summary())
 
-    # sys.exit(-1)
+    """ Training model........"""
     train(model)
 
     if FLAG_MAKE_TEST:

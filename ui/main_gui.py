@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import QApplication, QMainWindow, QDialog, QFileDialog, QMessageBox
 from MainWin import Ui_MainWindow
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QIcon,QFont
 from preProcess.preprocess_implements import child_image_stretch, child_label, child_ImageClip
 from sampleProduce.sampleProcess_implements import child_sampleGenCommon,child_sampleGenSelfAdapt
 from trainUi.trainModels_implements import child_trainBinaryJaccardCross, child_trainBinaryJaccardOnly, child_trainBinaryOnehot, child_trainBinaryCrossentropy, child_trainMulticlass
@@ -24,11 +24,13 @@ class mywindow(QMainWindow, Ui_MainWindow):
         self.setWindowIcon(QIcon('else/scrslogo.png'))
         self.setupUi(self)
         self.new_translate()
+        self.setFont(QFont('SansSerif',12))
+
 
 
     def new_translate(self ):
         _translate = QtCore.QCoreApplication.translate
-        self.setWindowTitle(_translate("MainWindow", "          自然资源督察要素遥感识别监测系统（服务器）"))
+        self.setWindowTitle(_translate("MainWindow", "    自然资源督察要素遥感识别监测系统（服务器）"))
         self.menuFile.setTitle(_translate("MainWindow", "文件"))
         self.menuPrepocess.setTitle(_translate("MainWindow", "预处理"))
         self.menuTrain.setTitle(_translate("MainWindow", "模型训练"))

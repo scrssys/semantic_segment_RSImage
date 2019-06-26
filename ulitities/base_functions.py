@@ -6,11 +6,21 @@ import cv2
 import numpy as np
 import gdal,osr,ogr
 import gc
+gdal.UseExceptions()
 
+# from error_code import *
 
 UINT8=0
 UINT10 =1
 UINT16=2
+
+class FError(Exception):
+    pass
+
+ERROR_OPEN_IMAGEFILE = -110  # Fail to open image by gdal.open()
+
+
+ERROR_NUMPY_TRANSPOSE = -220
 
 class Base_ulitities:
     def __init__(self):
@@ -67,8 +77,11 @@ def load_img_normalization_by_cv2(path, grayscale=False):
 
 
 def load_img_by_gdal(path, grayscale=False):
-    dataset = gdal.Open(path)
-    assert(dataset is not None)
+    try:
+        dataset = gdal.Open(path)
+    except RuntimeError:
+        print("Could not open file:{}".format(path))
+        sys.exit(-1)
 
     y_height = dataset.RasterYSize
     x_width = dataset.RasterXSize
@@ -82,13 +95,43 @@ def load_img_by_gdal(path, grayscale=False):
             img = np.transpose(img, (1, 2, 0))
         except:
             print("image should be 3 dimensions!")
-            sys.exit(-1)
+            sys.exit(-2)
     else:
         if im_bands > 1:
             img = np.transpose(img, (1, 2, 0))
     del dataset
 
     return img
+
+
+def load_img_by_gdal_new(path, img=[], grayscale=False):
+    try:
+        dataset = gdal.Open(path)
+    except RuntimeError:
+        print("Could not open file:{}".format(path))
+        return ERROR_OPEN_IMAGEFILE
+
+    y_height = dataset.RasterYSize
+    x_width = dataset.RasterXSize
+    im_bands = dataset.RasterCount
+    img = dataset.ReadAsArray(0, 0, x_width, y_height)
+    # geotransform = dataset.GetGeoTransform()
+
+    if grayscale == False:
+        img = np.array(img, dtype="float")
+        try:
+            img = np.transpose(img, (1, 2, 0))
+        except:
+            print("image should be 3 dimensions!")
+            return ERROR_NUMPY_TRANSPOSE
+    else:
+        if im_bands > 1:
+            img = np.transpose(img, (1, 2, 0))
+    del dataset
+
+    return 0
+
+
 def load_img_by_gdal_geo(path, grayscale=False):
     dataset = gdal.Open(path)
     assert(dataset is not None)
@@ -183,6 +226,30 @@ def get_file(file_dir, file_type=['.png', '.PNG', '.tif', '.img','.IMG']):
                 L.append(os.path.join(root,file))
     num = len(L)
     return L, num
+
+
+
+def find_file(dir, str):
+    """
+    find the file containing str in dir
+        :param dir: directory , it may have sub_folders
+        :param str: string
+        :return: file: a file with name of str in dir
+    """
+    temp =''
+    files, nb = get_file(dir)
+    for file in files:
+        if not str in file:
+            continue
+        else:
+            temp=file
+    if len(temp.strip())==0:
+        raise FError('No file in diretotry')
+    else:
+        return temp
+
+
+
 
 """ check the size of src_img and label_img"""
 def compare_two_image_size(img_one, img_two, grayscale=False):

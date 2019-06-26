@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import cv2
 from tqdm import tqdm
 from PyQt5.QtWidgets import QDialog, QFileDialog
-from ui.image_stretch import Ui_Dialog_image_stretch
+from ui.preProcess.image_stretch import Ui_Dialog_image_stretch
 
 
 

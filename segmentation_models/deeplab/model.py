@@ -273,7 +273,7 @@ def _inverted_res_block(inputs, expansion, stride, alpha, filters, block_id, ski
     return x
 
 
-def Deeplabv3(weights='pascal_voc', input_tensor=None, input_shape=(512, 512, 3), classes=21, backbone='mobilenetv2', OS=16, alpha=1.):
+def Deeplabv3(weights='pascal_voc', input_tensor=None, input_shape=(512, 512, 3), classes=21, backbone='mobilenetv2', OS=16, alpha=1., activation=None):
     """ Instantiates the Deeplabv3+ architecture
 
     Optionally loads weights pre-trained
@@ -301,6 +301,8 @@ def Deeplabv3(weights='pascal_voc', input_tensor=None, input_shape=(512, 512, 3)
                 - If `alpha` = 1, default number of filters from the paper
                     are used at each layer.
             Used only for mobilenetv2 backbone
+        activation: optional activation to add to the top of the network.
+            One of 'softmax', 'sigmoid' or None
 
     # Returns
         A Keras model instance.
@@ -503,6 +505,9 @@ def Deeplabv3(weights='pascal_voc', input_tensor=None, input_shape=(512, 512, 3)
         inputs = get_source_inputs(input_tensor)
     else:
         inputs = img_input
+
+    if activation in {'softmax', 'sigmoid'}:
+        x = Activation(activation, name=activation)(x)
 
     model = Model(inputs, x, name='deeplabv3plus')
 

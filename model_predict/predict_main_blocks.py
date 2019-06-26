@@ -117,7 +117,7 @@ if __name__ == '__main__':
         print("Error: failde to load model!\n")
         sys.exit(-1)
     else:
-        print("Model is not deeplab V3+!\n")
+        print("No exception occurred, model is not deeplab V3+!\n")
 
 
     # print(model.summary())

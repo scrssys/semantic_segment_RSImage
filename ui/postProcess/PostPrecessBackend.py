@@ -13,6 +13,7 @@ from ulitities.base_functions import load_img_by_cv2,get_file,load_img_by_gdal
 
 ROAD_VALUE=127
 BUILDING_VALUE=255
+SMOOTH=0.001
 
 def check_input_file(files):
     ret, img_1 = load_img_by_cv2(files[0], grayscale=True)
@@ -296,12 +297,14 @@ def accuracy_evalute(input_dict):
 
     print("Kappa:{:.3f}".format(kappa))
 
-    for i in range(n_class - 1):
-        i = i + 1
-        prec = x_diagonal[i] / x_row_plus[i]
-        print("\nForground of {}_accuracy= {:.3f}".format(i, prec))
-        recall = x_diagonal[i] / x_col_plus[i]
+    for i in range(n_class):
+        i = i
+        prec = x_diagonal[i] / (x_row_plus[i]+SMOOTH)
+        print("\nForground of {}_precision= {:.3f}".format(i, prec))
+        recall = x_diagonal[i] / (x_col_plus[i]+SMOOTH)
         print("{}_recall= {:.3f}".format(i, recall))
-        iou = x_diagonal[i] / (x_row_plus[i] + x_col_plus[i] - x_diagonal[i])
+        F1_score= 2*recall*prec/(recall+prec)
+        print("{}_F1_score={:.3f}".format(i, F1_score))
+        iou = x_diagonal[i] / (x_row_plus[i] + x_col_plus[i] - x_diagonal[i]+SMOOTH)
         print("{}_iou {:.3f}".format(i, iou))
 

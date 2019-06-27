@@ -37,9 +37,9 @@ import  argparse
 import json , time
 parser=argparse.ArgumentParser(description='RS classification train')
 parser.add_argument('--gpu', dest='gpu_id', help='GPU device id to use [0]',
-                        default=3, type=int)
+                        default=2, type=int)
 parser.add_argument('--config', dest='config_file', help='json file to config',
-                         default='config_pred.json')
+                         default='config_pred_multiclass_global.json')
 args=parser.parse_args()
 gpu_id=args.gpu_id
 print("gpu_id:{}".format(gpu_id))
@@ -99,6 +99,9 @@ if __name__ == '__main__':
         in_files, _ = get_file(config.img_input, config.suffix)
         for file in in_files:
             input_files.append(file)
+    if len(in_files)==0:
+        print("no input images")
+        sys.exit(-1)
     print("{} images will be classified".format(len(input_files)))
 
     # sys.exit(-1)
@@ -117,7 +120,7 @@ if __name__ == '__main__':
         print("Error: failde to load model!\n")
         sys.exit(-1)
     else:
-        print("No exception occurred, model is not deeplab V3+!\n")
+        print("model is not deeplab V3+!\n")
 
 
     # print(model.summary())
@@ -128,11 +131,17 @@ if __name__ == '__main__':
         abs_filename = abs_filename.split(".")[0]
         whole_img, geoinf = load_img_by_gdal_geo(img_file)
         print("GeomTransform:{}".format(geoinf))
-        H,W,C = np.array(whole_img).shape
-        if C>1:
-            nodata_indx = np.where(whole_img[:,:,0]==nodata)
+        try:
+            H,W,C = np.array(whole_img).shape
+        except:
+            print("image is 2 dimentional!")
+            H,W = np.array(whole_img).shape
+            whole_img = np.expand_dims(whole_img,axis=-1)
         else:
-            nodata_indx = np.where(whole_img == nodata)
+            print("image is 3 dimentional!")
+
+        nodata_indx = np.where(whole_img[:, :, 0] == nodata)
+
         del whole_img
         gc.collect()
 
@@ -150,17 +159,31 @@ if __name__ == '__main__':
             end = start+this_h
             # b_img = load_img_by_gdal_blocks(img_file,0,start,W,this_h)
             b_img = load_img_by_gdal_blocks(img_file, 0, start, W, this_h+config.window_size)
+
             if i ==nb_blocks-1:
-                exp_img = np.zeros((this_h+config.window_size, W, C), np.uint16)
-                exp_img[:this_h,:,:] = b_img
+                tmp_img = np.zeros((this_h+config.window_size, W, C), np.uint16)
+                tmp_img[:this_h,:,:] = b_img
             else:
-                exp_img = b_img
+                tmp_img = b_img
                 # exp_img = np.zeros((this_h+config.window_size, W, C), np.uint16)
                 # exp_img[:, :, :] = b_img[:,:,:]
             # b_img = whole_img[start:end,:,:]
             # plt.imshow(b_img[:,:,1])
             # plt.show()
             # sys.exit(-3)
+            """get data in bands of band_list"""
+            band_list = config.band_list
+            if len(band_list) == 0:
+                band_list = range(C)
+            if len(band_list) > C or max(band_list) >= C:
+                print("input bands should not be bigger than image bands!")
+                sys.exit(-2)
+
+            a,b,c = tmp_img.shape
+            exp_img = np.zeros((a,b,len(band_list)), np.float16)
+            for i in band_list:
+                exp_img[:,:,i] = tmp_img[:,:,band_list[i]]
+
             if im_type == UINT8:
                 input_img = exp_img / 255.0
             elif im_type == UINT10:
@@ -173,7 +196,9 @@ if __name__ == '__main__':
 
             if FLAG_APPROACH_PREDICT == 0:
                 print("[INFO] predict image by orignal approach for {} block".format(i))
-                result = core_orignal_predict(input_img, config.im_bands, model, config.window_size, config.img_w)
+                a,b,c=input_img.shape
+                num_of_bands = min(a,b,c)
+                result = core_orignal_predict(input_img, num_of_bands, model, config.window_size, config.img_w)
                 result_mask[start:end,:]=result[:this_h,:]
 
             elif FLAG_APPROACH_PREDICT == 1:
@@ -227,10 +252,6 @@ if __name__ == '__main__':
         print("Saved to:{}".format(output_file))
 
         # output vector file from raster file
-        shp_file= ''.join([output_dir, '/', abs_filename, '.shp'])
-        polygonize(output_file, shp_file)
-
-        # cv2.imwrite(output_file, output_mask)
-
-
-
+        if config.tovector:
+            shp_file= ''.join([output_dir, '/', abs_filename, '.shp'])
+            polygonize(output_file, shp_file)

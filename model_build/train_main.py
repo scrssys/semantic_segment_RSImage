@@ -26,7 +26,7 @@ K.set_image_dim_ordering('tf')
 from keras.callbacks import TensorBoard
 from keras.utils import multi_gpu_model
 
-from ulitities.base_functions import load_img_normalization,  load_img_by_gdal, UINT16, UINT8, UINT10
+from ulitities.base_functions import load_img_normalization, load_img_normalization_bybandlist, load_img_by_gdal, UINT16, UINT8, UINT10
 
 seed = 4
 np.random.seed(seed)
@@ -46,9 +46,9 @@ import sys
 import  argparse
 parser=argparse.ArgumentParser(description='RS classification train')
 parser.add_argument('--gpu', dest='gpu_id', help='GPU device id to use [0]', nargs='+',
-                        default=0, type=int)
+                        default=1, type=int)
 parser.add_argument('--config', dest='config_file', help='json file to config',
-                         default='config_WHU_buildings.json')
+                         default='config_multiclass_global.json')
 args=parser.parse_args()
 gpu_id=args.gpu_id
 print("gpu_id:{}".format(gpu_id))
@@ -82,9 +82,17 @@ else:
 date_time = time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime())
 print("date and time: {}".format(date_time))
 print("traindata from: {}".format(config.train_data_path))
-model_save_path = ''.join([config.model_dir,'/',config.target_name, '_', config.network, '_',config.BACKBONE,'_',config.loss,'_',str(config.img_w), '_', date_time, 'best.h5'])
+band_name=''
+if len(config.band_list)==0:
+    band_name='fullbands'
+else:
+    for i in config.band_list:
+         band_name +=str(config.band_list[i])
+    band_name+="bands"
+print("band_name:{}".format(band_name))
+model_save_path = ''.join([config.model_dir,'/',config.target_name, '_', config.network, '_',config.BACKBONE,'_',str(config.loss),'_',str(config.img_w), '_',band_name,'_', date_time, 'best.h5'])
 print("model save as to: {}".format(model_save_path))
-last_model = ''.join([config.model_dir,'/',config.target_name, '_', config.network, '_',config.BACKBONE,'_',config.loss,'_',str(config.img_w), '_', date_time, 'last.h5'])
+last_model = ''.join([config.model_dir,'/',config.target_name, '_', config.network, '_',config.BACKBONE,'_',config.loss,'_',str(config.img_w), '_',band_name,'_', date_time, 'last.h5'])
 
 """get the train file name and divide to train and val parts"""
 def get_train_val(val_rate=config.val_rate):
@@ -114,7 +122,7 @@ def generateData(config, data=[]):
         for i in (range(len(data))):
             url = data[i]
             batch += 1
-            _, img = load_img_normalization(config.im_bands, (config.train_data_path + '/src/' + url), data_type=im_type)
+            _, img = load_img_normalization_bybandlist((config.train_data_path + '/src/' + url), bandlist=config.band_list, data_type=im_type)
             # Adapt dim_ordering automatically
             img = img_to_array(img)
             train_data.append(img)
@@ -146,7 +154,7 @@ def generateValidData(config, data=[]):
         for i in (range(len(data))):
             url = data[i]
             batch += 1
-            _, img = load_img_normalization(config.im_bands, (config.train_data_path + '/src/' + url), data_type=im_type)
+            _, img = load_img_normalization_bybandlist((config.train_data_path + '/src/' + url), bandlist=config.band_list,data_type=im_type)
             # Adapt dim_ordering automatically
             img = img_to_array(img)
             valid_data.append(img)
@@ -323,7 +331,7 @@ if __name__ == '__main__':
         print ("train data does not exist in the path:\n {}".format(config.train_data_path))
         sys.exit(-1)
 
-    input_layer = (config.img_w,config.img_h, config.im_bands)
+    input_layer = (config.img_w,config.img_h, len(config.band_list))
     if 'unet' in config.network:
         model = Unet(backbone_name=config.BACKBONE, input_shape=input_layer,
                  classes=config.nb_classes, activation=config.activation,

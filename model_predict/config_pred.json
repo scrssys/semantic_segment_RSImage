@@ -3,6 +3,7 @@
   "img_w":256,
   "img_h":256,
   "im_bands":3,
+  "band_list":[0,1,2],
   "im_type":"UINT8",
   "target_name":"rice",
   "activation":"sigmoid",
@@ -13,6 +14,7 @@
   "slices":4,
   "block_size":100000000,
   "nodata":65535,
+  "vector":true
   "model_path":"/home/omnisky/PycharmProjects/data/models/rice/rice_unet_resnet34_binary_crossentropy_256_2019-06-12_11-48-26.h5",
   "mask_dir": "/home/omnisky/PycharmProjects/data/test/rice/pred/",
   "suffix":".png"

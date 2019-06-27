@@ -303,7 +303,7 @@ def accuracy_evalute(input_dict):
         print("\nForground of {}_precision= {:.3f}".format(i, prec))
         recall = x_diagonal[i] / (x_col_plus[i]+SMOOTH)
         print("{}_recall= {:.3f}".format(i, recall))
-        F1_score= 2*recall*prec/(recall+prec)
+        F1_score = (2*recall*prec)/(recall+prec)
         print("{}_F1_score={:.3f}".format(i, F1_score))
         iou = x_diagonal[i] / (x_row_plus[i] + x_col_plus[i] - x_diagonal[i]+SMOOTH)
         print("{}_iou {:.3f}".format(i, iou))

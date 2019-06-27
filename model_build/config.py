@@ -6,6 +6,7 @@ Config = namedtuple("Config", [
   "img_w",
   "img_h",
   "im_bands",
+  "band_list",
   "im_type",
   "target_name",
   "val_rate",

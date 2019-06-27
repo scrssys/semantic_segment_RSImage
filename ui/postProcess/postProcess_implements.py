@@ -1,8 +1,5 @@
 
 
-
-
-
 from PyQt5.QtCore import QFileInfo, QDir, QCoreApplication, Qt
 from PyQt5.QtWidgets import QDialog, QFileDialog, QMessageBox
 

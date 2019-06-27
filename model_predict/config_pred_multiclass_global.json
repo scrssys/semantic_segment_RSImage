@@ -1,8 +1,9 @@
 {
-  "img_input":"/media/omnisky/b1aca4b8-81b8-4751-8dee-24f70574dae9/Global/test/images_forClass/4band/",
+  "img_input":"/media/omnisky/b1aca4b8-81b8-4751-8dee-24f70574dae9/Global/test/images_forClass/6band/",
   "img_w":480,
   "img_h":480,
   "im_bands":4,
+  "band_list":[0,1,2,3],
   "im_type":"UINT10",
   "target_name":"global",
   "activation":"softmax",
@@ -13,7 +14,8 @@
   "slices":1,
   "block_size":500000000,
   "nodata":65535,
-  "model_path":"/media/omnisky/b1aca4b8-81b8-4751-8dee-24f70574dae9/Global/models/4bands_nodsm/global_deeplabv3plus_xception_categorical_crossentropy_480_2019-06-25_10-49-23best.h5",
+  "tovector":false,
+  "model_path":"/media/omnisky/b1aca4b8-81b8-4751-8dee-24f70574dae9/Global/models/4bands_nodsm/global_fpn_vgg16_categorical_crossentropy_480_2019-06-23_16-37-18best.h5",
   "mask_dir": "/media/omnisky/b1aca4b8-81b8-4751-8dee-24f70574dae9/Global/test/pred/",
-  "suffix":".png"
+  "suffix":".tif"
 }

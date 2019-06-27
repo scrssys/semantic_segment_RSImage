@@ -206,6 +206,56 @@ def load_img_normalization(input_bands, path, data_type=UINT8):
         img = np.clip(img, 0.0, 1.0)
     return 0, img
 
+def load_img_normalization_bybandlist(path, bandlist=[],data_type=UINT8):
+    try:
+        dataset=gdal.Open(path)
+    except RuntimeError:
+        print("Error:open file failed:{}".format(path))
+        sys.exit(-1)
+    else:
+        pass
+
+    y_height = dataset.RasterYSize
+    x_width = dataset.RasterXSize
+    im_bands = dataset.RasterCount
+    img = dataset.ReadAsArray(0, 0, x_width, y_height)
+    if len(bandlist) == 0:
+        bandlist = range(im_bands)
+    if len(bandlist)>im_bands or max(bandlist)>=im_bands:
+        print("input bands should not be bigger than image bands!")
+        sys.exit(-2)
+
+    """transpose format to: band last"""
+    img = np.array(img, dtype="float")
+    if im_bands==1:
+        img = np.expand_dims(img,axis=-1)
+    else:
+        img = np.transpose(img, (1, 2, 0))
+
+    out_img=np.zeros((y_height,x_width,len(bandlist)), np.float16)
+    try:
+        for i in range(len(bandlist)):
+            out_img[:,:,i]=img[:,:,bandlist[i]]
+    except:
+        print("Error: could not get correct list of data from image")
+        sys.exit(-5)
+    else:
+        pass
+
+    if data_type == UINT8:
+        out_img = out_img / 255.0
+    elif data_type == UINT10:
+        out_img = out_img / 1024.0
+    elif data_type == UINT16:
+        out_img = out_img / 65535.0
+    else:
+        print("Not recognize this type!")
+        sys.exit(-1)
+    out_img = np.clip(out_img, 0.0, 1.0)
+
+    del dataset
+    return 0, out_img
+
 
 def get_file(file_dir, file_type=['.png', '.PNG', '.tif', '.img','.IMG']):
     """

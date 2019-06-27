@@ -3,6 +3,7 @@
   "img_w":256,
   "img_h":256,
   "im_bands":3,
+  "band_list":[0,1],
   "im_type":"UINT8",
   "target_name":"rice",
   "val_rate":0.25,

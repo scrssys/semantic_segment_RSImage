@@ -13,5 +13,6 @@ gdal
 qt==5.6
 cuda==9.0
 tensorflow-gpu==1.9.0
+efficientnet>=0.0.3
 
 

@@ -46,9 +46,9 @@ import sys
 import  argparse
 parser=argparse.ArgumentParser(description='RS classification train')
 parser.add_argument('--gpu', dest='gpu_id', help='GPU device id to use [0]', nargs='+',
-                        default=1, type=int)
+                        default=2, type=int)
 parser.add_argument('--config', dest='config_file', help='json file to config',
-                         default='config_multiclass_global.json')
+                         default='config_multiclass_gf2.json')
 args=parser.parse_args()
 gpu_id=args.gpu_id
 print("gpu_id:{}".format(gpu_id))
@@ -331,6 +331,9 @@ if __name__ == '__main__':
         print ("train data does not exist in the path:\n {}".format(config.train_data_path))
         sys.exit(-1)
 
+    if len(config.band_list)==0:
+        print("Error: band_list should not be empty!")
+        sys.exit(-2)
     input_layer = (config.img_w,config.img_h, len(config.band_list))
     if 'unet' in config.network:
         model = Unet(backbone_name=config.BACKBONE, input_shape=input_layer,

@@ -48,7 +48,7 @@ parser=argparse.ArgumentParser(description='RS classification train')
 parser.add_argument('--gpu', dest='gpu_id', help='GPU device id to use [0]', nargs='+',
                         default=2, type=int)
 parser.add_argument('--config', dest='config_file', help='json file to config',
-                         default='config_multiclass_gf2.json')
+                         default='config_multiclass_global.json')
 args=parser.parse_args()
 gpu_id=args.gpu_id
 print("gpu_id:{}".format(gpu_id))
@@ -249,20 +249,32 @@ def train(model):
     else:
         pass
 
-    # from segmentation_models.losses import my_loss
-    # print("class_weight:{}".format(config.class_weights))
-    # model.compile(self_optimizer, loss=my_loss(config.class_weights), metrics=[config.metrics])
-    model.compile(self_optimizer, loss=config.loss, metrics=[config.metrics])
+    # model.compile(self_optimizer, loss=config.loss, metrics=[config.metrics])
+    if "jaccard" in config.loss or "dice" in config.loss:
+        from segmentation_models.losses import my_loss, self_define_loss
+        print("class_weight:{}".format(config.class_weights))
+        model.compile(self_optimizer, loss=self_define_loss(config.loss,config.class_weights), metrics=[config.metrics])
+        H = model.fit_generator(generator=generateData(config, train_set),
+                                steps_per_epoch=train_numb // config.batch_size,
+                                epochs=config.epochs,
+                                verbose=1,
+                                validation_data=generateValidData(config, val_set),
+                                validation_steps=valid_numb // config.batch_size,
+                                callbacks=callable,
+                                max_q_size=1)
+    else:
+        model.compile(self_optimizer, loss=config.loss, metrics=[config.metrics])
+        H = model.fit_generator(generator=generateData(config, train_set),
+                                steps_per_epoch=train_numb // config.batch_size,
+                                epochs=config.epochs,
+                                verbose=1,
+                                validation_data=generateValidData(config, val_set),
+                                validation_steps=valid_numb // config.batch_size,
+                                callbacks=callable,
+                                max_q_size=1,
+                                class_weight='auto')
 
-    H = model.fit_generator(generator=generateData(config,train_set),
-                            steps_per_epoch=train_numb // config.batch_size,
-                            epochs=config.epochs,
-                            verbose=1,
-                            validation_data=generateValidData(config, val_set),
-                            validation_steps=valid_numb // config.batch_size,
-                            callbacks=callable,
-                            max_q_size=1,
-                            class_weight='auto')
+
     # H = model.fit_generator(generator=generateData(config, train_set),
     #                         steps_per_epoch=train_numb // config.batch_size,
     #                         epochs=config.epochs,

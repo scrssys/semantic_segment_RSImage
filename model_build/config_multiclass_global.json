@@ -1,5 +1,5 @@
 {
-  "train_data_path":"/media/omnisky/b1aca4b8-81b8-4751-8dee-24f70574dae9/Global/traindata/6band_adddsm/",
+  "train_data_path":"/media/omnisky/b1aca4b8-81b8-4751-8dee-24f70574dae9/Global/traindata/6band_adddsm_new/",
   "img_w":480,
   "img_h":480,
   "im_bands":4,
@@ -16,9 +16,9 @@
   "batch_size":8,
   "epochs": 100,
 
-  "loss":"cce_jaccard_loss",
-  "class_weights":[1.0,1.0,1.0,10.0,20.0,10.0],
-  "metrics":"iou_score",
+  "loss":"categorical_crossentropy",
+  "class_weights":[65.0,2.0,1.0,14.0,141.0,24.0],
+  "metrics":"accuracy",
   "optimizer": "adam",
   "lr": 0.0001,
   "lr_steps": [540, 560],

@@ -31,18 +31,6 @@ def _categorical_crossentropy(target, output, axis=-1):
     return - target * K.log(output)
 
 
-def my_loss(class_weights):
-    def closure(gt, pr):
-        return cce_jaccard_loss(gt, pr, class_weights=class_weights)
-
-    return closure
-
-# def closure(gt, pr, ctm_loss, class_weights):
-#     tt = globals().get('%s' % ctm_loss)
-#     # print("func:{}".format(tt))
-#     return tt(gt, pr, class_weights=class_weights)
-
-
 def self_define_loss(customer_loss, class_weights=[]):
     def closure(gt, pr):
         tt = globals().get('%s' % customer_loss)
@@ -51,6 +39,16 @@ def self_define_loss(customer_loss, class_weights=[]):
 
     return closure
 
+
+def cce(gt, pr, cce_weight=1., class_weights=1.):
+    cce = _categorical_crossentropy(gt, pr) * class_weights
+    cce = K.mean(cce)
+    return cce_weight *cce
+
+def bce(gt, pr, bce_weight=1., class_weights=1.):
+    bce = binary_crossentropy(gt, pr) * class_weights
+    bce = K.mean(bce)
+    return bce_weight * bce
 
 # ============================== Jaccard Losses ==============================
 
@@ -74,7 +72,7 @@ def jaccard_loss(gt, pr, class_weights=1., smooth=SMOOTH, per_image=True):
     return 1 - jaccard_score(gt, pr, class_weights=class_weights, smooth=smooth, per_image=per_image)
 
 
-def bce_jaccard_loss(gt, pr, bce_weight=1., smooth=SMOOTH, per_image=True):
+def bce_jaccard_loss(gt, pr, bce_weight=1., class_weights=1., smooth=SMOOTH, per_image=True):
     r"""Sum of binary crossentropy and jaccard losses:
     
     .. math:: L(A, B) = bce_weight * binary_crossentropy(A, B) + jaccard_loss(A, B)
@@ -150,7 +148,7 @@ def dice_loss(gt, pr, class_weights=1., smooth=SMOOTH, per_image=True, beta=1.):
     return 1 - f_score(gt, pr, class_weights=class_weights, smooth=smooth, per_image=per_image, beta=beta)
 
 
-def bce_dice_loss(gt, pr, bce_weight=1., smooth=SMOOTH, per_image=True, beta=1.):
+def bce_dice_loss(gt, pr, bce_weight=1., class_weights=1., smooth=SMOOTH, per_image=True, beta=1.):
     r"""Sum of binary crossentropy and dice losses:
     
     .. math:: L(A, B) = bce_weight * binary_crossentropy(A, B) + dice_loss(A, B)

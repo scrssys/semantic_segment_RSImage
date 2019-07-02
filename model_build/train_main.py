@@ -91,9 +91,9 @@ else:
          band_name +=str(config.band_list[i])
     band_name+="bands"
 print("band_name:{}".format(band_name))
-model_save_path = ''.join([config.model_dir,'/',config.target_name, '_', config.network, '_',config.BACKBONE,'_',str(config.loss),'_',str(config.img_w), '_',band_name,'_', date_time, 'best.h5'])
+model_save_path = ''.join([config.model_dir,'/',config.target_name, '_', config.network, '_',config.BACKBONE,'_',config.loss,'_',config.optimizer,'_',str(config.img_w), '_',band_name,'_', date_time, 'best.h5'])
 print("model save as to: {}".format(model_save_path))
-last_model = ''.join([config.model_dir,'/',config.target_name, '_', config.network, '_',config.BACKBONE,'_',config.loss,'_',str(config.img_w), '_',band_name,'_', date_time, 'last.h5'])
+last_model = ''.join([config.model_dir,'/',config.target_name, '_', config.network, '_',config.BACKBONE,'_',config.loss,'_',config.optimizer,'_',str(config.img_w), '_',band_name,'_', date_time, 'last.h5'])
 
 """get the train file name and divide to train and val parts"""
 def get_train_val(val_rate=config.val_rate):
@@ -250,21 +250,19 @@ def train(model):
     else:
         pass
 
-    # model.compile(self_optimizer, loss=config.loss, metrics=[config.metrics])
-    if "jaccard" in config.loss or "dice" in config.loss:
-        print("class_weight:{}".format(config.class_weights))
-        loss_name=globals().get('%s'%config.loss)
-        model.compile(self_optimizer, loss=self_define_loss(config.loss,config.class_weights), metrics=[config.metrics])
-        # model.compile(self_optimizer, loss=loss_name(class_weights=config.class_weights), metrics=[config.metrics])
+    try:
+        model.compile(self_optimizer, loss=self_define_loss(config.loss, config.class_weights), metrics=[config.metrics])
         H = model.fit_generator(generator=generateData(config, train_set),
-                                steps_per_epoch=train_numb // config.batch_size,
-                                epochs=config.epochs,
-                                verbose=1,
-                                validation_data=generateValidData(config, val_set),
-                                validation_steps=valid_numb // config.batch_size,
-                                callbacks=callable,
-                                max_q_size=1)
-    else:
+                            steps_per_epoch=train_numb // config.batch_size,
+                            epochs=config.epochs,
+                            verbose=1,
+                            validation_data=generateValidData(config, val_set),
+                            validation_steps=valid_numb // config.batch_size,
+                            callbacks=callable,
+                            max_q_size=1)
+    except:
+        print("Warning: compile failed with customer loss function and class_weights")
+        print("Now, using default loss function without class_weights...")
         model.compile(self_optimizer, loss=config.loss, metrics=[config.metrics])
         H = model.fit_generator(generator=generateData(config, train_set),
                                 steps_per_epoch=train_numb // config.batch_size,
@@ -275,6 +273,33 @@ def train(model):
                                 callbacks=callable,
                                 max_q_size=1,
                                 class_weight='auto')
+    else:
+        print("Compile model successfully!")
+    # model.compile(self_optimizer, loss=config.loss, metrics=[config.metrics])
+    # if "jaccard" in config.loss or "dice" in config.loss:
+    #     print("class_weight:{}".format(config.class_weights))
+    #     loss_name=globals().get('%s'%config.loss)
+    #     model.compile(self_optimizer, loss=self_define_loss(config.loss,config.class_weights), metrics=[config.metrics])
+    #     # model.compile(self_optimizer, loss=loss_name(class_weights=config.class_weights), metrics=[config.metrics])
+    #     H = model.fit_generator(generator=generateData(config, train_set),
+    #                             steps_per_epoch=train_numb // config.batch_size,
+    #                             epochs=config.epochs,
+    #                             verbose=1,
+    #                             validation_data=generateValidData(config, val_set),
+    #                             validation_steps=valid_numb // config.batch_size,
+    #                             callbacks=callable,
+    #                             max_q_size=1)
+    # else:
+    #     model.compile(self_optimizer, loss=config.loss, metrics=[config.metrics])
+    #     H = model.fit_generator(generator=generateData(config, train_set),
+    #                             steps_per_epoch=train_numb // config.batch_size,
+    #                             epochs=config.epochs,
+    #                             verbose=1,
+    #                             validation_data=generateValidData(config, val_set),
+    #                             validation_steps=valid_numb // config.batch_size,
+    #                             callbacks=callable,
+    #                             max_q_size=1,
+    #                             class_weight='auto')
 
 
     # H = model.fit_generator(generator=generateData(config, train_set),

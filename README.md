@@ -1,5 +1,7 @@
 We use several semantic segmentation models  to deal remote sensing images classifcation.
+
 Semantic segmentation networks:U-net,PSPNet, FPN, LinkNet, DeepLab V3+
+
 Backones: 
 VGG:'vgg16' 'vgg19'
 
@@ -22,6 +24,7 @@ MobileNet:'mobilenet' 'mobilenetv2'
 EfficientNet:'efficientnetb0' 'efficientnetb1' 'efficientnetb2' 'efficientnetb3'
 
 Requirements:
+
 tensorflow-gpu==1.9.0(only test on V1.9.0)
 keras>=2.2.4
 keras_applications==1.0.7

@@ -3,11 +3,12 @@
   "img_w":480,
   "img_h":480,
   "im_bands":4,
+  "band_list":[0,1,2,3],
   "im_type":"uint10",
   "target_name":"GF2",
   "val_rate":0.10,
 
-  "network":"fpn",
+  "network":"pspnet",
   "BACKBONE":"vgg16",
   "activation":"softmax",
   "encoder_weights": null,

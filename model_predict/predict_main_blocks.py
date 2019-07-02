@@ -18,8 +18,9 @@ import matplotlib.pyplot as plt
 from keras import backend as K
 K.set_image_dim_ordering('tf')
 K.clear_session()
-from segmentation_models.losses import bce_jaccard_loss
-from segmentation_models.metrics import iou_score
+from segmentation_models.losses import *
+from segmentation_models.losses import  self_define_loss
+from segmentation_models.metrics import *
 
 # from base_predict_functions import orignal_predict_notonehot, smooth_predict_for_binary_notonehot
 from ulitities.base_functions import load_img_by_gdal,load_img_by_gdal_geo, load_img_by_gdal_blocks, UINT10,UINT8,UINT16, get_file, polygonize
@@ -37,7 +38,7 @@ import  argparse
 import json , time
 parser=argparse.ArgumentParser(description='RS classification train')
 parser.add_argument('--gpu', dest='gpu_id', help='GPU device id to use [0]',
-                        default=2, type=int)
+                        default=3, type=int)
 parser.add_argument('--config', dest='config_file', help='json file to config',
                          default='config_pred_multiclass_global.json')
 args=parser.parse_args()
@@ -112,10 +113,13 @@ if __name__ == '__main__':
     out_bands = config.mask_classes
 
     try:
-        model = load_model(config.model_path)
+        model = load_model(config.model_path, compile=False)
+        # lossName = 'cce_jaccard_loss'
+        # model = load_model(config.model_path, custom_objects={'closure':self_define_loss(lossName)})
     except ValueError:
+        print("Warning: there are several custom objects in model")
         print("For deeplab V3+, load model with parameters of custom_objects\n")
-        model = load_model(config.model_path, custom_objects={'relu6': relu6, 'BilinearUpsampling': BilinearUpsampling})
+        model = load_model(config.model_path, custom_objects={'relu6': relu6, 'BilinearUpsampling': BilinearUpsampling}, compile=False)
     except Exception:
         print("Error: failde to load model!\n")
         sys.exit(-1)
@@ -123,7 +127,7 @@ if __name__ == '__main__':
         print("model is not deeplab V3+!\n")
 
 
-    # print(model.summary())
+    print(model.summary())
 
     for img_file in tqdm(input_files):
         print("\n[INFO] opening image:{}...".format(img_file))

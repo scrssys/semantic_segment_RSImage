@@ -34,6 +34,7 @@ from keras import metrics, losses
 from keras.losses import binary_crossentropy
 from segmentation_models.losses import bce_jaccard_loss, cce_jaccard_loss
 from segmentation_models.metrics import iou_score
+from segmentation_models.losses import self_define_loss
 
 from segmentation_models import Unet,FPN,PSPNet,Linknet
 from segmentation_models.deeplab.model import Deeplabv3
@@ -46,7 +47,7 @@ import sys
 import  argparse
 parser=argparse.ArgumentParser(description='RS classification train')
 parser.add_argument('--gpu', dest='gpu_id', help='GPU device id to use [0]', nargs='+',
-                        default=2, type=int)
+                        default=5, type=int)
 parser.add_argument('--config', dest='config_file', help='json file to config',
                          default='config_multiclass_global.json')
 args=parser.parse_args()
@@ -251,9 +252,10 @@ def train(model):
 
     # model.compile(self_optimizer, loss=config.loss, metrics=[config.metrics])
     if "jaccard" in config.loss or "dice" in config.loss:
-        from segmentation_models.losses import my_loss, self_define_loss
         print("class_weight:{}".format(config.class_weights))
+        loss_name=globals().get('%s'%config.loss)
         model.compile(self_optimizer, loss=self_define_loss(config.loss,config.class_weights), metrics=[config.metrics])
+        # model.compile(self_optimizer, loss=loss_name(class_weights=config.class_weights), metrics=[config.metrics])
         H = model.fit_generator(generator=generateData(config, train_set),
                                 steps_per_epoch=train_numb // config.batch_size,
                                 epochs=config.epochs,

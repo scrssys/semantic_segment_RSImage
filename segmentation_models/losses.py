@@ -13,6 +13,45 @@ __all__ = [
 ]
 
 
+def _categorical_crossentropy(target, output, axis=-1):
+    """Categorical crossentropy between an output tensor and a target tensor.
+    # Arguments
+        target: A tensor of the same shape as `output`.
+        output: A tensor resulting from a softmax
+            (unless `from_logits` is True, in which
+            case `output` is expected to be the logits).
+    # Returns
+        Output tensor.
+    """
+
+    # scale preds so that the class probas of each sample sum to 1
+    output /= K.sum(output, axis=axis, keepdims=True)
+    # manual computation of crossentropy
+    output = K.clip(output, K.epsilon(), 1. - K.epsilon())
+    return - target * K.log(output)
+
+
+def my_loss(class_weights):
+    def closure(gt, pr):
+        return cce_jaccard_loss(gt, pr, class_weights=class_weights)
+
+    return closure
+
+# def closure(gt, pr, ctm_loss, class_weights):
+#     tt = globals().get('%s' % ctm_loss)
+#     # print("func:{}".format(tt))
+#     return tt(gt, pr, class_weights=class_weights)
+
+
+def self_define_loss(customer_loss, class_weights=[]):
+    def closure(gt, pr):
+        tt = globals().get('%s' % customer_loss)
+        # print("func:{}".format(tt))
+        return tt(gt, pr, class_weights=class_weights)
+
+    return closure
+
+
 # ============================== Jaccard Losses ==============================
 
 def jaccard_loss(gt, pr, class_weights=1., smooth=SMOOTH, per_image=True):
@@ -74,7 +113,7 @@ def cce_jaccard_loss(gt, pr, cce_weight=1., class_weights=1., smooth=SMOOTH, per
         loss
     
     """
-    cce = categorical_crossentropy(gt, pr) * class_weights
+    cce = _categorical_crossentropy(gt, pr) * class_weights
     cce = K.mean(cce)
     return cce_weight * cce + jaccard_loss(gt, pr, smooth=smooth, class_weights=class_weights, per_image=per_image)
 
@@ -152,9 +191,10 @@ def cce_dice_loss(gt, pr, cce_weight=1., class_weights=1., smooth=SMOOTH, per_im
         loss
     
     """
-    cce = categorical_crossentropy(gt, pr) * class_weights
+    cce = _categorical_crossentropy(gt, pr) * class_weights
     cce = K.mean(cce)
-    return cce_weight * cce + dice_loss(gt, pr, smooth=smooth, class_weights=class_weights, per_image=per_image, beta=beta)
+    return cce_weight * cce + dice_loss(gt, pr, smooth=smooth, class_weights=class_weights, per_image=per_image,
+                                        beta=beta)
 
 
 # Update custom objects

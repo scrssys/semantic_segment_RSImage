@@ -35,7 +35,7 @@ from segmentation_models.deeplab.model import relu6, BilinearUpsampling
    The following global variables should be put into meta data file 
 """
 import  argparse
-import json , time
+import json, time
 parser=argparse.ArgumentParser(description='RS classification train')
 parser.add_argument('--gpu', dest='gpu_id', help='GPU device id to use [0]',
                         default=3, type=int)
@@ -105,7 +105,6 @@ if __name__ == '__main__':
         sys.exit(-1)
     print("{} images will be classified".format(len(input_files)))
 
-    # sys.exit(-1)
     csv_file = os.path.join(output_dir, 'readme.csv')
     df = pd.DataFrame(list(config))
     df.to_csv(csv_file)
@@ -114,6 +113,7 @@ if __name__ == '__main__':
 
     try:
         model = load_model(config.model_path, compile=False)
+        """load model using customer loss"""
         # lossName = 'cce_jaccard_loss'
         # model = load_model(config.model_path, custom_objects={'closure':self_define_loss(lossName)})
     except ValueError:

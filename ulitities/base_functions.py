@@ -157,8 +157,9 @@ def load_img_by_gdal_geo(path, grayscale=False):
     return img, geotransform
 
 def load_img_by_gdal_blocks(path, x,y,width,height,grayscale=False):
+
     dataset = gdal.Open(path)
-    assert(dataset is not None)
+    # assert(dataset is not None)
 
     y_height = dataset.RasterYSize
     x_width = dataset.RasterXSize
@@ -207,13 +208,11 @@ def load_img_normalization(input_bands, path, data_type=UINT8):
     return 0, img
 
 def load_img_normalization_bybandlist(path, bandlist=[],data_type=UINT8):
-    try:
-        dataset=gdal.Open(path)
-    except RuntimeError:
-        print("Error:open file failed:{}".format(path))
-        sys.exit(-1)
-    else:
-        pass
+    dataset = gdal.Open(path)
+    # try:
+    #     dataset=gdal.Open(path)
+    # finally:
+    #     print("load images ...")
 
     y_height = dataset.RasterYSize
     x_width = dataset.RasterXSize

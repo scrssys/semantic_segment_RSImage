@@ -15,7 +15,7 @@
   "block_size":500000000,
   "nodata":65535,
   "tovector":false,
-  "model_path":"/media/omnisky/b1aca4b8-81b8-4751-8dee-24f70574dae9/Global/models/global_deeplabv3plus_xception_categorical_crossentropy_480_0123bands_2019-06-30_13-41-27best.h5",
+  "model_path":"/media/omnisky/b1aca4b8-81b8-4751-8dee-24f70574dae9/Global/models/global_unet_vgg16_cce_480_0123bands_2019-07-02_22-32-54best.h5",
   "mask_dir": "/media/omnisky/b1aca4b8-81b8-4751-8dee-24f70574dae9/Global/test/pred/",
   "suffix":".tif"
 }

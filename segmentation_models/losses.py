@@ -32,6 +32,8 @@ def _categorical_crossentropy(target, output, axis=-1):
 
 
 def self_define_loss(customer_loss, class_weights=[]):
+    if len(class_weights)==0:
+        class_weights=1.0
     def closure(gt, pr):
         tt = globals().get('%s' % customer_loss)
         # print("func:{}".format(tt))

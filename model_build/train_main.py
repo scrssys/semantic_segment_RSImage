@@ -47,7 +47,7 @@ import sys
 import  argparse
 parser=argparse.ArgumentParser(description='RS classification train')
 parser.add_argument('--gpu', dest='gpu_id', help='GPU device id to use [0]', nargs='+',
-                        default=5, type=int)
+                        default=3, type=int)
 parser.add_argument('--config', dest='config_file', help='json file to config',
                          default='config_multiclass_global.json')
 args=parser.parse_args()
@@ -123,7 +123,12 @@ def generateData(config, data=[]):
         for i in (range(len(data))):
             url = data[i]
             batch += 1
-            _, img = load_img_normalization_bybandlist((config.train_data_path + '/src/' + url), bandlist=config.band_list, data_type=im_type)
+
+            try:
+                _, img = load_img_normalization_bybandlist((config.train_data_path + '/src/' + url), bandlist=config.band_list, data_type=im_type)
+            except RuntimeError:
+                raise RuntimeError("Open file faild:{}".format(url))
+
             # Adapt dim_ordering automatically
             img = img_to_array(img)
             train_data.append(img)
@@ -155,7 +160,10 @@ def generateValidData(config, data=[]):
         for i in (range(len(data))):
             url = data[i]
             batch += 1
-            _, img = load_img_normalization_bybandlist((config.train_data_path + '/src/' + url), bandlist=config.band_list,data_type=im_type)
+            try:
+                _, img = load_img_normalization_bybandlist((config.train_data_path + '/src/' + url), bandlist=config.band_list,data_type=im_type)
+            except RuntimeError:
+                raise RuntimeError("Open file faild:{}".format(url))
             # Adapt dim_ordering automatically
             img = img_to_array(img)
             valid_data.append(img)
@@ -273,44 +281,9 @@ def train(model):
                                 callbacks=callable,
                                 max_q_size=1,
                                 class_weight='auto')
-    else:
+    finally:
         print("Compile model successfully!")
-    # model.compile(self_optimizer, loss=config.loss, metrics=[config.metrics])
-    # if "jaccard" in config.loss or "dice" in config.loss:
-    #     print("class_weight:{}".format(config.class_weights))
-    #     loss_name=globals().get('%s'%config.loss)
-    #     model.compile(self_optimizer, loss=self_define_loss(config.loss,config.class_weights), metrics=[config.metrics])
-    #     # model.compile(self_optimizer, loss=loss_name(class_weights=config.class_weights), metrics=[config.metrics])
-    #     H = model.fit_generator(generator=generateData(config, train_set),
-    #                             steps_per_epoch=train_numb // config.batch_size,
-    #                             epochs=config.epochs,
-    #                             verbose=1,
-    #                             validation_data=generateValidData(config, val_set),
-    #                             validation_steps=valid_numb // config.batch_size,
-    #                             callbacks=callable,
-    #                             max_q_size=1)
-    # else:
-    #     model.compile(self_optimizer, loss=config.loss, metrics=[config.metrics])
-    #     H = model.fit_generator(generator=generateData(config, train_set),
-    #                             steps_per_epoch=train_numb // config.batch_size,
-    #                             epochs=config.epochs,
-    #                             verbose=1,
-    #                             validation_data=generateValidData(config, val_set),
-    #                             validation_steps=valid_numb // config.batch_size,
-    #                             callbacks=callable,
-    #                             max_q_size=1,
-    #                             class_weight='auto')
 
-
-    # H = model.fit_generator(generator=generateData(config, train_set),
-    #                         steps_per_epoch=train_numb // config.batch_size,
-    #                         epochs=config.epochs,
-    #                         verbose=1,
-    #                         validation_data=generateValidData(config, val_set),
-    #                         validation_steps=valid_numb // config.batch_size,
-    #                         callbacks=callable,
-    #                         max_q_size=1,
-    #                         class_weight={0: 1, 1: 1, 2: 1, 3: 5, 4: 10, 5: 5})
 
     model.save(last_model)
 """
@@ -404,6 +377,8 @@ if __name__ == '__main__':
                               classes=config.nb_classes, backbone="mobilenetv2", activation=config.activation)
         else:
             print("input parameters correct for deeplab V3+!")
+        # finally:
+        #     print("deeplab model")
 
     else:
         print("Error:")

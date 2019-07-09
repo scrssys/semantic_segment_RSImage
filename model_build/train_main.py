@@ -47,7 +47,7 @@ import sys
 import  argparse
 parser=argparse.ArgumentParser(description='RS classification train')
 parser.add_argument('--gpu', dest='gpu_id', help='GPU device id to use [0]', nargs='+',
-                        default=3, type=int)
+                        default=2, type=int)
 parser.add_argument('--config', dest='config_file', help='json file to config',
                          default='config_multiclass_global.json')
 args=parser.parse_args()
@@ -87,7 +87,7 @@ band_name=''
 if len(config.band_list)==0:
     band_name='fullbands'
 else:
-    for i in config.band_list:
+    for i in range(len(config.band_list)):
          band_name +=str(config.band_list[i])
     band_name+="bands"
 print("band_name:{}".format(band_name))

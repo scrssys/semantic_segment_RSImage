@@ -38,7 +38,7 @@ import  argparse
 import json, time
 parser=argparse.ArgumentParser(description='RS classification train')
 parser.add_argument('--gpu', dest='gpu_id', help='GPU device id to use [0]',
-                        default=3, type=int)
+                        default=2, type=int)
 parser.add_argument('--config', dest='config_file', help='json file to config',
                          default='config_pred_multiclass_global.json')
 args=parser.parse_args()
@@ -156,6 +156,7 @@ if __name__ == '__main__':
         print("single block size :[{},{}]".format(block_h,W))
         result_mask = np.zeros((H, W), np.uint8)
         for i in tqdm(list(range(nb_blocks))):
+            print("[INFO] predict image for {} block".format(i))
             start =block_h*i
             this_h = block_h
             if (i+1)*block_h>H:
@@ -185,7 +186,7 @@ if __name__ == '__main__':
 
             a,b,c = tmp_img.shape
             exp_img = np.zeros((a,b,len(band_list)), np.float16)
-            for i in band_list:
+            for i in range(len(band_list)):
                 exp_img[:,:,i] = tmp_img[:,:,band_list[i]]
 
             if im_type == UINT8:
@@ -199,14 +200,14 @@ if __name__ == '__main__':
             input_img = input_img.astype(np.float16)
 
             if FLAG_APPROACH_PREDICT == 0:
-                print("[INFO] predict image by orignal approach for {} block".format(i))
+                print("[INFO] predict image by orignal approach ...")
                 a,b,c=input_img.shape
                 num_of_bands = min(a,b,c)
                 result = core_orignal_predict(input_img, num_of_bands, model, config.window_size, config.img_w)
                 result_mask[start:end,:]=result[:this_h,:]
 
             elif FLAG_APPROACH_PREDICT == 1:
-                print("[INFO] predict image by smooth approach for {} block".format(i))
+                print("[INFO] predict image by smooth approach... ")
                 output_mask = np.zeros((this_h+config.window_size, W), np.uint8)
                 if out_bands > 1:
                     result = predict_img_with_smooth_windowing(

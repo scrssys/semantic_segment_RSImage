@@ -11,8 +11,8 @@ class_types = [[0, 0, 0], [0, 200, 0], [150, 250, 0], [150, 200, 150], [200, 0, 
                [250, 200, 0], [200, 200, 0], [200, 0, 0], [250, 0, 150],
                [200, 150, 150], [250, 150, 150], [0, 0, 200], [0, 150, 200], [0, 200, 250]]
 
-input_dir='/media/omnisky/b1aca4b8-81b8-4751-8dee-24f70574dae9/rssrai2019/test/pred/2019-07-05_16-18-20'
-output_dir='/media/omnisky/b1aca4b8-81b8-4751-8dee-24f70574dae9/rssrai2019/test/result_mask'
+input_dir='/media/omnisky/b1aca4b8-81b8-4751-8dee-24f70574dae9/rssrai2019/test/pred/2019-07-08_22-11-48'
+output_dir='/media/omnisky/b1aca4b8-81b8-4751-8dee-24f70574dae9/rssrai2019/test/segmentation'
 
 if __name__=='__main__':
     print("Info: starting to get final mask...")
@@ -29,8 +29,6 @@ if __name__=='__main__':
             mask[index[0], index[1], 1] = class_types[i][1]
             mask[index[0], index[1], 2] = class_types[i][0]
 
-        # for j in range(a):
-        #     for k in range(b):
         # plt.imshow(mask)
         # plt.show()
 

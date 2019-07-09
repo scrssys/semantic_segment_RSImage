@@ -6,8 +6,8 @@ import numpy as np
 
 from tqdm import tqdm
 import matplotlib.pyplot as plt
-import tensorflow as tf
-
+# import tensorflow as tf
+from sklearn.metrics import confusion_matrix
 
 from ulitities.base_functions import load_img_by_cv2,get_file,load_img_by_gdal
 
@@ -192,17 +192,6 @@ def accuracy_evalute(input_dict):
     gup_id = input_dict['GPUID']
     os.environ["CUDA_VISIBLE_DEVICES"] = gup_id
 
-    # ret, ref_img = load_img_by_cv2(ref_file, grayscale=True)
-    # if ret != 0:
-    #     print("Open file failed: {}".format(ref_file))
-    #     sys.exit(-1)
-
-    # ret, pred_img = load_img_by_cv2(pred_file, grayscale=True)
-    # print(np.unique(pred_img))
-    # if ret != 0:
-    #     print("Open file failed: {}".format(pred_file))
-    #     sys.exit(-2)
-
 
     ref_img = load_img_by_gdal(ref_file, grayscale=True)
 
@@ -264,9 +253,10 @@ def accuracy_evalute(input_dict):
             valid_pred[nodata_index]=0
 
     # confus_matrix = tf.contrib.metrics.confusion_matrix(labels, predictions, n_class)
-    confus_matrix = tf.contrib.metrics.confusion_matrix(valid_pred, valid_ref, n_class)
-    with tf.Session() as sess:
-        confus_matrix = sess.run(confus_matrix)
+    confus_matrix = confusion_matrix(valid_ref,valid_pred,range(n_class))
+    # confus_matrix = tf.contrib.metrics.confusion_matrix(valid_pred, valid_ref, n_class)
+    # with tf.Session() as sess:
+    #     confus_matrix = sess.run(confus_matrix)
     print(confus_matrix)
 
     confus_matrix = np.array(confus_matrix)

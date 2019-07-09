@@ -20,7 +20,7 @@
       <sourceFolder url="file://$MODULE_DIR$/competition" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/venv" />
     </content>
-    <orderEntry type="jdk" jdkName="Python 3.5 (venv)" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="Python 3.5" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="test1" />
     <orderEntry type="module" module-name="selective_search_py" />

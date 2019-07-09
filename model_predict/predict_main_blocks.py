@@ -18,9 +18,6 @@ import matplotlib.pyplot as plt
 from keras import backend as K
 K.set_image_dim_ordering('tf')
 K.clear_session()
-from segmentation_models.losses import *
-from segmentation_models.losses import  self_define_loss
-from segmentation_models.metrics import *
 
 # from base_predict_functions import orignal_predict_notonehot, smooth_predict_for_binary_notonehot
 from ulitities.base_functions import load_img_by_gdal,load_img_by_gdal_geo, load_img_by_gdal_blocks, UINT10,UINT8,UINT16, get_file, polygonize
@@ -38,9 +35,9 @@ import  argparse
 import json, time
 parser=argparse.ArgumentParser(description='RS classification train')
 parser.add_argument('--gpu', dest='gpu_id', help='GPU device id to use [0]',
-                        default=2, type=int)
+                        default=5, type=int)
 parser.add_argument('--config', dest='config_file', help='json file to config',
-                         default='config_pred_multiclass_global.json')
+                         default='config_pred_bieshu.json')
 args=parser.parse_args()
 gpu_id=args.gpu_id
 print("gpu_id:{}".format(gpu_id))
@@ -109,7 +106,7 @@ if __name__ == '__main__':
     df = pd.DataFrame(list(config))
     df.to_csv(csv_file)
 
-    out_bands = config.mask_classes
+    out_bands = target_class
 
     try:
         model = load_model(config.model_path, compile=False)

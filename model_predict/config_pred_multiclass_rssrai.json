@@ -10,12 +10,12 @@
   "mask_classes":16,
   "strategy":"smooth",
   "window_size":480,
-  "subdivisions":2,
+  "subdivisions":4,
   "slices":1,
   "block_size":500000000,
   "nodata":65535,
   "tovector":false,
-  "model_path":"/media/omnisky/b1aca4b8-81b8-4751-8dee-24f70574dae9/rssrai2019/models/global_unet_vgg16_cce_480_0123bands_2019-07-02_22-32-54best.h5",
+  "model_path":"/media/omnisky/b1aca4b8-81b8-4751-8dee-24f70574dae9/rssrai2019/models/global_unet_resnet152_categorical_crossentropy_adam_480_0123bands_2019-07-07_21-48-21best.h5",
   "mask_dir": "/media/omnisky/b1aca4b8-81b8-4751-8dee-24f70574dae9/rssrai2019/test/pred/",
   "suffix":".tif"
 }

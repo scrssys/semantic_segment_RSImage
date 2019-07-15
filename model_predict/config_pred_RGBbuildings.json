@@ -1,0 +1,21 @@
+{
+  "img_input":"/media/omnisky/b1aca4b8-81b8-4751-8dee-24f70574dae9/naturalreserve/img91/sc/",
+  "img_w":480,
+  "img_h":480,
+  "im_bands":4,
+  "band_list":[0,1,2],
+  "im_type":"UINT8",
+  "target_name":"buidoing",
+  "activation":"sigmoid",
+  "mask_classes":2,
+  "strategy":"smooth",
+  "window_size":480,
+  "subdivisions":2,
+  "slices":1,
+  "block_size":5000000000,
+  "nodata":65535,
+  "tovector":false,
+  "model_path":"/home/omnisky/PycharmProjects/data/models/RGB_building/original/rgb_building_pspnet_inceptionresnetv2_bce_jaccard_loss_adam_480_012bands_2019-07-12_22-26-26best.h5",
+  "mask_dir": "/media/omnisky/b1aca4b8-81b8-4751-8dee-24f70574dae9/naturalreserve/img91/pred/",
+  "suffix":".tif"
+}

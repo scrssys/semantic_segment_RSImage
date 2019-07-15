@@ -189,8 +189,8 @@ def accuracy_evalute(input_dict):
     valid_labels = input_dict['valid_values']
     n_class = len(valid_labels)
     check_rate = input_dict['check_rate']
-    gup_id = input_dict['GPUID']
-    os.environ["CUDA_VISIBLE_DEVICES"] = gup_id
+    # gup_id = input_dict['GPUID']
+    # os.environ["CUDA_VISIBLE_DEVICES"] = gup_id
 
 
     ref_img = load_img_by_gdal(ref_file, grayscale=True)

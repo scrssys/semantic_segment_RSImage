@@ -45,7 +45,7 @@ class SampleGenerate():
 
     def gamma_tansform(self, xb, g=2.0):
         tmp = np.random.random() * g
-        print("gamma:{}".format(tmp))
+        # print("gamma:{}".format(tmp))
         if tmp < 0.6:
             tmp = 0.6
         if tmp > 1.4:
@@ -358,7 +358,7 @@ class SampleGenerate():
         for label_file in tqdm(label_files):
             absname = os.path.split(label_file)[1]
             absname = absname.split('.')[0]
-            src_file = os.path.join(in_path, 'src/') + os.path.split(label_file)[1]
+            # src_file = os.path.join(in_path, 'src/') + os.path.split(label_file)[1]
 
             try:
                 label_img = load_img_by_gdal(label_file, grayscale=True)
@@ -369,9 +369,15 @@ class SampleGenerate():
                 print("loaded label image:{}".format(label_file))
             label_img = label_img.astype(np.uint8)
 
+            if "normalize" in self.input_dict["imgmode"]:
+                src_dir = os.path.join(in_path, 'norm_src/')
+            else:
+                src_dir = os.path.join(in_path, 'ori_src/')
+
+
             """find file in src directory, suffix may not be the same as that in label directory"""
             try:
-                src_dir = os.path.join(in_path, 'src/')
+                # src_dir = os.path.join(in_path, 'ori_src/')
                 tmp_file = find_file(src_dir, absname)
             except FError:
                 print("Could not find source file in:".format(os.path.join(in_path, '/src/')))
@@ -387,10 +393,14 @@ class SampleGenerate():
             else:
                 print("Has opened the image")
 
+            x, y = label_img.shape
+            print("Heigh, width of label is :{}, {}".format(x, y))
+
             Y_height = dataset.RasterYSize
             X_width = dataset.RasterXSize
-            if (X_width != x and Y_height != y):
-                print("label and source image have different size:".format(label_file))
+            print("Heigh, width of src is :{}, {}".format(Y_height, X_width))
+            if x != Y_height or y != X_width:
+                print("Warning: src and label have different size!")
                 continue
 
             im_bands = dataset.RasterCount
@@ -405,7 +415,7 @@ class SampleGenerate():
             all_label = np.zeros((Y_height, X_width), np.uint8)
             all_label[index] = 1
 
-            print(np.unique(all_label))
+            # print(np.unique(all_label))
             # if no pixel in target value, ignore this label file
             tp = np.unique(all_label)
             # if tp[0]==0:
@@ -451,13 +461,15 @@ class SampleGenerate():
                 if 'augument' in self.input_dict['mode']:
                     src_roi, label_roi = self.data_augment(src_roi, label_roi, img_w, img_h, data_type)
 
-                print(np.unique(label_roi))
-                visualize = label_roi * 50
+                # print(np.unique(label_roi))
+                visualize = label_roi * 100
+                # plt.imshow(visualize)
+                # plt.show()
 
-                cv2.imwrite((out_path + '/visualize/%d.png' % g_count), visualize)
-                cv2.imwrite((out_path + '/label/%d.png' % g_count), label_roi)
+                cv2.imwrite((out_path + '/visualize/%d_%s.png' % (g_count, absname)), visualize)
+                cv2.imwrite((out_path + '/label/%d_%s.png' % (g_count, absname)), label_roi)
 
-                src_sample_file = out_path + '/src/%d.png' % g_count
+                src_sample_file = out_path + '/src/%d_%s.png' % (g_count, absname)
                 driver = gdal.GetDriverByName("GTiff")
                 # driver = gdal.GetDriverByName("PNG")
                 # outdataset = driver.Create(src_sample_file, img_w, img_h, im_bands, gdal.GDT_UInt16)
@@ -474,6 +486,8 @@ class SampleGenerate():
 
                 count += 1
                 g_count += 1
+            """validate the target labels"""
+            print(np.unique(label_roi))
 
     def produce_training_samples_multiclass_selfAdapt(self):
         print('\ncreating dataset...')
@@ -495,7 +509,7 @@ class SampleGenerate():
         for label_file in tqdm(label_files):
             absname = os.path.split(label_file)[1]
             absname = absname.split('.')[0]
-            src_file = os.path.join(in_path, 'src/') + os.path.split(label_file)[1]
+            # src_file = os.path.join(in_path, 'src/') + os.path.split(label_file)[1]
 
             try:
                 label_img = load_img_by_gdal(label_file, grayscale=True)
@@ -507,8 +521,13 @@ class SampleGenerate():
             label_img = label_img.astype(np.uint8)
 
             """find file in src directory, suffix may not be the same as that in label directory"""
+            if "normalize" in self.input_dict["imgmode"]:
+                src_dir = os.path.join(in_path, 'norm_src/')
+            else:
+                src_dir = os.path.join(in_path, 'ori_src/')
+
             try:
-                src_dir = os.path.join(in_path, 'src/')
+                # src_dir = os.path.join(in_path, 'src/')
                 tmp_file = find_file(src_dir, absname)
             except FError:
                 print("Could not find source file in:".format(os.path.join(in_path, '/src/')))

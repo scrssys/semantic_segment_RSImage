@@ -32,9 +32,9 @@ seed = 4
 np.random.seed(seed)
 from keras import metrics, losses
 from keras.losses import binary_crossentropy
-from segmentation_models.losses import bce_jaccard_loss, cce_jaccard_loss
+from segmentation_models.losses import *
 from segmentation_models.metrics import iou_score
-from segmentation_models.losses import self_define_loss
+from segmentation_models.losses import self_define_loss, bce, cce
 
 from segmentation_models import Unet,FPN,PSPNet,Linknet
 from segmentation_models.deeplab.model import Deeplabv3
@@ -47,9 +47,9 @@ import sys
 import  argparse
 parser=argparse.ArgumentParser(description='RS classification train')
 parser.add_argument('--gpu', dest='gpu_id', help='GPU device id to use [0]', nargs='+',
-                        default=2, type=int)
+                        default=1, type=int)
 parser.add_argument('--config', dest='config_file', help='json file to config',
-                         default='config_multiclass_global.json')
+                         default='config_scrs_buildings.json')
 args=parser.parse_args()
 gpu_id=args.gpu_id
 print("gpu_id:{}".format(gpu_id))
@@ -365,7 +365,7 @@ if __name__ == '__main__':
                      encoder_weights=config.encoder_weights)
     elif 'deeplabv3plus' in config.network:
         try:
-            model = Deeplabv3(weights=None, input_shape=input_layer,
+            model = Deeplabv3(weights=config.encoder_weights, input_shape=input_layer,
                           classes=config.nb_classes, backbone=config.BACKBONE, activation=config.activation)
         except RuntimeError:
             print("Warning: Run this model with a backend that does not support separable convolutions.")

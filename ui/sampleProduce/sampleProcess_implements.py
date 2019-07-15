@@ -17,7 +17,7 @@ from ulitities.base_functions import get_file, load_img_by_gdal
 from sampleProduce.sampleProcess_backend import SampleGenerate
 
 sampleGen_dict={'input_dir':'', 'output_dir':'', 'window_size':256, 'min':0, 'max':2, 'target_label':1, 'sample_num':5000, 'mode':'augment'}
-sampleGenSelfAdapt_dict={'input_dir':'', 'output_dir':'', 'window_size':256, 'min':0, 'max':2, 'target_label':1, 'sample_scaleRate':1.0, 'mode':'augment'}
+sampleGenSelfAdapt_dict={'input_dir':'', 'output_dir':'', 'window_size':256, 'min':0, 'max':2, 'target_label':1, 'sample_scaleRate':1.0, 'mode':'augment', 'imgmode':"normalize"}
 
 
 class child_sampleGenCommon(QDialog, Ui_Dialog_sampleGenCommon):
@@ -124,6 +124,12 @@ class child_sampleGenSelfAdapt(QDialog, Ui_Dialog_sampleGenSelfAdapt):
             input_dict['mode'] = 'augument'
         else:
             input_dict['mode'] = 'original'
+
+        sp = self.checkBox_normimg.isChecked()
+        if sp == True:
+            input_dict['imgmode'] = 'normalize'
+        else:
+            input_dict['imgmode'] = 'original'
 
         instance = SampleGenerate(input_dict)
         if self.radioButton_binary.isChecked():

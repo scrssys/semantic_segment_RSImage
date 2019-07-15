@@ -13,7 +13,7 @@ from PostPrecessBackend import combine_masks, vote_masks, accuracy_evalute,binar
 combinefile_dict = {'road_mask':'', 'building_mask':'', 'save_mask':'', 'foreground':127}
 vote_dict = {'input_files':'', 'save_mask':'', 'target_values':[]}
 
-accEvaluate_dict = {'gt_file':'', 'mask_file':'', 'valid_values':[], 'check_rate':0.5, 'GPUID':'5'}
+accEvaluate_dict = {'gt_file':'', 'mask_file':'', 'valid_values':[], 'check_rate':0.5}
 
 binarization_dict = {'grayscale_mask':'', 'binary_mask':'', 'threshold':127}
 binarybatch_dict = {'inputdir':'', 'outputdir':'', 'threshold':127}
@@ -200,7 +200,7 @@ class child_AccuacyEvaluate(QDialog, Ui_Dialog_accuracy_evaluate):
         max = self.spinBox_max.value()
         input_dict['valid_values'] = list(range(min, max+1))
         input_dict['check_rate'] = self.doubleSpinBox_rate.value()
-        input_dict['GPUID'] = self.comboBox_gupid.currentText()
+        # input_dict['GPUID'] = self.comboBox_gupid.currentText()
 
         ret =-1
         ret = accuracy_evalute(input_dict)

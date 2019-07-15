@@ -31,6 +31,33 @@ def _categorical_crossentropy(target, output, axis=-1):
     return - target * K.log(output)
 
 
+from keras.backend.tensorflow_backend import _to_tensor
+from keras.backend.common import epsilon
+def _binary_crossentropy(target, output, from_logits=False):
+    """Binary crossentropy between an output tensor and a target tensor.
+
+    # Arguments
+        target: A tensor with the same shape as `output`.
+        output: A tensor.
+        from_logits: Whether `output` is expected to be a logits tensor.
+            By default, we consider that `output`
+            encodes a probability distribution.
+
+    # Returns
+        A tensor.
+    """
+    # Note: tf.nn.sigmoid_cross_entropy_with_logits
+    # expects logits, Keras expects probabilities.
+    if not from_logits:
+        # transform back to logits
+        _epsilon = _to_tensor(epsilon(), output.dtype.base_dtype)
+        output = K.clip_by_value(output, _epsilon, 1 - _epsilon)
+        output = K.log(output / (1 - output))
+
+    return K.nn.sigmoid_cross_entropy_with_logits(labels=target,
+                                                   logits=output)
+
+
 def self_define_loss(customer_loss, class_weights=[]):
     if len(class_weights)==0:
         class_weights=1.0
@@ -48,6 +75,7 @@ def cce(gt, pr, cce_weight=1., class_weights=1.):
     return cce_weight *cce
 
 def bce(gt, pr, bce_weight=1., class_weights=1.):
+
     bce = binary_crossentropy(gt, pr) * class_weights
     bce = K.mean(bce)
     return bce_weight * bce

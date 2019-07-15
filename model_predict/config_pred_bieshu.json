@@ -1,9 +1,9 @@
 {
-  "img_input":"/media/omnisky/579215ea-c392-4d2f-b136-6b62d9fb31ac/original_data/bieshu/src/",
+  "img_input":"/home/omnisky/PycharmProjects/data/test/bieshu/clip_nomal/",
   "img_w":480,
   "img_h":480,
   "im_bands":4,
-  "band_list":[0,1,2,3],
+  "band_list":[0,1,2],
   "im_type":"UINT10",
   "target_name":"bieshu",
   "activation":"sigmoid",
@@ -15,7 +15,7 @@
   "block_size":5000000000,
   "nodata":65535,
   "tovector":false,
-  "model_path":"/home/omnisky/PycharmProjects/data/models/bieshu/bieshu_fpn_inceptionresnetv2_bce_jaccard_loss_480_2019-06-11_11-19-53.h5",
-  "mask_dir": "/media/omnisky/579215ea-c392-4d2f-b136-6b62d9fb31ac/test/bieshu/pred_src/",
-  "suffix":".png"
+  "model_path":"/home/omnisky/PycharmProjects/data/models/bieshu/pre-trained/bieshu_pspnet_inceptionresnetv2_bce_jaccard_loss_adam_480_012bands_2019-07-09_14-16-06best.h5",
+  "mask_dir": "/home/omnisky/PycharmProjects/data/test/bieshu/pred/",
+  "suffix":".tif"
 }

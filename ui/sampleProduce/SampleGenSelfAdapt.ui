@@ -34,7 +34,7 @@
     <rect>
      <x>10</x>
      <y>10</y>
-     <width>411</width>
+     <width>437</width>
      <height>261</height>
     </rect>
    </property>
@@ -330,7 +330,7 @@
        </layout>
       </item>
       <item>
-       <spacer name="horizontalSpacer_2">
+       <spacer name="horizontalSpacer_3">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
@@ -348,6 +348,13 @@
          <widget class="QLabel" name="label_5">
           <property name="text">
            <string>mode:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="checkBox_normimg">
+          <property name="text">
+           <string>normalized_img</string>
           </property>
          </widget>
         </item>

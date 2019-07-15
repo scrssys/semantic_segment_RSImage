@@ -37,7 +37,7 @@ parser=argparse.ArgumentParser(description='RS classification train')
 parser.add_argument('--gpu', dest='gpu_id', help='GPU device id to use [0]',
                         default=5, type=int)
 parser.add_argument('--config', dest='config_file', help='json file to config',
-                         default='config_pred_bieshu.json')
+                         default='config_pred_RGBbuildings.json')
 args=parser.parse_args()
 gpu_id=args.gpu_id
 print("gpu_id:{}".format(gpu_id))

@@ -11,7 +11,7 @@ class_types = [[0, 0, 0], [0, 200, 0], [150, 250, 0], [150, 200, 150], [200, 0, 
                [250, 200, 0], [200, 200, 0], [200, 0, 0], [250, 0, 150],
                [200, 150, 150], [250, 150, 150], [0, 0, 200], [0, 150, 200], [0, 200, 250]]
 
-input_dir='/media/omnisky/b1aca4b8-81b8-4751-8dee-24f70574dae9/rssrai2019/test/pred/2019-07-08_22-11-48'
+input_dir='/media/omnisky/b1aca4b8-81b8-4751-8dee-24f70574dae9/rssrai2019/test/pred/2019-07-09_11-01-38'
 output_dir='/media/omnisky/b1aca4b8-81b8-4751-8dee-24f70574dae9/rssrai2019/test/segmentation'
 
 if __name__=='__main__':

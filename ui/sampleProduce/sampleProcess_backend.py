@@ -347,7 +347,7 @@ class SampleGenerate():
         label_files, tt = get_file(os.path.join(in_path, 'label/'))
         assert (tt != 0)
 
-        image_num_rate = int(self.input_dict['sample_scaleRate'])
+        image_num_rate = float(self.input_dict['sample_scaleRate'])
 
         # image_each = image_num / len(label_files)
         img_w = int(self.input_dict['window_size'])
@@ -379,6 +379,8 @@ class SampleGenerate():
             try:
                 # src_dir = os.path.join(in_path, 'ori_src/')
                 tmp_file = find_file(src_dir, absname)
+                if tmp_file==None:
+                    raise FError
             except FError:
                 print("Could not find source file in:".format(os.path.join(in_path, '/src/')))
                 continue
@@ -499,7 +501,7 @@ class SampleGenerate():
         label_files, tt = get_file(os.path.join(in_path, 'label/'))
         assert (tt != 0)
 
-        image_num_rate = int(self.input_dict['sample_scaleRate'])
+        image_num_rate = float(self.input_dict['sample_scaleRate'])
 
         # image_each = image_num / len(label_files)
         img_w = int(self.input_dict['window_size'])

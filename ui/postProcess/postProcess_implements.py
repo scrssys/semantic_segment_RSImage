@@ -1,5 +1,8 @@
 
-
+import os ,sys
+import gdal,osr,ogr
+import gc
+from tqdm import tqdm
 from PyQt5.QtCore import QFileInfo, QDir, QCoreApplication, Qt
 from PyQt5.QtWidgets import QDialog, QFileDialog, QMessageBox
 
@@ -8,7 +11,8 @@ from VoteMultimodleResults import Ui_Dialog_vote_multimodels
 from AccuracyEvaluate import Ui_Dialog_accuracy_evaluate
 from Binarization import Ui_Dialog_binarization
 from PostPrecessBackend import combine_masks, vote_masks, accuracy_evalute,binarize_mask,batchbinarize_masks
-
+from RasterToPolygon import Ui_Dialog_raster_to_polygon
+from ulitities.base_functions import get_file, polygonize
 
 combinefile_dict = {'road_mask':'', 'building_mask':'', 'save_mask':'', 'foreground':127}
 vote_dict = {'input_files':'', 'save_mask':'', 'target_values':[]}
@@ -17,6 +21,57 @@ accEvaluate_dict = {'gt_file':'', 'mask_file':'', 'valid_values':[], 'check_rate
 
 binarization_dict = {'grayscale_mask':'', 'binary_mask':'', 'threshold':127}
 binarybatch_dict = {'inputdir':'', 'outputdir':'', 'threshold':127}
+
+
+class child_raster_to_polygon(QDialog, Ui_Dialog_raster_to_polygon):
+    def __init__(self):
+        super(child_raster_to_polygon,self).__init__()
+        self.setupUi(self)
+
+    def slot_open_inputdir(self):
+        dir_tmp = QFileDialog.getExistingDirectory(self, "select a existing directory", '../../data/')
+        self.lineEdit_input.setText(dir_tmp)
+        QDir.setCurrent(dir_tmp)
+
+        # pass
+
+    def slot_open_outputdir(self):
+        dir_tmp = QFileDialog.getExistingDirectory(self, "select a existing directory", '../../data/')
+        self.lineEdit_output.setText(dir_tmp)
+        QDir.setCurrent(dir_tmp)
+
+    def slot_ok(self):
+        self.setWindowModality(Qt.ApplicationModal)
+        input_dir = self.lineEdit_input.text()
+        if not os.path.isdir(input_dir):
+            QMessageBox.warning(self, "Prompt", self.tr("Please check input directory!"))
+            sys.exit(-1)
+        output_dir = self.lineEdit_output.text()
+        if not os.path.isdir(output_dir):
+            QMessageBox.warning(self, "Prompt", self.tr("Output directory is not existed!"))
+            os.mkdir(output_dir)
+
+        try:
+            files,nb=get_file(input_dir)
+            if nb ==0:
+                QMessageBox.warning(self, "Prompt", self.tr("No image found!"))
+                sys.exit(-2)
+
+            for file in tqdm(files):
+                abs_filename = os.path.split(file)[1]
+                abs_filename= abs_filename.split('.')[0]
+                shp_file = ''.join([output_dir, '/', abs_filename, '.shp'])
+                polygonize(file, shp_file)
+        except:
+            QMessageBox.warning(self, "Prompt", self.tr("Failed!"))
+        else:
+            QMessageBox.information(self, "Prompt", self.tr("successfully!"))
+
+
+        self.setWindowModality(Qt.NonModal)
+
+
+
 
 class child_Binarization(QDialog, Ui_Dialog_binarization):
 

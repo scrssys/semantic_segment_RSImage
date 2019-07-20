@@ -37,7 +37,7 @@ parser=argparse.ArgumentParser(description='RS classification train')
 parser.add_argument('--gpu', dest='gpu_id', help='GPU device id to use [0]',
                         default=5, type=int)
 parser.add_argument('--config', dest='config_file', help='json file to config',
-                         default='config_pred_RGBbuildings.json')
+                         default='config_pred_bieshu_xz.json')
 args=parser.parse_args()
 gpu_id=args.gpu_id
 print("gpu_id:{}".format(gpu_id))
@@ -131,6 +131,9 @@ if __name__ == '__main__':
         abs_filename = os.path.split(img_file)[1]
         abs_filename = abs_filename.split(".")[0]
         whole_img, geoinf = load_img_by_gdal_geo(img_file)
+        if whole_img==None:
+            print("Open failed:{}".format(abs_filename))
+            continue
         print("GeomTransform:{}".format(geoinf))
         try:
             H,W,C = np.array(whole_img).shape
@@ -144,7 +147,9 @@ if __name__ == '__main__':
         nodata_indx = np.where(whole_img[:, :, 0] == nodata)
 
         del whole_img
+        # gc.set_debug(gc.DEBUG_STATS)
         gc.collect()
+
 
         nb_blocks = int(H*W/block_size)
         if H*W>nb_blocks*block_size:
@@ -182,16 +187,16 @@ if __name__ == '__main__':
                 sys.exit(-2)
 
             a,b,c = tmp_img.shape
-            exp_img = np.zeros((a,b,len(band_list)), np.float16)
+            input_img = np.zeros((a,b,len(band_list)), np.float16)
             for i in range(len(band_list)):
-                exp_img[:,:,i] = tmp_img[:,:,band_list[i]]
+                input_img[:,:,i] = tmp_img[:,:,band_list[i]]
 
             if im_type == UINT8:
-                input_img = exp_img / 255.0
+                input_img = input_img / 255.0
             elif im_type == UINT10:
-                input_img = exp_img / 1024.0
+                input_img = input_img / 1024.0
             elif im_type == UINT16:
-                input_img = exp_img / 65535.0
+                input_img = input_img / 65535.0
 
             input_img = np.clip(input_img, 0.0, 1.0)
             input_img = input_img.astype(np.float16)
@@ -220,6 +225,9 @@ if __name__ == '__main__':
                     for i in range(target_class):
                         indx = np.where(result[:, :, i] >= 127)
                         output_mask[indx] = i + 1
+                    del result
+                    gc.collect()
+
                 else:
                     result = predict_img_with_smooth_windowing(
                         input_img,
@@ -233,10 +241,18 @@ if __name__ == '__main__':
                     )
                     indx = np.where(result[:, :, 0] >= 127)
                     output_mask[indx] = 1
+                    # del result
+                    gc.collect()
 
                 result_mask[start:end, :] = output_mask[:this_h, :]
+                # del output_mask
+                gc.collect()
 
-        gc.collect()
+            # del b_img
+            # del tmp_img
+            # del input_img
+
+            gc.collect()
 
         print(np.unique(result_mask))
         result_mask[nodata_indx]=255
@@ -250,6 +266,7 @@ if __name__ == '__main__':
         outdataset.GetRasterBand(1).WriteArray(result_mask)
         del outdataset
         # result_mask[nodata_indx] = 255
+        del result_mask
         gc.collect()
         print("Saved to:{}".format(output_file))
 

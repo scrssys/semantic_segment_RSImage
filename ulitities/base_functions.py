@@ -133,8 +133,11 @@ def load_img_by_gdal_new(path, img=[], grayscale=False):
 
 
 def load_img_by_gdal_geo(path, grayscale=False):
-    dataset = gdal.Open(path)
-    assert(dataset is not None)
+    try:
+        dataset = gdal.Open(path)
+    except RuntimeError:
+        return None,''
+    # assert(dataset is not None)
 
     y_height = dataset.RasterYSize
     x_width = dataset.RasterXSize
@@ -148,7 +151,7 @@ def load_img_by_gdal_geo(path, grayscale=False):
             img = np.transpose(img, (1, 2, 0))
         except:
             print("image should be 3 dimensions!")
-            sys.exit(-1)
+            return None,''
     else:
         if im_bands > 1:
             img = np.transpose(img, (1, 2, 0))
@@ -276,6 +279,26 @@ def get_file(file_dir, file_type=['.png', '.PNG', '.tif', '.img','.IMG']):
     num = len(L)
     return L, num
 
+def get_file_absname(file_dir, file_type=['.png', '.PNG', '.tif', '.img','.IMG']):
+    """
+
+    :param file_dir: directory of input files, it may have sub_folders
+    :param file_type: file format, namely postfix
+    :return: L: a list of files under the file_dir and sub_folders; num: the length of L
+    """
+    im_type=['.png']
+    if isinstance(file_type, str):
+        im_type=file_type
+    elif isinstance(file_type,list):
+        im_type=file_type
+    L=[]
+    for root,dirs,files in os.walk(file_dir):
+        for file in files:
+            if (os.path.splitext(file)[1] in im_type):
+                absname = os.path.split(file)[1]
+                L.append(absname)
+    # num = len(L)
+    return L
 
 
 def find_file(dir, str):
@@ -293,7 +316,8 @@ def find_file(dir, str):
         else:
             temp=file
     if len(temp.strip())==0:
-        raise FError('No file in diretotry')
+        # raise FError('No file in diretotry')
+        return None
     else:
         return temp
 
@@ -361,5 +385,8 @@ def polygonize(rasterTemp, outShp, sieveSize=1):
         if area < sieveSize:
             lyr.DeleteFeature(i.GetFID())
     ioShpFile.Destroy()
+
+    del sourceRaster,band,outDatasource
+    gc.collect()
 
     return outShp

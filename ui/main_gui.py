@@ -11,9 +11,11 @@ from preProcess.preprocess_implements import child_image_stretch, child_label, c
 from sampleProduce.sampleProcess_implements import child_sampleGenCommon,child_sampleGenSelfAdapt
 from trainUi.trainModels_implements import child_trainBinaryJaccardCross, child_trainBinaryJaccardOnly, child_trainBinaryOnehot, child_trainBinaryCrossentropy, child_trainMulticlass
 from classifyUi.predict_implements import child_predictBinaryForSingleImage, child_predictMulticlassForSingleImage, child_predictBinaryBatch, child_predictMulticlassBatch
-from postProcess.postProcess_implements import child_CombineMulticlassFromSingleModelResults, child_VoteMultimodleResults, child_AccuacyEvaluate, child_Binarization
+from postProcess.postProcess_implements import child_CombineMulticlassFromSingleModelResults, child_VoteMultimodleResults, child_AccuacyEvaluate, child_Binarization,child_raster_to_polygon
 from about import Ui_Dialog_about
 from tmp.new_train_implements import child_trainBinaryCommon
+# from postProcess.RasterToPolygon import Ui_Dialog_raster_to_polygon
+
 
 
 class mywindow(QMainWindow, Ui_MainWindow):
@@ -61,6 +63,13 @@ class mywindow(QMainWindow, Ui_MainWindow):
         self.action_VoteMultiModelResults.setText(_translate("MainWindow", "多模型集成"))
         self.actionAccuracyEvaluation.setText(_translate("MainWindow", "精度评估"))
         self.actionBinarization.setText(_translate("MainWindow", "掩膜二值化"))
+
+
+    def slot_action_rasterToPolygon(self):
+        child =child_raster_to_polygon()
+        child.show()
+        child.exec_()
+
 
     def slot_action_sampleGenSelfAdapt(self):
         child = child_sampleGenSelfAdapt()

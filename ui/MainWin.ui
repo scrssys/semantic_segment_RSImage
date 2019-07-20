@@ -85,6 +85,7 @@
     <addaction name="action_VoteMultiModelResults"/>
     <addaction name="actionAccuracyEvaluation"/>
     <addaction name="actionBinarization"/>
+    <addaction name="actionRasterToPolygon"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuPrepocess"/>
@@ -218,6 +219,11 @@
   <action name="actionSample_gen_Self_adapt">
    <property name="text">
     <string>Sample_gen Self_adapt</string>
+   </property>
+  </action>
+  <action name="actionRasterToPolygon">
+   <property name="text">
+    <string>RasterToPolygon</string>
    </property>
   </action>
  </widget>
@@ -566,12 +572,28 @@
    <slot>slot_action_sampleGenSelfAdapt()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>324</x>
-     <y>3</y>
+     <x>-1</x>
+     <y>-1</y>
     </hint>
     <hint type="destinationlabel">
      <x>381</x>
      <y>97</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionRasterToPolygon</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>slot_action_rasterToPolygon()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>259</x>
+     <y>108</y>
     </hint>
    </hints>
   </connection>
@@ -598,5 +620,6 @@
   <slot>slot_action_trainBinaryNew()</slot>
   <slot>slot_action_binarization()</slot>
   <slot>slot_action_sampleGenSelfAdapt()</slot>
+  <slot>slot_action_rasterToPolygon()</slot>
  </slots>
 </ui>

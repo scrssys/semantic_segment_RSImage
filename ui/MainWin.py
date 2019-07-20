@@ -91,6 +91,8 @@ class Ui_MainWindow(object):
         self.actionBinarization.setObjectName("actionBinarization")
         self.actionSample_gen_Self_adapt = QtWidgets.QAction(MainWindow)
         self.actionSample_gen_Self_adapt.setObjectName("actionSample_gen_Self_adapt")
+        self.actionRasterToPolygon = QtWidgets.QAction(MainWindow)
+        self.actionRasterToPolygon.setObjectName("actionRasterToPolygon")
         self.menuFile.addAction(self.actionOpen)
         self.menuFile.addAction(self.actionExit)
         self.menuPrepocess.addAction(self.actionLabel_check)
@@ -113,6 +115,7 @@ class Ui_MainWindow(object):
         self.menuPostproc.addAction(self.action_VoteMultiModelResults)
         self.menuPostproc.addAction(self.actionAccuracyEvaluation)
         self.menuPostproc.addAction(self.actionBinarization)
+        self.menuPostproc.addAction(self.actionRasterToPolygon)
         self.menubar.addAction(self.menuFile.menuAction())
         self.menubar.addAction(self.menuPrepocess.menuAction())
         self.menubar.addAction(self.menuSampleProduce.menuAction())
@@ -144,6 +147,7 @@ class Ui_MainWindow(object):
         self.actionTrain_Binary_new.triggered.connect(MainWindow.slot_action_trainBinaryNew)
         self.actionBinarization.triggered.connect(MainWindow.slot_action_binarization)
         self.actionSample_gen_Self_adapt.triggered.connect(MainWindow.slot_action_sampleGenSelfAdapt)
+        self.actionRasterToPolygon.triggered.connect(MainWindow.slot_action_rasterToPolygon)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -178,4 +182,5 @@ class Ui_MainWindow(object):
         self.actionTrain_Binary_new.setText(_translate("MainWindow", "Train Binary new"))
         self.actionBinarization.setText(_translate("MainWindow", "Binarization"))
         self.actionSample_gen_Self_adapt.setText(_translate("MainWindow", "Sample_gen Self_adapt"))
+        self.actionRasterToPolygon.setText(_translate("MainWindow", "RasterToPolygon"))
 

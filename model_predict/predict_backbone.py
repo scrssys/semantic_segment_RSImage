@@ -77,6 +77,7 @@ def _pad_img(img, window_size, subdivisions, flag_show=False):
     aug = int(round(window_size * (1 - 1.0/subdivisions)))
     more_borders = ((aug, aug), (aug, aug), (0, 0))
     ret = np.pad(img, pad_width=more_borders, mode='reflect')
+    # del img
     gc.collect()
 
     if flag_show:
@@ -99,6 +100,7 @@ def _unpad_img(padded_img, window_size, subdivisions):
         aug:-aug,
         :
     ]
+    # del padded_img
     gc.collect()
     return ret
 
@@ -135,6 +137,8 @@ def _rotate_mirror_do(im,slices=1):
         mirrs.append(np.rot90(np.array(im), k=2))
         mirrs.append(np.rot90(np.array(im), k=3))
 
+    # del im
+    gc.collect()
     return mirrs
 
 
@@ -172,6 +176,8 @@ def _rotate_mirror_undo(im_mirrs, slices=1):
 
     # return np.mean(origs, axis=0)
     out_back = sum/slices
+    # del im_mirrs
+    gc.collect()
     return out_back
 
 
@@ -296,6 +302,7 @@ def _windowed_subdivs_multiclassbands(padded_img, model, window_size, subdivisio
 
     # Such 5D array:
     subdivs = subdivs.reshape(a, b, c, d, real_classes)
+    # del padded_img
     gc.collect()
 
     # convert to uint8
@@ -339,12 +346,14 @@ def predict_img_with_smooth_windowing(input_img, model, window_size, subdivision
             padded_out_shape=list(pad.shape[:-1])+[real_classes])
 
         res.append(one_padded_result)
-        del sd, pad,one_padded_result
+        # del sd
+        # del pad
+        # del one_padded_result
         gc.collect()
 
 
     # Merge after rotations:
-    del pads
+    # del pads
     gc.collect()
 
     padded_results = _rotate_mirror_undo(res,slices)
@@ -505,7 +514,7 @@ def core_smooth_predict_binary(small_img_patches, model, real_classes):
         mask_output.append(res_pred)
 
     mask_result = np.array(mask_output, np.float16)
-    del mask_output, small_img_patches
+    del mask_output, small_img_patches, crop, res_pred
     gc.collect()
 
     print ("Shape of mask_output:{}".format(mask_result.shape))

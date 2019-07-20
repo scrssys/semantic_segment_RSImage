@@ -1,0 +1,21 @@
+{
+  "img_input":"/media/omnisky/6b62a451-463c-41e2-b06c-57f95571fdec/test/cqImg/small",
+  "img_w":480,
+  "img_h":480,
+  "im_bands":4,
+  "band_list":[0,1,2],
+  "im_type":"UINT8",
+  "target_name":"bieshu",
+  "activation":"sigmoid",
+  "mask_classes":2,
+  "strategy":"smooth",
+  "window_size":480,
+  "subdivisions":2,
+  "slices":1,
+  "block_size":2000000000,
+  "nodata":65535,
+  "tovector":false,
+  "model_path":"/media/omnisky/b1aca4b8-81b8-4751-8dee-24f70574dae9/bieshu/models/new_wv91wt/bieshu_pspnet_inceptionresnetv2_bce_jaccard_loss_adam_480_012bands_2019-07-19_10-32-30best.h5",
+  "mask_dir": "/media/omnisky/6b62a451-463c-41e2-b06c-57f95571fdec/test/cq/",
+  "suffix":".tif"
+}

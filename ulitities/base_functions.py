@@ -136,7 +136,7 @@ def load_img_by_gdal_geo(path, grayscale=False):
     try:
         dataset = gdal.Open(path)
     except RuntimeError:
-        return None,''
+        return [],''
     # assert(dataset is not None)
 
     y_height = dataset.RasterYSize
@@ -151,13 +151,29 @@ def load_img_by_gdal_geo(path, grayscale=False):
             img = np.transpose(img, (1, 2, 0))
         except:
             print("image should be 3 dimensions!")
-            return None,''
+            return [],''
     else:
         if im_bands > 1:
             img = np.transpose(img, (1, 2, 0))
     del dataset
 
     return img, geotransform
+
+def load_img_by_gdal_info(path, grayscale=False):
+    try:
+        dataset = gdal.Open(path)
+    except RuntimeError:
+        return 0,0,0,''
+
+    y_height = dataset.RasterYSize
+    x_width = dataset.RasterXSize
+    im_bands = dataset.RasterCount
+    # img = dataset.ReadAsArray(0,0,x_width,y_height)
+    geotransform = dataset.GetGeoTransform()
+
+    del dataset
+
+    return y_height,x_width, im_bands, geotransform
 
 def load_img_by_gdal_blocks(path, x,y,width,height,grayscale=False):
 

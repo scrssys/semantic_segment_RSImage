@@ -20,7 +20,7 @@ K.set_image_dim_ordering('tf')
 K.clear_session()
 
 # from base_predict_functions import orignal_predict_notonehot, smooth_predict_for_binary_notonehot
-from ulitities.base_functions import load_img_by_gdal,load_img_by_gdal_geo, load_img_by_gdal_blocks, UINT10,UINT8,UINT16, get_file, polygonize
+from ulitities.base_functions import load_img_by_gdal,load_img_by_gdal_geo, load_img_by_gdal_blocks, UINT10,UINT8,UINT16, get_file, polygonize,load_img_by_gdal_info
 from predict_backbone import predict_img_with_smooth_windowing,core_orignal_predict,core_smooth_predict_multiclass, core_smooth_predict_binary
 
 from config_pred import Config_Pred
@@ -97,7 +97,7 @@ if __name__ == '__main__':
         in_files, _ = get_file(config.img_input, config.suffix)
         for file in in_files:
             input_files.append(file)
-    if len(in_files)==0:
+    if len(input_files)==0:
         print("no input images")
         sys.exit(-1)
     print("{} images will be classified".format(len(input_files)))
@@ -124,30 +124,16 @@ if __name__ == '__main__':
         print("model is not deeplab V3+!\n")
 
 
-    print(model.summary())
+    # print(model.summary())
 
     for img_file in tqdm(input_files):
         print("\n[INFO] opening image:{}...".format(img_file))
         abs_filename = os.path.split(img_file)[1]
         abs_filename = abs_filename.split(".")[0]
-        whole_img, geoinf = load_img_by_gdal_geo(img_file)
-        if whole_img==None:
+        H, W, C, geoinf = load_img_by_gdal_info(img_file)
+        if H==0:
             print("Open failed:{}".format(abs_filename))
             continue
-        print("GeomTransform:{}".format(geoinf))
-        try:
-            H,W,C = np.array(whole_img).shape
-        except:
-            print("image is 2 dimentional!")
-            H,W = np.array(whole_img).shape
-            whole_img = np.expand_dims(whole_img,axis=-1)
-        else:
-            print("image is 3 dimentional!")
-
-        nodata_indx = np.where(whole_img[:, :, 0] == nodata)
-
-        del whole_img
-        # gc.set_debug(gc.DEBUG_STATS)
         gc.collect()
 
 
@@ -248,14 +234,14 @@ if __name__ == '__main__':
                 # del output_mask
                 gc.collect()
 
-            # del b_img
+            del b_img
             # del tmp_img
             # del input_img
 
             gc.collect()
 
         print(np.unique(result_mask))
-        result_mask[nodata_indx]=255
+        # result_mask[nodata_indx]=255
         output_file = ''.join([output_dir, '/', abs_filename, config.suffix])
         driver = gdal.GetDriverByName("GTiff")
         outdataset = driver.Create(output_file, W, H, 1, gdal.GDT_Byte)

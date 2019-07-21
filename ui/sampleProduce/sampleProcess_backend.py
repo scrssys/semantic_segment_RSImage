@@ -531,6 +531,8 @@ class SampleGenerate():
             try:
                 # src_dir = os.path.join(in_path, 'src/')
                 tmp_file = find_file(src_dir, absname)
+                if tmp_file==None:
+                    raise FError
             except FError:
                 print("Could not find source file in:".format(os.path.join(in_path, '/src/')))
                 continue

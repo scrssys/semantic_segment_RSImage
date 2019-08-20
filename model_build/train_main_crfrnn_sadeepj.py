@@ -9,6 +9,7 @@ from keras.preprocessing.image import img_to_array
 from keras.callbacks import ModelCheckpoint, EarlyStopping, History,ReduceLROnPlateau
 from keras.models import Model
 from keras.layers.merge import concatenate
+from keras.utils import plot_model
 import matplotlib.pyplot as plt
 import cv2
 import random
@@ -43,11 +44,14 @@ from utils import save, update_config
 from config import Config
 import json
 import sys
+# from crfrnn.crfrnn_model import get_crfrnn_model_def
+from crfrnn.crfrnn_layer import CrfRnnLayer
+import crfrnn.util
 
 import  argparse
 parser=argparse.ArgumentParser(description='RS classification train')
 parser.add_argument('--gpu', dest='gpu_id', help='GPU device id to use [0]', nargs='+',
-                        default=2, type=int)
+                        default=1, type=int)
 parser.add_argument('--config', dest='config_file', help='json file to config',
                          default='config_scrs_bieshu.json')
 args=parser.parse_args()
@@ -253,7 +257,7 @@ def train(model):
         if len(gpu_id)>1:
             model = multi_gpu_model(model, gpus=len(gpu_id))
 
-    self_optimizer = SGD(lr=config.lr, decay=1e-6, momentum=0.9, nesterov=True)
+    self_optimizer = SGD(lr=config.lr, decay=1e-6, momentum=0.99, nesterov=True)
     if 'adagrad' in config.optimizer:
         self_optimizer = Adagrad(lr=config.lr, decay=1e-6)
     elif 'adam' in config.optimizer:
@@ -294,50 +298,24 @@ def train(model):
 Test the model which has been trained right now
 """
 window_size=config.img_w
-def test_predict(bands, image,model):
-    stride = window_size
 
-    h, w, _ = image.shape
-    print('h,w:', h, w)
-    padding_h = (h // stride + 1) * stride
-    padding_w = (w // stride + 1) * stride
-    padding_img = np.zeros((padding_h, padding_w, bands))
-    padding_img[0:h, 0:w, :] = image[:, :, :]
+def add_crfrnn(base_model, cofig):
+    img_input = base_model.input
+    # x = base_model.get_layer('final_conv').output
+    x = base_model.output
+    x = CrfRnnLayer(image_dims=(config.img_w, config.img_h),
+                         num_classes=config.nb_classes,
+                         theta_alpha=160.,
+                         theta_beta=3.,
+                         theta_gamma=3.,
+                         num_iterations=5,
+                         name='crfrnn')([x, img_input])
 
-    padding_img = img_to_array(padding_img)
-
-    mask_whole = np.zeros((padding_h, padding_w), dtype=np.float32)
-    for i in list(range(padding_h // stride)):
-        for j in list(range(padding_w // stride)):
-            crop = padding_img[i * stride:i * stride + window_size, j * stride:j * stride + window_size, :bands]
-
-            crop = np.expand_dims(crop, axis=0)
-            print('crop:{}'.format(crop.shape))
-
-            pred = model.predict(crop, verbose=2)
-            # pred = np.argmax(pred, axis=2)  #for one hot encoding
-            pred[pred < 0.5] = 0
-            pred[pred >= 0.5] = 1
-
-            pred = pred.reshape(256, 256)
-            print(np.unique(pred))
-
-            mask_whole[i * stride:i * stride + window_size, j * stride:j * stride + window_size] = pred[:, :]
-
-    outputresult =mask_whole[0:h,0:w]
-    # outputresult = outputresult.astype(np.uint8)
-
-    plt.imshow(outputresult, cmap='gray')
-    plt.title("Original predicted result")
-    plt.show()
-    cv2.imwrite('../../data/predict/test_model_new.png',outputresult*255)
-    return outputresult
-
-def add_new_model(base_moldel, cofig):
-    x = base_moldel.get_layer('softmax').output
-    x = Reshape((config.img_w * config.img_h,config.nb_classes))(x)
-    model=Model(input=base_moldel.input, output=x)
+    # x = Activation(config.activation, name=config.activation)(x)
+    model = Model(img_input, x)
+    model.summary()
     return model
+
 
 def test(model_file,config):
     test_data_path=os.path.join(config.train_data_path + 'test')
@@ -393,7 +371,7 @@ def test(model_file,config):
     # test_loss = model.evaluate(test_data, test_label, batch_size=8)
     # print("test acc: {}:{}".format(model.metrics_names, test_loss))
 
-
+from crfrnn.crfrnn_model_rs import get_crfrnn_model_def
 
 if __name__ == '__main__':
 
@@ -404,46 +382,14 @@ if __name__ == '__main__':
     if len(config.band_list)==0:
         print("Error: band_list should not be empty!")
         sys.exit(-2)
-    input_layer = (config.img_w,config.img_h, len(config.band_list))
-    if 'unet' in config.network:
-        model = Unet(backbone_name=config.BACKBONE, input_shape=input_layer,
-                 classes=config.nb_classes, activation=config.activation,
-                 encoder_weights=config.encoder_weights)
-    elif 'pspnet' in config.network:
-        model = PSPNet(backbone_name=config.BACKBONE, input_shape=input_layer,
-                     classes=config.nb_classes, activation=config.activation,
-                     encoder_weights=config.encoder_weights,psp_dropout=config.dropout)
-    elif 'fpn' in config.network:
-        model = FPN(backbone_name=config.BACKBONE, input_shape=input_layer,
-                     classes=config.nb_classes, activation=config.activation,
-                     encoder_weights=config.encoder_weights, pyramid_dropout=config.dropout)
-    elif 'linknet' in config.network:
-        model = Linknet(backbone_name=config.BACKBONE, input_shape=input_layer,
-                     classes=config.nb_classes, activation=config.activation,
-                     encoder_weights=config.encoder_weights)
-    elif 'deeplabv3plus' in config.network:
-        try:
-            model = Deeplabv3(weights=config.encoder_weights, input_shape=input_layer,
-                          classes=config.nb_classes, backbone=config.BACKBONE, activation=config.activation)
-        except RuntimeError:
-            print("Warning: Run this model with a backend that does not support separable convolutions.")
-            model = Deeplabv3(weights=None, input_shape=input_layer,
-                              classes=config.nb_classes, backbone="mobilenetv2", activation=config.activation)
-        except ValueError:
-            print("Warning:  invalid argument for `weights` or `backbone.")
-            model = Deeplabv3(weights=None, input_shape=input_layer,
-                              classes=config.nb_classes, backbone="mobilenetv2", activation=config.activation)
-        else:
-            print("input parameters correct for deeplab V3+!")
-        # finally:
-        #     print("deeplab model")
+    # input_layer = (config.img_w,config.img_h, len(config.band_list))
 
-    else:
-        print("Error:")
-
+    model = get_crfrnn_model_def(config.img_w,config.img_h, len(config.band_list),config.nb_classes)
 
     print(model.summary())
-    print("Train by : {}_{}".format(config.network, config.BACKBONE))
+
+    print("Train by : sadeepj crfrnn model")
+    # sys.exit(-3)
     #
     # model=add_new_model(model, config)
     # print(model.summary())

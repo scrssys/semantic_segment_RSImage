@@ -40,7 +40,7 @@ import  argparse
 import json, time
 parser=argparse.ArgumentParser(description='RS classification train')
 parser.add_argument('--gpu', dest='gpu_id', help='GPU device id to use [0]',
-                        default=4, type=int)
+                        default=5, type=int)
 parser.add_argument('--config', dest='config_file', help='json file to config',
                          default='config_pred_multiclass_rssrai.json')
 args=parser.parse_args()
@@ -91,6 +91,21 @@ os.mkdir(output_dir)
 block_size = config.block_size
 nodata = config.nodata
 
+def add_crfrnn(base_model, cofig):
+    img_input = base_model.input
+    x = base_model.get_layer('final_conv').output
+    x = CrfRnnLayer(image_dims=(config.img_w, config.img_h),
+                         num_classes=config.mask_classes,
+                         theta_alpha=160.,
+                         theta_beta=3.,
+                         theta_gamma=3.,
+                         num_iterations=5,
+                         name='crfrnn')([x, img_input])
+
+    x = Activation(config.activation, name=config.activation)(x)
+    model=Model(img_input, x)
+    model.summary()
+    return model
 
 if __name__ == '__main__':
     input_files = []
@@ -119,14 +134,44 @@ if __name__ == '__main__':
         # lossName = 'cce_jaccard_loss'
         # model = load_model(config.model_path, custom_objects={'closure':self_define_loss(lossName)})
     except ValueError:
+        # print(" load crfrnn model")
+        # model = load_model(config.model_path,
+        #                    custom_objects=CrfRnnLayer(image_dims=(config.img_w, config.img_h),
+        #                                               num_classes=config.mask_classes,
+        #                                               theta_alpha=160.,
+        #                                               theta_beta=3.,
+        #                                               theta_gamma=3.,
+        #                                               num_iterations=10),
+        #                    compile=False)
+        # sys.exit(-1)
         print("Warning: there are several custom objects in model")
         print("For deeplab V3+, load model with parameters of custom_objects\n")
-        model = load_model(config.model_path, custom_objects={'relu6': relu6, 'BilinearUpsampling': BilinearUpsampling}, compile=False)
+        try:
+            model = load_model(config.model_path, custom_objects={'relu6': relu6, 'BilinearUpsampling': BilinearUpsampling}, compile=False)
+        except ValueError:
+            print(" load crfrnn model")
+            # model = load_model(config.model_path,
+            #                    custom_objects={'CrfRnnLayer':CrfRnnLayer(image_dims=(config.img_w, config.img_h),
+            #                                                num_classes=config.mask_classes,
+            #                                                theta_alpha=160.,
+            #                                                theta_beta=3.,
+            #                                                theta_gamma=3.,
+            #                                                num_iterations=10)},
+            #                    compile=False)
+            input_layer = (config.img_w, config.img_h, len(config.band_list))
+            model = Unet(backbone_name='vgg16', input_shape=input_layer,
+                         classes=config.mask_classes, activation=config.activation,
+                         encoder_weights=None)
+            model = add_crfrnn(model, config)
+            model.load_weights(config.model_path, by_name=True)
+
     except Exception:
         print("Error: failde to load model!\n")
         sys.exit(-1)
     else:
         print("model is not deeplab V3+!\n")
+
+
     # print(model.summary())
 
     for img_file in tqdm(input_files):
@@ -194,7 +239,7 @@ if __name__ == '__main__':
                 print("[INFO] predict image by orignal approach ...")
                 a,b,c=input_img.shape
                 num_of_bands = min(a,b,c)
-                result = core_orignal_predict(input_img, num_of_bands, model, config.window_size, config.img_w)
+                result = core_orignal_predict(input_img, num_of_bands, model, config.window_size, config.img_w, config.mask_classes)
                 result_mask[start:end,:]=result[:this_h,:]
 
             elif FLAG_APPROACH_PREDICT == 1:

@@ -10,7 +10,58 @@ from skimage import exposure
 import cv2
 from tqdm import tqdm
 from ulitities.base_functions import *
-from error_code import *
+# from error_code import *
+from PIL import Image
+
+
+def resample_data(img, dst_h, dst_w, mode = Image.ANTIALIAS, bits=8):
+    if len(img.shape)>2:
+        if bits==8:
+            n_img = np.zeros((dst_h, dst_w, img.shape[-1]), np.uint8)
+            img = np.asarray(img, np.uint8)
+            for i in range(img.shape[-1]):
+                b_img = img[:, :, i]
+                # plt.figure()
+                # plt.imshow(b_img, cmap='gray')
+                # plt.show()
+                # b_img = np.asarray(b_img, np.uint8)
+                b_img = Image.fromarray(b_img, mode='L')
+                # plt.figure()
+                # plt.imshow(b_img, cmap='gray')
+                # plt.show()
+                b_img = b_img.resize((dst_h, dst_w), mode)
+                b_img = np.array(b_img, np.uint8)
+                n_img[:, :, i] = b_img[:, :]
+                # plt.figure()
+                # plt.imshow(b_img, cmap='gray')
+                # plt.show()
+            return n_img
+        else:
+            n_img = np.zeros((dst_h, dst_w, img.shape[-1]), np.uint16)
+            img = np.asarray(img, np.uint32)
+            for i in range(img.shape[-1]):
+                b_img = img[:, :, i]
+                # plt.figure()
+                # plt.imshow(b_img, cmap='gray')
+                # plt.show()
+                # b_img = np.asarray(b_img, np.uint)
+                b_img = Image.fromarray(b_img, mode='I')
+                # plt.figure()
+                # plt.imshow(b_img, cmap='gray')
+                # plt.show()
+                b_img = b_img.resize((dst_h, dst_w), mode)
+                b_img = np.array(b_img, np.uint16)
+                n_img[:, :, i] = b_img[:, :]
+                # plt.figure()
+                # plt.imshow(b_img, cmap='gray')
+                # plt.show()
+            return n_img
+    else:
+        img = Image.fromarray(img, mode='L')
+        img = img.resize((dst_h, dst_w), mode)
+        img = np.array(img, np.uint8)
+        return img
+
 
 
 class SampleGenerate():
@@ -440,6 +491,7 @@ class SampleGenerate():
             while count < samples_num_of_current_image:
                 random_width = random.randint(0, X_width - img_w - 1)
                 random_height = random.randint(0, Y_height - img_h - 1)
+
                 src_roi = src_img[:, random_height: random_height + img_h, random_width: random_width + img_w]
                 label_roi = all_label[random_height: random_height + img_h, random_width: random_width + img_w]
                 # print(np.unique(label_roi))

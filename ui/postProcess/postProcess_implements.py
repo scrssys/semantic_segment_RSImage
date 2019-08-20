@@ -120,7 +120,7 @@ class child_Binarization(QDialog, Ui_Dialog_binarization):
         self.setWindowModality(Qt.ApplicationModal)
         input_dict = binarybatch_dict
         input_dict['inputdir'] = self.lineEdit_grayscale_mask.text()
-        input_dict['ouputdir'] = self.lineEdit_binary_mask.text()
+        input_dict['outputdir'] = self.lineEdit_binary_mask.text()
         input_dict['threshold'] = self.spinBox_forground.value()
 
         ret = -1

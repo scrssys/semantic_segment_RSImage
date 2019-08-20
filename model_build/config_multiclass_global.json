@@ -3,7 +3,7 @@
   "img_w":480,
   "img_h":480,
   "im_bands":0,
-  "band_list":[0,1,2,3,4],
+  "band_list":[0,1,2,3],
   "im_type":"uint10",
   "target_name":"global",
   "val_rate":0.10,

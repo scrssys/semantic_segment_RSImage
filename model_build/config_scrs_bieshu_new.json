@@ -8,8 +8,8 @@
   "target_name":"bieshu",
   "val_rate":0.01,
 
-  "network":"pspnet",
-  "BACKBONE":"densenet201",
+  "network":"deeplabv3plus",
+  "BACKBONE":"xception",
   "activation":"sigmoid",
   "encoder_weights":"imagenet",
   "nb_classes":1,

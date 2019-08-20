@@ -9,6 +9,7 @@ from keras.preprocessing.image import img_to_array
 from keras.callbacks import ModelCheckpoint, EarlyStopping, History,ReduceLROnPlateau
 from keras.models import Model
 from keras.layers.merge import concatenate
+from keras.utils import plot_model
 import matplotlib.pyplot as plt
 import cv2
 import random
@@ -43,11 +44,14 @@ from utils import save, update_config
 from config import Config
 import json
 import sys
+# from crfrnn.crfrnn_model import get_crfrnn_model_def
+from crfrnn.crfrnn_layer import CrfRnnLayer
+import crfrnn.util
 
 import  argparse
 parser=argparse.ArgumentParser(description='RS classification train')
 parser.add_argument('--gpu', dest='gpu_id', help='GPU device id to use [0]', nargs='+',
-                        default=2, type=int)
+                        default=1, type=int)
 parser.add_argument('--config', dest='config_file', help='json file to config',
                          default='config_scrs_bieshu.json')
 args=parser.parse_args()
@@ -253,7 +257,7 @@ def train(model):
         if len(gpu_id)>1:
             model = multi_gpu_model(model, gpus=len(gpu_id))
 
-    self_optimizer = SGD(lr=config.lr, decay=1e-6, momentum=0.9, nesterov=True)
+    self_optimizer = SGD(lr=config.lr, decay=1e-6, momentum=0.99, nesterov=True)
     if 'adagrad' in config.optimizer:
         self_optimizer = Adagrad(lr=config.lr, decay=1e-6)
     elif 'adam' in config.optimizer:
@@ -338,6 +342,23 @@ def add_new_model(base_moldel, cofig):
     x = Reshape((config.img_w * config.img_h,config.nb_classes))(x)
     model=Model(input=base_moldel.input, output=x)
     return model
+def add_crfrnn(base_model, cofig):
+    img_input = base_model.input
+    # x = base_model.get_layer('final_conv').output
+    x = base_model.output
+    x = CrfRnnLayer(image_dims=(config.img_w, config.img_h),
+                         num_classes=config.nb_classes,
+                         theta_alpha=160.,
+                         theta_beta=3.,
+                         theta_gamma=3.,
+                         num_iterations=5,
+                         name='crfrnn')([x, img_input])
+
+    # x = Activation(config.activation, name=config.activation)(x)
+    model = Model(img_input, x)
+    model.summary()
+    return model
+
 
 def test(model_file,config):
     test_data_path=os.path.join(config.train_data_path + 'test')
@@ -409,6 +430,13 @@ if __name__ == '__main__':
         model = Unet(backbone_name=config.BACKBONE, input_shape=input_layer,
                  classes=config.nb_classes, activation=config.activation,
                  encoder_weights=config.encoder_weights)
+        model = add_crfrnn(model, config)
+        model.summary()
+        # plot_model(model, to_file='unet_crfrnn_model.png')
+
+        # sys.exit(-1)
+
+
     elif 'pspnet' in config.network:
         model = PSPNet(backbone_name=config.BACKBONE, input_shape=input_layer,
                      classes=config.nb_classes, activation=config.activation,

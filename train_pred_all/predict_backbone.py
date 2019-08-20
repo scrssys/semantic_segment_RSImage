@@ -415,9 +415,9 @@ def core_orignal_predict(image,bands, model,window_size,img_w=256, mask_bands=1)
     outputresult =mask_whole[0:h,0:w]
     # outputresult = outputresult.astype(np.uint8)
 
-    plt.imshow(outputresult, cmap='gray')
-    plt.title("Original predicted result")
-    plt.show()
+    # plt.imshow(outputresult, cmap='gray')
+    # plt.title("Original predicted result")
+    # plt.show()
     # cv2.imwrite('../../data/predict/test_model.png',outputresult*255)
     return outputresult
 

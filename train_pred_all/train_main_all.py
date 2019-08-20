@@ -1,21 +1,11 @@
 # coding=utf-8
 
-import matplotlib.pyplot as plt
-import numpy as np
-from keras.models import Sequential,load_model
-from keras.layers import Conv2D, MaxPooling2D, UpSampling2D, BatchNormalization, Reshape, Permute, Activation, Input
 from keras.utils.np_utils import to_categorical
 from keras.preprocessing.image import img_to_array
 from keras.callbacks import ModelCheckpoint, EarlyStopping, History,ReduceLROnPlateau
-from keras.models import Model
-from keras.layers.merge import concatenate
 import matplotlib.pyplot as plt
-import cv2
-import random
-import sys
-import os
-import time
-from tqdm import tqdm
+import cv2, argparse
+import os, sys, json, random, time
 from keras.models import *
 from keras.layers import *
 from keras.optimizers import *
@@ -30,26 +20,22 @@ from ulitities.base_functions import load_img_normalization, load_img_normalizat
 
 seed = 4
 np.random.seed(seed)
-from keras import metrics, losses
-from keras.losses import binary_crossentropy
 from segmentation_models.losses import *
 from segmentation_models.metrics import iou_score
 from segmentation_models.losses import self_define_loss, bce, cce
 
 from segmentation_models import Unet,FPN,PSPNet,Linknet
 from segmentation_models.deeplab.model import Deeplabv3
-
-from utils import save, update_config
+from data_generater import train_data_generator,val_data_generator
 from config import Config
-import json
-import sys
 
-import  argparse
 parser=argparse.ArgumentParser(description='RS classification train')
 parser.add_argument('--gpu', dest='gpu_id', help='GPU device id to use [0]', nargs='+',
-                        default=2, type=int)
+                        default=0, type=int)
+# parser.add_argument('--config', dest='config_file', help='json file to config',
+#                          default='config_binary_whu_buildings.json')
 parser.add_argument('--config', dest='config_file', help='json file to config',
-                         default='config_scrs_bieshu.json')
+                         default='config_binary_whu_buildings.json')
 args=parser.parse_args()
 gpu_id=args.gpu_id
 print("gpu_id:{}".format(gpu_id))
@@ -100,14 +86,18 @@ last_model = ''.join([config.model_dir,'/',config.target_name, '_', config.netwo
 
 """get the train file name and divide to train and val parts"""
 def get_train_val(val_rate=config.val_rate):
+    file_type = ['.png', '.PNG', '.tif', '.img', '.IMG']
     train_url = []
     train_set = []
     val_set = []
-    for pic in os.listdir(config.train_data_path + '/train/label'):
-        train_url.append(pic)
+    for pic in os.listdir(config.train_data_path + '/label'):
+        if (os.path.splitext(pic)[1] in file_type):
+            train_url.append(pic)
     random.shuffle(train_url)
     total_num = len(train_url)
     val_num = int(val_rate * total_num)
+    if val_num<1:
+        val_num=1
     for i in range(len(train_url)):
         if i < val_num:
             val_set.append(train_url[i])
@@ -116,78 +106,6 @@ def get_train_val(val_rate=config.val_rate):
     return train_set, val_set
 
 
-# data for training
-def generateData(config, data=[]):
-    # print 'generateData...'
-    while True:
-        train_data = []
-        train_label = []
-        batch = 0
-        for i in (range(len(data))):
-            url = data[i]
-            batch += 1
-
-            try:
-                _, img = load_img_normalization_bybandlist((config.train_data_path + '/train/src/' + url), bandlist=config.band_list, data_type=im_type)
-            except RuntimeError:
-                raise RuntimeError("Open file faild:{}".format(url))
-
-            # Adapt dim_ordering automatically
-            img = img_to_array(img)
-            train_data.append(img)
-            _, label = load_img_normalization(1, (config.train_data_path + '/train/label/' + url))
-            label = img_to_array(label)
-            train_label.append(label)
-            if batch % config.batch_size == 0:
-                # print 'get enough bacth!\n'
-                train_data = np.array(train_data)
-                train_label = np.array(train_label)
-                if config.nb_classes>2:
-                    train_label = to_categorical(train_label, num_classes=config.nb_classes)
-                # train_label = train_label.reshape((config.batch_size, config.img_w * config.img_h,config.nb_classes))
-                # print("train_label shape:{}".format(train_label.shape))
-
-                yield (train_data, train_label)
-                train_data = []
-                train_label = []
-                batch = 0
-
-
-# data for validation
-def generateValidData(config, data=[]):
-    # print 'generateValidData...'
-    while True:
-        valid_data = []
-        valid_label = []
-        batch = 0
-        for i in (range(len(data))):
-            url = data[i]
-            batch += 1
-            try:
-                _, img = load_img_normalization_bybandlist((config.train_data_path + '/train/src/' + url), bandlist=config.band_list,data_type=im_type)
-            except RuntimeError:
-                raise RuntimeError("Open file faild:{}".format(url))
-            # Adapt dim_ordering automatically
-            img = img_to_array(img)
-            valid_data.append(img)
-            _, label = load_img_normalization(1, (config.train_data_path + '/train/label/' + url))
-            label = img_to_array(label)
-            valid_label.append(label)
-            if batch % config.batch_size == 0:
-                valid_data = np.array(valid_data)
-                valid_label = np.array(valid_label)
-                if config.nb_classes>2:
-                    valid_label = to_categorical(valid_label, num_classes=config.nb_classes)
-                # valid_label = valid_label.reshape((config.batch_size, config.img_w * config.img_h,config.nb_classes))
-                yield (valid_data, valid_label)
-                valid_data = []
-                valid_label = []
-                batch = 0
-
-def transfer_weights(trained_backbone, model):
-    for i, layer in enumerate(trained_backbone.layers):
-        weights = layer.get_weights()
-        model.layers[i].set_weights(weights)
 
 """Train model ............................................."""
 def train(model):
@@ -240,8 +158,8 @@ def train(model):
     # callable = [model_checkpoint]
 
     train_set, val_set = get_train_val()
-    train_numb = len(train_set)
-    valid_numb = len(val_set)
+    train_numb = len(train_set)*config.sample_per_img
+    valid_numb = len(val_set)*config.sample_per_img
     print ("the number of train data is", train_numb)
     print ("the number of val data is", valid_numb)
 
@@ -264,11 +182,11 @@ def train(model):
 
     try:
         model.compile(self_optimizer, loss=self_define_loss(config.loss, config.class_weights), metrics=[config.metrics])
-        H = model.fit_generator(generator=generateData(config, train_set),
+        H = model.fit_generator(generator=train_data_generator(config, train_set),
                             steps_per_epoch=train_numb // config.batch_size,
                             epochs=config.epochs,
                             verbose=1,
-                            validation_data=generateValidData(config, val_set),
+                            validation_data=val_data_generator(config, val_set),
                             validation_steps=valid_numb // config.batch_size,
                             callbacks=callable,
                             max_q_size=1)
@@ -276,11 +194,11 @@ def train(model):
         print("Warning: compile failed with customer loss function and class_weights")
         print("Now, using default loss function without class_weights...")
         model.compile(self_optimizer, loss=config.loss, metrics=[config.metrics])
-        H = model.fit_generator(generator=generateData(config, train_set),
+        H = model.fit_generator(generator=train_data_generator(config, train_set),
                                 steps_per_epoch=train_numb // config.batch_size,
                                 epochs=config.epochs,
                                 verbose=1,
-                                validation_data=generateValidData(config, val_set),
+                                validation_data=val_data_generator(config, val_set),
                                 validation_steps=valid_numb // config.batch_size,
                                 callbacks=callable,
                                 max_q_size=1,
@@ -294,44 +212,6 @@ def train(model):
 Test the model which has been trained right now
 """
 window_size=config.img_w
-def test_predict(bands, image,model):
-    stride = window_size
-
-    h, w, _ = image.shape
-    print('h,w:', h, w)
-    padding_h = (h // stride + 1) * stride
-    padding_w = (w // stride + 1) * stride
-    padding_img = np.zeros((padding_h, padding_w, bands))
-    padding_img[0:h, 0:w, :] = image[:, :, :]
-
-    padding_img = img_to_array(padding_img)
-
-    mask_whole = np.zeros((padding_h, padding_w), dtype=np.float32)
-    for i in list(range(padding_h // stride)):
-        for j in list(range(padding_w // stride)):
-            crop = padding_img[i * stride:i * stride + window_size, j * stride:j * stride + window_size, :bands]
-
-            crop = np.expand_dims(crop, axis=0)
-            print('crop:{}'.format(crop.shape))
-
-            pred = model.predict(crop, verbose=2)
-            # pred = np.argmax(pred, axis=2)  #for one hot encoding
-            pred[pred < 0.5] = 0
-            pred[pred >= 0.5] = 1
-
-            pred = pred.reshape(256, 256)
-            print(np.unique(pred))
-
-            mask_whole[i * stride:i * stride + window_size, j * stride:j * stride + window_size] = pred[:, :]
-
-    outputresult =mask_whole[0:h,0:w]
-    # outputresult = outputresult.astype(np.uint8)
-
-    plt.imshow(outputresult, cmap='gray')
-    plt.title("Original predicted result")
-    plt.show()
-    cv2.imwrite('../../data/predict/test_model_new.png',outputresult*255)
-    return outputresult
 
 def add_new_model(base_moldel, cofig):
     x = base_moldel.get_layer('softmax').output
@@ -405,6 +285,7 @@ if __name__ == '__main__':
         print("Error: band_list should not be empty!")
         sys.exit(-2)
     input_layer = (config.img_w,config.img_h, len(config.band_list))
+
     if 'unet' in config.network:
         model = Unet(backbone_name=config.BACKBONE, input_shape=input_layer,
                  classes=config.nb_classes, activation=config.activation,
@@ -442,7 +323,7 @@ if __name__ == '__main__':
         print("Error:")
 
 
-    print(model.summary())
+    # print(model.summary())
     print("Train by : {}_{}".format(config.network, config.BACKBONE))
     #
     # model=add_new_model(model, config)
@@ -453,7 +334,7 @@ if __name__ == '__main__':
 
     print("[Info]:test model...")
     # model_save_path = '/media/omnisky/b1aca4b8-81b8-4751-8dee-24f70574dae9/bieshu/models/20190731/bieshu_pspnet_inceptionresnetv2_binary_crossentropy_adam_480_012bands_2019-08-01_11-24-18best.h5'
-    test(model_save_path,config)
+    # test(model_save_path,config)
 
 
 

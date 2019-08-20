@@ -7,15 +7,15 @@
   "im_type":"UINT8",
   "target_name":"bieshu",
   "activation":"sigmoid",
-  "mask_classes":2,
-  "strategy":"smooth",
+  "mask_classes":1,
+  "strategy":"original",
   "window_size":480,
   "subdivisions":2,
   "slices":1,
   "block_size":2000000000,
   "nodata":65535,
   "tovector":false,
-  "model_path":"/media/omnisky/b1aca4b8-81b8-4751-8dee-24f70574dae9/bieshu/models/new_wv91wt/bieshu_pspnet_densenet201_bce_jaccard_loss_adam_480_012bands_2019-07-19_19-56-57best.h5",
+  "model_path":"/media/omnisky/b1aca4b8-81b8-4751-8dee-24f70574dae9/bieshu/models/20190731/bieshu_unet_vgg16_binary_crossentropy_adam_480_012bands_2019-08-09_16-01-10best.h5",
   "mask_dir": "/media/omnisky/b1aca4b8-81b8-4751-8dee-24f70574dae9/naturalreserve/img91/pred/",
   "suffix":".tif"
 }

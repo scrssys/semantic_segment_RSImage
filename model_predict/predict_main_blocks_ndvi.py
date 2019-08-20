@@ -14,8 +14,6 @@ from keras.models import load_model
 # from sklearn.preprocessing import LabelEncoder
 from tqdm import tqdm
 import matplotlib.pyplot as plt
-from keras.models import Model
-from keras.layers import Conv2D, MaxPooling2D, UpSampling2D, BatchNormalization, Reshape, Permute, Activation, Input
 
 from keras import backend as K
 K.set_image_dim_ordering('tf')
@@ -28,8 +26,6 @@ from predict_backbone import predict_img_with_smooth_windowing,core_orignal_pred
 from config_pred import Config_Pred
 import pandas as pd
 from segmentation_models.deeplab.model import relu6, BilinearUpsampling
-from crfrnn.crfrnn_layer import CrfRnnLayer
-from segmentation_models import Unet,FPN,PSPNet,Linknet
 NDVI=True
 eps=0.00001
 
@@ -40,9 +36,9 @@ import  argparse
 import json, time
 parser=argparse.ArgumentParser(description='RS classification train')
 parser.add_argument('--gpu', dest='gpu_id', help='GPU device id to use [0]',
-                        default=4, type=int)
+                        default=5, type=int)
 parser.add_argument('--config', dest='config_file', help='json file to config',
-                         default='config_pred_multiclass_rssrai.json')
+                         default='config_pred_bieshu_xz.json')
 args=parser.parse_args()
 gpu_id=args.gpu_id
 print("gpu_id:{}".format(gpu_id))
@@ -127,6 +123,8 @@ if __name__ == '__main__':
         sys.exit(-1)
     else:
         print("model is not deeplab V3+!\n")
+
+
     # print(model.summary())
 
     for img_file in tqdm(input_files):
@@ -189,6 +187,16 @@ if __name__ == '__main__':
 
             input_img = np.clip(input_img, 0.0, 1.0)
             input_img = input_img.astype(np.float16)
+            if NDVI==True:
+                a, b, c = input_img.shape
+                if c < 4:
+                    print("input image should least 4 bands")
+                newimg = np.zeros((a, b, c + 1), np.float16)
+                newimg[:, :, :c] = input_img[:, :, :]
+                newimg[:, :, -1] = (input_img[:, :, 3] - input_img[:, :, 2]) / (input_img[:, :, 3] + input_img[:, :, 2] + eps)
+                newimg[:, :, -1] = np.clip((newimg[:, :, -1] + 1) * 0.5, 0.0, 1.0)
+                # del input_img
+                input_img =newimg
 
             if FLAG_APPROACH_PREDICT == 0:
                 print("[INFO] predict image by orignal approach ...")

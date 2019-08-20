@@ -25,7 +25,7 @@ K.clear_session()
 from ulitities.base_functions import load_img_by_gdal,load_img_by_gdal_geo, load_img_by_gdal_blocks, UINT10,UINT8,UINT16, get_file, polygonize,load_img_by_gdal_info
 from predict_backbone import predict_img_with_smooth_windowing,core_orignal_predict,core_smooth_predict_multiclass, core_smooth_predict_binary
 
-from config_pred import Config_Pred
+from config import Config
 import pandas as pd
 from segmentation_models.deeplab.model import relu6, BilinearUpsampling
 from crfrnn.crfrnn_layer import CrfRnnLayer
@@ -40,9 +40,9 @@ import  argparse
 import json, time
 parser=argparse.ArgumentParser(description='RS classification train')
 parser.add_argument('--gpu', dest='gpu_id', help='GPU device id to use [0]',
-                        default=4, type=int)
+                        default=5, type=int)
 parser.add_argument('--config', dest='config_file', help='json file to config',
-                         default='config_pred_multiclass_rssrai.json')
+                         default='config_multiclass_rssrai.json')
 args=parser.parse_args()
 gpu_id=args.gpu_id
 print("gpu_id:{}".format(gpu_id))
@@ -57,7 +57,7 @@ with open(args.config_file, 'r') as f:
 # with open("config.json", 'r') as f:
 #     cfg = json.load(f)
 
-config = Config_Pred(**cfgl)
+config = Config(**cfgl)
 print(config)
 
 # sys.exit(-1)
@@ -70,7 +70,7 @@ elif "16" in config.im_type:
 else:
     pass
 
-target_class =config.mask_classes
+target_class =config.nb_classes
 if target_class>1:   # multiclass, target class = total class -1
     if target_class==2:
         print("Warning: target classes should not be 2, this must be binary classification!")
@@ -99,7 +99,7 @@ if __name__ == '__main__':
         input_files.append(config.img_input)
     elif os.path.isdir(config.img_input):
         print("[INFO] input is a directory...")
-        in_files, _ = get_file(config.img_input, config.suffix)
+        in_files, _ = get_file(config.img_input)
         for file in in_files:
             input_files.append(file)
     if len(input_files)==0:
@@ -132,7 +132,7 @@ if __name__ == '__main__':
     for img_file in tqdm(input_files):
         print("\n[INFO] opening image:{}...".format(img_file))
         abs_filename = os.path.split(img_file)[1]
-        abs_filename = abs_filename.split(".")[0]
+        # abs_filename = abs_filename.split(".")[0]
         H, W, C, geoinf = load_img_by_gdal_info(img_file)
         if H==0:
             print("Open failed:{}".format(abs_filename))
@@ -194,7 +194,7 @@ if __name__ == '__main__':
                 print("[INFO] predict image by orignal approach ...")
                 a,b,c=input_img.shape
                 num_of_bands = min(a,b,c)
-                result = core_orignal_predict(input_img, num_of_bands, model, config.window_size, config.img_w)
+                result = core_orignal_predict(input_img, num_of_bands, model, config.window_size, config.img_w, mask_bands=config.nb_classes)
                 result_mask[start:end,:]=result[:this_h,:]
 
             elif FLAG_APPROACH_PREDICT == 1:
@@ -245,7 +245,8 @@ if __name__ == '__main__':
 
         print(np.unique(result_mask))
         # result_mask[nodata_indx]=255
-        output_file = ''.join([output_dir, '/', abs_filename, config.suffix])
+        # output_file = ''.join([output_dir, '/', abs_filename, config.suffix])
+        output_file = ''.join([output_dir, '/', abs_filename])
         driver = gdal.GetDriverByName("GTiff")
         outdataset = driver.Create(output_file, W, H, 1, gdal.GDT_Byte)
         outdataset.SetGeoTransform(geoinf)

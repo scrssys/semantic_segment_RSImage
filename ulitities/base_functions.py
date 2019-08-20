@@ -81,21 +81,19 @@ def load_img_by_gdal(path, grayscale=False):
         dataset = gdal.Open(path)
     except RuntimeError:
         print("Could not open file:{}".format(path))
-        sys.exit(-1)
+        return []
 
     y_height = dataset.RasterYSize
     x_width = dataset.RasterXSize
     im_bands = dataset.RasterCount
     img = dataset.ReadAsArray(0,0,x_width,y_height)
-    geotransform = dataset.GetGeoTransform()
-
     if grayscale == False:
         img = np.array(img, dtype="float")
         try:
             img = np.transpose(img, (1, 2, 0))
         except:
             print("image should be 3 dimensions!")
-            sys.exit(-2)
+            return []
     else:
         if im_bands > 1:
             img = np.transpose(img, (1, 2, 0))
@@ -274,12 +272,50 @@ def load_img_normalization_bybandlist(path, bandlist=[],data_type=UINT8):
     del dataset
     return 0, out_img
 
+def load_img_bybandlist(path, bandlist=[]):
+    dataset = gdal.Open(path)
+    if dataset == None:
+        print("Open file failed:{}".format(path))
+        return -1, []
+        # sys.exit(-1)
+    y_height = dataset.RasterYSize
+    x_width = dataset.RasterXSize
+    im_bands = dataset.RasterCount
+    img = dataset.ReadAsArray(0, 0, x_width, y_height)
+    if len(bandlist) == 0:
+        bandlist = range(im_bands)
+    if len(bandlist)>im_bands or max(bandlist)>=im_bands:
+        print("input bands should not be bigger than image bands!")
+        # sys.exit(-2)
+        return -1, img
+
+    """transpose format to: band last"""
+    img = np.array(img, dtype="float")
+    if im_bands==1:
+        img = np.expand_dims(img,axis=-1)
+    else:
+        img = np.transpose(img, (1, 2, 0))
+
+    out_img=np.zeros((y_height,x_width,len(bandlist)), np.uint16)
+    try:
+        for i in range(len(bandlist)):
+            out_img[:,:,i]=img[:,:,bandlist[i]]
+    except:
+        print("Error: could not get correct list of data from image")
+        return -2, img
+        # sys.exit(-5)
+    else:
+        pass
+
+    del dataset
+    return 0, out_img
+
 
 def get_file(file_dir, file_type=['.png', '.PNG', '.tif', '.img','.IMG']):
     """
 
     :param file_dir: directory of input files, it may have sub_folders
-    :param file_type: file format, namely postfix
+    :param file_type: file format, namely postfix, a str or list
     :return: L: a list of files under the file_dir and sub_folders; num: the length of L
     """
     im_type=['.png']

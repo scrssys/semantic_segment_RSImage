@@ -3,6 +3,8 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/../RS_CNN/.idea/RS_CNN.iml" filepath="$PROJECT_DIR$/../RS_CNN/.idea/RS_CNN.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../Remote-sensing-image-semantic-segmentation/.idea/Remote-sensing-image-semantic-segmentation.iml" filepath="$PROJECT_DIR$/../Remote-sensing-image-semantic-segmentation/.idea/Remote-sensing-image-semantic-segmentation.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../crfasrnn_keras/.idea/crfasrnn_keras.iml" filepath="$PROJECT_DIR$/../crfasrnn_keras/.idea/crfasrnn_keras.iml" />
       <module fileurl="file://$PROJECT_DIR$/../selective_search_py/.idea/selective_search_py.iml" filepath="$PROJECT_DIR$/../selective_search_py/.idea/selective_search_py.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/semantic_segment_RSImage.iml" filepath="$PROJECT_DIR$/.idea/semantic_segment_RSImage.iml" />
       <module fileurl="file://$PROJECT_DIR$/../test_all/.idea/test1.iml" filepath="$PROJECT_DIR$/../test_all/.idea/test1.iml" />

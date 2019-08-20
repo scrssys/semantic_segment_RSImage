@@ -47,9 +47,9 @@ import sys
 import  argparse
 parser=argparse.ArgumentParser(description='RS classification train')
 parser.add_argument('--gpu', dest='gpu_id', help='GPU device id to use [0]', nargs='+',
-                        default=2, type=int)
+                        default=1, type=int)
 parser.add_argument('--config', dest='config_file', help='json file to config',
-                         default='config_scrs_bieshu.json')
+                         default='config_multiclass_rssrai_whole.json')
 args=parser.parse_args()
 gpu_id=args.gpu_id
 print("gpu_id:{}".format(gpu_id))
@@ -91,9 +91,6 @@ else:
          band_name +=str(config.band_list[i])
     band_name+="bands"
 print("band_name:{}".format(band_name))
-if not os.path.isdir(config.model_dir):
-    print("Warning: model saveing directory is empty!")
-    os.mkdir(config.model_dir)
 model_save_path = ''.join([config.model_dir,'/',config.target_name, '_', config.network, '_',config.BACKBONE,'_',config.loss,'_',config.optimizer,'_',str(config.img_w), '_',band_name,'_', date_time, 'best.h5'])
 print("model save as to: {}".format(model_save_path))
 last_model = ''.join([config.model_dir,'/',config.target_name, '_', config.network, '_',config.BACKBONE,'_',config.loss,'_',config.optimizer,'_',str(config.img_w), '_',band_name,'_', date_time, 'last.h5'])
@@ -103,7 +100,7 @@ def get_train_val(val_rate=config.val_rate):
     train_url = []
     train_set = []
     val_set = []
-    for pic in os.listdir(config.train_data_path + '/train/label'):
+    for pic in os.listdir(config.train_data_path + 'label'):
         train_url.append(pic)
     random.shuffle(train_url)
     total_num = len(train_url)
@@ -128,14 +125,14 @@ def generateData(config, data=[]):
             batch += 1
 
             try:
-                _, img = load_img_normalization_bybandlist((config.train_data_path + '/train/src/' + url), bandlist=config.band_list, data_type=im_type)
+                _, img = load_img_normalization_bybandlist((config.train_data_path + '/src/' + url), bandlist=config.band_list, data_type=im_type)
             except RuntimeError:
                 raise RuntimeError("Open file faild:{}".format(url))
 
             # Adapt dim_ordering automatically
             img = img_to_array(img)
             train_data.append(img)
-            _, label = load_img_normalization(1, (config.train_data_path + '/train/label/' + url))
+            _, label = load_img_normalization(1, (config.train_data_path + '/label/' + url))
             label = img_to_array(label)
             train_label.append(label)
             if batch % config.batch_size == 0:
@@ -164,13 +161,13 @@ def generateValidData(config, data=[]):
             url = data[i]
             batch += 1
             try:
-                _, img = load_img_normalization_bybandlist((config.train_data_path + '/train/src/' + url), bandlist=config.band_list,data_type=im_type)
+                _, img = load_img_normalization_bybandlist((config.train_data_path + '/src/' + url), bandlist=config.band_list,data_type=im_type)
             except RuntimeError:
                 raise RuntimeError("Open file faild:{}".format(url))
             # Adapt dim_ordering automatically
             img = img_to_array(img)
             valid_data.append(img)
-            _, label = load_img_normalization(1, (config.train_data_path + '/train/label/' + url))
+            _, label = load_img_normalization(1, (config.train_data_path + '/label/' + url))
             label = img_to_array(label)
             valid_label.append(label)
             if batch % config.batch_size == 0:
@@ -261,7 +258,6 @@ def train(model):
     else:
         pass
 
-
     try:
         model.compile(self_optimizer, loss=self_define_loss(config.loss, config.class_weights), metrics=[config.metrics])
         H = model.fit_generator(generator=generateData(config, train_set),
@@ -339,60 +335,6 @@ def add_new_model(base_moldel, cofig):
     model=Model(input=base_moldel.input, output=x)
     return model
 
-def test(model_file,config):
-    test_data_path=os.path.join(config.train_data_path + 'test')
-    if not os.path.isdir(test_data_path):
-        print("test data path is not exist!")
-        return -1
-    test_url=[]
-    for pic in os.listdir(test_data_path + '/label'):
-        test_url.append(pic)
-    random.shuffle(test_url)
-    if not os.path.isfile(model_file):
-        print("Error: model file is not exist")
-        return -2
-    model = load_model(model_file)
-    test_data = []
-    test_label = []
-    test_loss = []
-    batch = 0
-    for i in (range(len(test_url))):
-        url = test_url[i]
-        batch += 1
-        try:
-            _, img = load_img_normalization_bybandlist((test_data_path + '/src/' + url),
-                                                       bandlist=config.band_list,
-                                                       data_type=im_type)
-        except RuntimeError:
-            raise RuntimeError("Open file faild:{}".format(url))
-        # Adapt dim_ordering automatically
-        img = img_to_array(img)
-        test_data.append(img)
-        _, label = load_img_normalization(1, (test_data_path + '/label/' + url))
-        label = img_to_array(label)
-        test_label.append(label)
-        if batch % config.batch_size == 0:
-            # print 'get enough bacth!\n'
-            test_data = np.array(test_data)
-            test_label = np.array(test_label)
-            if config.nb_classes > 2:
-                test_label = to_categorical(test_label, num_classes=config.nb_classes)
-            test_result = model.test_on_batch(test_data, test_label)
-            print("testing ...{}:{}".format(model.metrics_names, test_result))
-            test_loss.append(test_result)
-            test_data = []
-            test_label = []
-            batch = 0
-    test_loss=np.array(test_loss)
-    print("test accuracy:{}".format(np.average(test_loss,axis=0)))
-
-    # test_data = np.array(test_data)
-    # test_label = np.array(test_label)
-    # if config.nb_classes > 2:
-    #     test_label = to_categorical(test_label, num_classes=config.nb_classes)
-    # test_loss = model.evaluate(test_data, test_label, batch_size=8)
-    # print("test acc: {}:{}".format(model.metrics_names, test_loss))
-
 
 
 if __name__ == '__main__':
@@ -412,11 +354,11 @@ if __name__ == '__main__':
     elif 'pspnet' in config.network:
         model = PSPNet(backbone_name=config.BACKBONE, input_shape=input_layer,
                      classes=config.nb_classes, activation=config.activation,
-                     encoder_weights=config.encoder_weights,psp_dropout=config.dropout)
+                     encoder_weights=config.encoder_weights)
     elif 'fpn' in config.network:
         model = FPN(backbone_name=config.BACKBONE, input_shape=input_layer,
                      classes=config.nb_classes, activation=config.activation,
-                     encoder_weights=config.encoder_weights, pyramid_dropout=config.dropout)
+                     encoder_weights=config.encoder_weights)
     elif 'linknet' in config.network:
         model = Linknet(backbone_name=config.BACKBONE, input_shape=input_layer,
                      classes=config.nb_classes, activation=config.activation,
@@ -451,12 +393,24 @@ if __name__ == '__main__':
     """ Training model........"""
     train(model)
 
-    print("[Info]:test model...")
-    # model_save_path = '/media/omnisky/b1aca4b8-81b8-4751-8dee-24f70574dae9/bieshu/models/20190731/bieshu_pspnet_inceptionresnetv2_binary_crossentropy_adam_480_012bands_2019-08-01_11-24-18best.h5'
-    test(model_save_path,config)
+    if FLAG_MAKE_TEST:
+        print("test ....................predict by trained model .....\n")
+        test_img_path = '../../data/test/sample1.png'
+        import sys
 
+        if not os.path.isfile(test_img_path):
+            print("no file: {}".format(test_img_path))
+            sys.exit(-1)
 
+        input_img = load_img_by_gdal(test_img_path)
+        if im_type == UINT8:
+            input_img = input_img / 255.0
+        elif im_type == UINT10:
+            input_img = input_img / 1024.0
+        elif im_type == UINT16:
+            input_img = input_img / 65535.0
+        input_img = np.clip(input_img, 0.0, 1.0)
 
+        new_model = load_model(model_save_path)
 
-
-
+        test_predict(input_img, new_model)
